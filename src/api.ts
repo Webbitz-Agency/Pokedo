@@ -194,6 +194,12 @@ async function request(path: string, init?: RequestInit) {
   const isAdminRoute = path.startsWith("/api/admin/");
   const isPublicRoute = path.startsWith("/api/public/");
   const method = String(init?.method || "GET").toUpperCase();
+  const isAdminUiPath = typeof window !== "undefined" && window.location.pathname.startsWith("/amministrazione");
+
+  // In storefront pages we never need admin endpoints; avoid noisy 401 calls from stale client state.
+  if (isAdminRoute && !isAdminUiPath && (method === "GET" || method === "HEAD")) {
+    return null;
+  }
 
   function buildHeaders(): Record<string, string> {
     const headers: Record<string, string> = {};
