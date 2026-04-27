@@ -1226,7 +1226,10 @@ export default function App() {
   const [routeOverlayLoading, setRouteOverlayLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [adminLoggedIn, setAdminLoggedIn] = useState(Boolean(getAdminToken()));
+  const [adminLoggedIn, setAdminLoggedIn] = useState(
+    (typeof window !== "undefined" ? window.location.pathname.startsWith("/amministrazione") : false) &&
+      Boolean(getAdminToken())
+  );
   const [adminRole, setAdminRole] = useState<"provider" | "tenant">(() => getAdminRolePersisted() ?? "tenant");
   const [adminDisplayName, setAdminDisplayName] = useState("Admin");
   const [adminLoginForm, setAdminLoginForm] = useState({ username: "", password: "" });
@@ -1935,17 +1938,18 @@ export default function App() {
   }
 
   async function loadAll() {
+    const isAdminPath = window.location.pathname.startsWith("/amministrazione");
     const shouldBlockLoading =
       (route === "/" && (!home || !menu)) ||
       (route === "/menu" && !menu) ||
       (route === "/crea-la-tua-poke" && (!menu || !pokeRules)) ||
-      (route === "/amministrazione" && adminLoggedIn && (adminRole === "provider" ? false : !menu));
+      (isAdminPath && adminLoggedIn && (adminRole === "provider" ? false : !menu));
 
     setLoading(shouldBlockLoading);
     setError(null);
     try {
       await loadPublic();
-      if (route === "/amministrazione" && adminLoggedIn) {
+      if (isAdminPath && adminLoggedIn) {
         if (adminRole === "provider") {
           await loadProviderAdmin();
         } else {
@@ -1957,13 +1961,13 @@ export default function App() {
         typeof e === "object" && e !== null && "code" in e
           ? String((e as { code?: string }).code)
           : "";
-      if (code === "account_disabled" && route === "/amministrazione") {
+      if (code === "account_disabled" && isAdminPath) {
         setAdminAccountDisabledModal(true);
         setLoading(false);
         return;
       }
       const message = e instanceof Error ? e.message : "Errore sconosciuto";
-      if (route === "/amministrazione") {
+      if (isAdminPath) {
         setAdminLoggedIn(false);
         setAdminRole("tenant");
         setAdminToken(null);
@@ -1990,6 +1994,7 @@ export default function App() {
 
   /** Sessioni aperte prima dell'introduzione di tenant_id in sessionStorage: recupera da API. */
   useEffect(() => {
+    if (route !== "/amministrazione") return;
     if (!adminLoggedIn || adminRole !== "tenant") return;
     if (getAdminTenantIdPersisted() != null) return;
     let cancelled = false;
