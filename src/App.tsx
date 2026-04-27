@@ -8,6 +8,7 @@ import {
   getAdminTenantIdPersisted,
   getAdminToken,
   publicApi,
+  resolveMediaSrc,
   setAdminRolePersisted,
   setAdminTenantIdPersisted,
   setAdminToken,
@@ -5324,7 +5325,7 @@ export default function App() {
         <>
           <section className="hero-home">
             <img
-              src={appSettings.site.home_hero_url || DEFAULT_APP_SETTINGS.site.home_hero_url}
+              src={resolveMediaSrc(appSettings.site.home_hero_url || DEFAULT_APP_SETTINGS.site.home_hero_url)}
               alt="Pokè bowl colorato"
             />
             <div className="hero-shade" />
@@ -5354,7 +5355,7 @@ export default function App() {
               <div className="about-split">
                 <div className="about-image about-shadow-right about-reveal-left">
                   <img
-                    src={appSettings.site.about_image_url || DEFAULT_APP_SETTINGS.site.about_image_url}
+                    src={resolveMediaSrc(appSettings.site.about_image_url || DEFAULT_APP_SETTINGS.site.about_image_url)}
                     alt="Pokè signature"
                   />
                 </div>
@@ -5395,7 +5396,7 @@ export default function App() {
                     }
                   }}
                   style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(15,23,42,0.15), rgba(15,23,42,0.78)), url(${c.image_url || showcaseImages[idx % showcaseImages.length]})`
+                    backgroundImage: `linear-gradient(180deg, rgba(15,23,42,0.15), rgba(15,23,42,0.78)), url(${resolveMediaSrc(c.image_url || showcaseImages[idx % showcaseImages.length])})`
                   }}
                 >
                   <h4>{c.name}</h4>
@@ -5455,7 +5456,7 @@ export default function App() {
         <section className="menu-page">
           <div className="menu-hero">
             <img
-              src={appSettings.site.menu_hero_url || DEFAULT_APP_SETTINGS.site.menu_hero_url}
+              src={resolveMediaSrc(appSettings.site.menu_hero_url || DEFAULT_APP_SETTINGS.site.menu_hero_url)}
               alt="Menu Pokedo"
             />
             <div className="menu-hero-overlay" />
@@ -5584,7 +5585,7 @@ export default function App() {
                         aria-label={`Apri info ${item.name}`}
                       >
                         {item.image_url ? (
-                          <img src={item.image_url} alt={item.name} className="menu-dish-thumb-img" />
+                          <img src={resolveMediaSrc(item.image_url)} alt={item.name} className="menu-dish-thumb-img" />
                         ) : (
                           <span>IMG</span>
                         )}
@@ -5636,7 +5637,7 @@ export default function App() {
         <section className="poke-builder-page">
           <div className="menu-hero poke-builder-hero">
             <img
-              src={appSettings.site.poke_hero_url || DEFAULT_APP_SETTINGS.site.poke_hero_url}
+              src={resolveMediaSrc(appSettings.site.poke_hero_url || DEFAULT_APP_SETTINGS.site.poke_hero_url)}
               alt="Crea la tua poke"
             />
             <div className="menu-hero-overlay" />
@@ -6435,7 +6436,7 @@ export default function App() {
             <div className="info-modal-product">
               <div className="info-modal-thumb">
                 {infoModalItem.image_url ? (
-                  <img src={infoModalItem.image_url} alt={infoModalParsed.cleanName} className="info-modal-thumb-img" />
+                  <img src={resolveMediaSrc(infoModalItem.image_url)} alt={infoModalParsed.cleanName} className="info-modal-thumb-img" />
                 ) : (
                   <span>IMG</span>
                 )}

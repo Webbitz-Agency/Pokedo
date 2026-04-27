@@ -11,6 +11,25 @@ function resolveApiBase(): string {
 }
 
 export const API_BASE = resolveApiBase();
+
+/** Converte path media relativi (/api/...) in URL assoluti quando API_BASE è esterno al frontend. */
+export function resolveMediaSrc(href: string | undefined | null): string {
+  const u = String(href ?? "").trim();
+  if (!u) return "";
+  if (
+    u.startsWith("data:") ||
+    u.startsWith("blob:") ||
+    u.startsWith("http://") ||
+    u.startsWith("https://") ||
+    u.startsWith("//")
+  ) {
+    return u;
+  }
+  if (u.startsWith("/") && API_BASE) {
+    return `${API_BASE}${u}`;
+  }
+  return u;
+}
 const ADMIN_TOKEN_KEY = "pokedo_admin_token_v1";
 const ADMIN_ROLE_KEY = "pokedo_admin_role_v1";
 const ADMIN_TENANT_ID_KEY = "pokedo_admin_tenant_id_v1";
