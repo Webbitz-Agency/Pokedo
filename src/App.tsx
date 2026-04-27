@@ -1488,7 +1488,7 @@ export default function App() {
     if (key === "phase_crunchy") return phaseLabelMap.crunchy;
     return translateText(uiLanguage, key, vars);
   };
-  const resolvedLogoUrl = appSettings.activity.logo_url || pokedoLogo;
+  const resolvedLogoUrl = resolveMediaSrc(appSettings.activity.logo_url) || pokedoLogo;
   const isDefaultTenantLogo = !String(appSettings.activity.logo_url ?? "").trim();
   const publicBrandLabel = isPokeManagerMarketingPortal
     ? "PokeManager"
