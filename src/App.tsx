@@ -1816,13 +1816,22 @@ export default function App() {
       publicApi.getPokeRules(),
       publicApi.getSettings()
     ]);
-    setHome(homeData);
-    setMenu(menuData);
-    setPokeRules(rulesData);
-    setSavedPokeRules(JSON.parse(JSON.stringify(rulesData)));
-    setAppSettings(normalizeAppSettings(settingsData));
-    if (!expandedCategoryId && menuData.categories.length > 0) {
-      setExpandedCategoryId(menuData.categories[0].id);
+    const safeHome = homeData && typeof homeData === "object" ? homeData : null;
+    const safeMenu = menuData && typeof menuData === "object" ? menuData : {};
+    const safeCategories = Array.isArray((safeMenu as { categories?: unknown }).categories)
+      ? ((safeMenu as { categories: MenuCategory[] }).categories ?? [])
+      : [];
+    const safeRules = rulesData && typeof rulesData === "object" ? rulesData : null;
+
+    setHome(safeHome);
+    setMenu({ categories: safeCategories });
+    if (safeRules) {
+      setPokeRules(safeRules);
+      setSavedPokeRules(JSON.parse(JSON.stringify(safeRules)));
+    }
+    setAppSettings(normalizeAppSettings(settingsData ?? {}));
+    if (!expandedCategoryId && safeCategories.length > 0) {
+      setExpandedCategoryId(safeCategories[0].id);
     }
   }
 
@@ -1834,13 +1843,21 @@ export default function App() {
       adminApi.getMenu(),
       adminApi.getSettings()
     ]);
-    setOrders(ordersData);
-    setAdminTables(tablesData);
-    setAdminCategories(categoriesData);
-    setMenu(menuData);
-    setAppSettings(normalizeAppSettings(settingsData));
-    if (!activeCategoryId && categoriesData.length > 0) {
-      setActiveCategoryId(categoriesData[0].id);
+    const safeOrders = Array.isArray(ordersData) ? ordersData : [];
+    const safeTables = Array.isArray(tablesData) ? tablesData : [];
+    const safeCategories = Array.isArray(categoriesData) ? categoriesData : [];
+    const safeMenu = menuData && typeof menuData === "object" ? menuData : {};
+    const safeMenuCategories = Array.isArray((safeMenu as { categories?: unknown }).categories)
+      ? ((safeMenu as { categories: MenuCategory[] }).categories ?? [])
+      : [];
+
+    setOrders(safeOrders);
+    setAdminTables(safeTables);
+    setAdminCategories(safeCategories);
+    setMenu({ categories: safeMenuCategories });
+    setAppSettings(normalizeAppSettings(settingsData ?? {}));
+    if (!activeCategoryId && safeCategories.length > 0) {
+      setActiveCategoryId(safeCategories[0].id);
     }
   }
 
