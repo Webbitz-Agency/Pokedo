@@ -1,0 +1,129 @@
+{
+  "builder_items": [
+    {
+      "description": "",
+      "extra_protein_rule": {
+        "extra_options_count": 17,
+        "max_extras": 1,
+        "required": false
+      },
+      "groups": [
+        {
+          "allow_quantity": false,
+          "description": "Scegli la tua base",
+          "force_max": 1,
+          "force_min": 1,
+          "id": 2750252,
+          "kind": "base",
+          "name": "Base",
+          "options": [],
+          "required": true
+        },
+        {
+          "allow_quantity": false,
+          "description": "Scegli le tue proteine",
+          "force_max": 1,
+          "force_min": 1,
+          "id": 2750254,
+          "kind": "proteine",
+          "name": "Proteine",
+          "options": [],
+          "required": true
+        },
+        {
+          "allow_quantity": false,
+          "description": "Scegli le tue proteine",
+          "force_max": 1,
+          "force_min": 1,
+          "id": 2750262,
+          "kind": "proteine",
+          "name": "Proteine Extra",
+          "options": [],
+          "required": false
+        },
+        {
+          "allow_quantity": true,
+          "description": "Scegli i tuoi green",
+          "force_max": 2,
+          "force_min": 2,
+          "id": 2750255,
+          "kind": "green",
+          "name": "Green",
+          "options": [],
+          "required": true
+        },
+        {
+          "allow_quantity": true,
+          "description": "Scegli i tuoi green",
+          "force_max": 2,
+          "force_min": 0,
+          "id": 2750263,
+          "kind": "green",
+          "name": "Green Extra",
+          "options": [],
+          "required": false
+        },
+        {
+          "allow_quantity": false,
+          "description": "Scegli le tue salse",
+          "force_max": 1,
+          "force_min": 1,
+          "id": 2750256,
+          "kind": "salse",
+          "name": "Salse",
+          "options": [],
+          "required": true
+        },
+        {
+          "allow_quantity": true,
+          "description": "Scegli le tue salse",
+          "force_max": 1,
+          "force_min": 1,
+          "id": 2750264,
+          "kind": "salse",
+          "name": "Salse Extra",
+          "options": [],
+          "required": false
+        },
+        {
+          "allow_quantity": true,
+          "description": "Scegli i tuoi crunchy",
+          "force_max": 1,
+          "force_min": 1,
+          "id": 2750257,
+          "kind": "crunchy",
+          "name": "Crunchy",
+          "options": [],
+          "required": true
+        },
+        {
+          "allow_quantity": true,
+          "description": "Scegli i tuoi crunchy",
+          "force_max": 1,
+          "force_min": 0,
+          "id": 2750268,
+          "kind": "crunchy",
+          "name": "Crunchy Extra",
+          "options": [],
+          "required": false
+        },
+        {
+          "allow_quantity": true,
+          "description": "Scegli la tua bevanda",
+          "force_max": 1,
+          "force_min": 1,
+          "id": 3100161,
+          "kind": "bevande",
+          "name": "Bevande",
+          "options": [],
+          "required": false
+        }
+      ],
+      "id": 1,
+      "included_proteins": 1,
+      "max_extra_proteins": 1,
+      "name": "Poke",
+      "price": 0
+    }
+  ]
+}
