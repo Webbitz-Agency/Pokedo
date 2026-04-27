@@ -712,15 +712,30 @@ function getPokeManagerMarketingSiteOrigin(): string {
 function resolveCustomerPublicUrl(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   const envOrigin = (import.meta.env.VITE_CUSTOMER_PUBLIC_ORIGIN as string | undefined)?.trim().replace(/\/$/, "");
+  const localhostHosts = new Set(["localhost", "127.0.0.1"]);
+  const current = typeof window !== "undefined" ? new URL(window.location.href) : null;
+  const currentHost = (current?.hostname || "").toLowerCase();
+  const currentIsLocal = localhostHosts.has(currentHost);
   if (envOrigin) {
-    return `${envOrigin}${normalizedPath}`;
+    try {
+      const env = new URL(envOrigin);
+      const envHost = env.hostname.toLowerCase();
+      const envIsLocal = localhostHosts.has(envHost);
+      // If we are on production domain, ignore accidental localhost env values.
+      if (!(envIsLocal && !currentIsLocal)) {
+        return `${env.origin}${normalizedPath}`;
+      }
+    } catch {
+      // ignore malformed env value and fallback to automatic origin resolution
+    }
   }
-  const { protocol, hostname, port } = window.location;
-  const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
-  if (isLocalhost && port === "5174") {
-    return `${protocol}//${hostname}:5173${normalizedPath}`;
+  if (current && currentIsLocal && current.port === "5174") {
+    return `${current.protocol}//${current.hostname}:5173${normalizedPath}`;
   }
-  return `${protocol}//${hostname}${port ? `:${port}` : ""}${normalizedPath}`;
+  if (current) {
+    return `${current.origin}${normalizedPath}`;
+  }
+  return normalizedPath;
 }
 
 function escapeHtml(raw: string) {
