@@ -197,8 +197,12 @@ async function request(path: string, init?: RequestInit) {
   const isAdminUiPath = typeof window !== "undefined" && window.location.pathname.startsWith("/amministrazione");
 
   // In storefront pages we never need admin endpoints; avoid noisy 401 calls from stale client state.
+  // Return safe empty payloads (never null) to prevent runtime crashes in consumers.
   if (isAdminRoute && !isAdminUiPath && (method === "GET" || method === "HEAD")) {
-    return null;
+    if (path.endsWith("/settings") || path.endsWith("/me")) {
+      return {};
+    }
+    return [];
   }
 
   function buildHeaders(): Record<string, string> {
