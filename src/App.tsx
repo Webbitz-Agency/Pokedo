@@ -710,7 +710,11 @@ function getPokeManagerMarketingSiteOrigin(): string {
 }
 
 function resolveCustomerPublicUrl(path: string) {
-  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const rawPath = String(path || "").trim();
+  if (rawPath.startsWith("http://") || rawPath.startsWith("https://")) {
+    return rawPath;
+  }
+  const normalizedPath = rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
   const envOrigin = (import.meta.env.VITE_CUSTOMER_PUBLIC_ORIGIN as string | undefined)?.trim().replace(/\/$/, "");
   const localhostHosts = new Set(["localhost", "127.0.0.1"]);
   const current = typeof window !== "undefined" ? new URL(window.location.href) : null;
