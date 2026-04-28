@@ -78,7 +78,9 @@ let publicToken = readPublicTokenFromStorage();
  * Non usare su dominio PokeManager (admin); lasciare vuoto lì. Vedi DEPLOY-NOTES.md.
  */
 const VITE_PUBLIC_TENANT_TOKEN = (import.meta.env.VITE_PUBLIC_TENANT_TOKEN as string | undefined)?.trim();
-if (typeof window !== "undefined" && !publicToken && VITE_PUBLIC_TENANT_TOKEN) {
+// Se il token è definito nell'env (dev locale o Vercel), ha sempre la precedenza su sessionStorage
+// per evitare che vecchi token stale blocchino l'autenticazione.
+if (typeof window !== "undefined" && VITE_PUBLIC_TENANT_TOKEN) {
   publicToken = VITE_PUBLIC_TENANT_TOKEN;
   try {
     window.sessionStorage.setItem(PUBLIC_TOKEN_KEY, VITE_PUBLIC_TENANT_TOKEN);
@@ -218,22 +220,11 @@ async function request(path: string, init?: RequestInit) {
     return headers;
   }
 
-  /** Se il token pubblico non è più nel DB (tenant eliminato / rigenerato), il backend risponde 401: lo scartiamo e ripetiamo senza Bearer (fallback server → tenant 1). */
-  const sentPublicBearer = isPublicRoute && !!publicToken;
   let response = await fetch(`${API_BASE}${path}`, {
     headers: buildHeaders(),
     ...init
   });
   let bodyText = await response.text();
-
-  if (response.status === 401 && sentPublicBearer && isPublicRoute) {
-    setPublicToken(null);
-    response = await fetch(`${API_BASE}${path}`, {
-      headers: buildHeaders(),
-      ...init
-    });
-    bodyText = await response.text();
-  }
 
   if (!response.ok) {
     if (path.startsWith("/api/admin/")) {
