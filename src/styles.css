@@ -7738,10 +7738,6 @@ table button:hover {
   to   { transform: translateX(-50%); }
 }
 
-/* Pausa su hover */
-.gallery-marquee-track:hover .gallery-marquee-inner {
-  animation-play-state: paused;
-}
 
 /* Item singola immagine */
 .gallery-marquee-item {
