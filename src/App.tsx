@@ -5364,18 +5364,21 @@ export default function App() {
 
       {!loading && !error && route === "/" && home && menu && (
         <>
-          <section className="hero-home">
+          <section className="hero-home hero-home-v2">
             <img
               src={resolveMediaSrc(appSettings.site.home_hero_url || DEFAULT_APP_SETTINGS.site.home_hero_url)}
               alt="Pokè bowl colorato"
             />
             <div className="hero-shade" />
             <div className="hero-overlay container">
-              <p className="hero-kicker fade-up">{t("heroKicker")}</p>
+              <div className="hero-eyebrow-row fade-up">
+                <span className="hero-dot"></span>
+                <p className="hero-kicker">{t("heroKicker")}</p>
+              </div>
               <h2 className="fade-up">
                 {t("heroTitle")}
               </h2>
-              <p className="fade-up">{t("heroSubtitle")}</p>
+              <p className="hero-sub fade-up">{t("heroSubtitle")}</p>
               <div className="hero-cta-row fade-up">
                 <button className="menu-cta" onClick={goToMenuPage}>
                   {t("goFullMenu")}
@@ -5385,109 +5388,149 @@ export default function App() {
                 </button>
               </div>
             </div>
-          </section>
-
-          <section className="about-strip section-padding">
-            <div className="container about-block">
-              <div className="section-title centered about-title">
-                <p className="section-kicker">{t("aboutKicker")}</p>
-                <h3>{t("aboutTitle")}</h3>
-              </div>
-              <div className="about-split">
-                <div className="about-image about-shadow-right about-reveal-left">
-                  <img
-                    src={resolveMediaSrc(appSettings.site.about_image_url || DEFAULT_APP_SETTINGS.site.about_image_url)}
-                    alt="Pokè signature"
-                  />
+            <div className="hero-stats-strip">
+              <div className="container hero-stats-inner">
+                <div className="hero-stat-item">
+                  <strong>100%</strong>
+                  <span>Ingredienti freschi</span>
                 </div>
-                <article className="about-text about-reveal-right">
-                  <p className="eyebrow">{t("aboutEyebrow")}</p>
-                  <h4>{t("aboutHighlight")}</h4>
-                  <p>{t("aboutBody1")}</p>
-                  <p>{t("aboutBody2")}</p>
-                  <div className="about-meta">
-                    <span>{businessAddress}</span>
-                    <a className="about-call-btn" href={`tel:${businessPhone}`}>
-                      <span aria-hidden="true">☎</span>
-                      {t("callUs")}
-                    </a>
-                  </div>
-                </article>
+                <div className="hero-stat-divider"></div>
+                <div className="hero-stat-item">
+                  <strong>QR</strong>
+                  <span>Ordine da tavolo</span>
+                </div>
+                <div className="hero-stat-divider"></div>
+                <div className="hero-stat-item">
+                  <strong>∞</strong>
+                  <span>Combinazioni possibili</span>
+                </div>
+                <div className="hero-stat-divider"></div>
+                <div className="hero-stat-item">
+                  <strong>Firenze</strong>
+                  <span>Ti aspettiamo</span>
+                </div>
               </div>
             </div>
           </section>
 
-          <section className="container section-padding featured-menu-section">
-            <div className="section-title centered featured-title">
-              <p className="section-kicker">{t("dishesKicker")}</p>
-              <h3>{t("dishesTitle")}</h3>
+          <section className="about-strip about-strip-v2">
+            <div className="about-manifesto-band">
+              <div className="container about-manifesto-inner">
+                <div className="about-manifesto-text reveal-item">
+                  <p className="section-kicker about-kicker-light">{t("aboutKicker")}</p>
+                  <h3 className="about-manifesto-headline">{t("aboutTitle")}</h3>
+                </div>
+                <div className="about-numbers-row">
+                  <div className="about-number-card reveal-item">
+                    <strong>100%</strong>
+                    <span>Freschezza garantita ogni giorno</span>
+                  </div>
+                  <div className="about-number-card reveal-item">
+                    <strong>5+</strong>
+                    <span>Anni a Firenze con passione</span>
+                  </div>
+                  <div className="about-number-card reveal-item">
+                    <strong>50+</strong>
+                    <span>Ingredienti tra cui scegliere</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="category-mosaic-grid">
-              {featuredFoodCategories.map((c: any, idx: number) => (
-                <article
-                  key={c.id}
-                  className={`category-mosaic-tile tile-${(idx % 6) + 1}`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => goTo(`/menu#${slug(c.name)}`)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      goTo(`/menu#${slug(c.name)}`);
-                    }
-                  }}
-                  style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(15,23,42,0.15), rgba(15,23,42,0.78)), url(${resolveMediaSrc(c.image_url || showcaseImages[idx % showcaseImages.length])})`
-                  }}
-                >
-                  <h4>{c.name}</h4>
-                  <p>{translateDescription(c.description) || "Scopri i nostri migliori abbinamenti."}</p>
-                  <small>{c.items_count} piatti</small>
-                </article>
+            <div className="container about-split-v2 section-padding">
+              <div className="about-image about-shadow-right about-reveal-left">
+                <img
+                  src={resolveMediaSrc(appSettings.site.about_image_url || DEFAULT_APP_SETTINGS.site.about_image_url)}
+                  alt="Pokè signature"
+                />
+              </div>
+              <article className="about-text about-reveal-right">
+                <p className="eyebrow">{t("aboutEyebrow")}</p>
+                <h4>{t("aboutHighlight")}</h4>
+                <p>{t("aboutBody1")}</p>
+                <p>{t("aboutBody2")}</p>
+                <div className="about-meta">
+                  <span>{businessAddress}</span>
+                  <a className="about-call-btn" href={`tel:${businessPhone}`}>
+                    <span aria-hidden="true">☎</span>
+                    {t("callUs")}
+                  </a>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section className="featured-menu-section-v2 section-padding">
+            <div className="container">
+              <div className="featured-header-v2">
+                <div>
+                  <p className="section-kicker">{t("dishesKicker")}</p>
+                  <h3>{t("dishesTitle")}</h3>
+                </div>
+                <button className="menu-cta menu-cta-ghost" onClick={goToMenuPage}>
+                  {t("viewAllMenu")} →
+                </button>
+              </div>
+              <div className="category-bento-grid">
+                {featuredFoodCategories.map((c: any, idx: number) => (
+                  <article
+                    key={c.id}
+                    className={`category-bento-card bento-card-${(idx % 6) + 1} reveal-item`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => goTo(`/menu#${slug(c.name)}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        goTo(`/menu#${slug(c.name)}`);
+                      }
+                    }}
+                    style={{
+                      backgroundImage: `linear-gradient(160deg, rgba(15,23,42,0.08) 0%, rgba(15,23,42,0.72) 100%), url(${resolveMediaSrc(c.image_url || showcaseImages[idx % showcaseImages.length])})`
+                    }}
+                  >
+                    <span className="bento-num">0{idx + 1}</span>
+                    <div className="bento-body">
+                      <h4>{c.name}</h4>
+                      <p>{translateDescription(c.description) || "Scopri i nostri migliori abbinamenti."}</p>
+                      <small>{c.items_count} piatti</small>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="gallery-strip gallery-strip-v2 section-padding">
+            <div className="container gallery-header-row">
+              <div>
+                <p className="section-kicker">{t("galleryKicker")}</p>
+                <h3>{t("galleryTitle")}</h3>
+              </div>
+            </div>
+            <div className="gallery-scroll-track">
+              {galleryImages.map((imageUrl, idx) => (
+                <div key={`gallery-image-${idx}`} className="gallery-scroll-item">
+                  <img src={imageUrl} alt={`Galleria ${idx + 1}`} />
+                </div>
               ))}
             </div>
-            <div className="menu-more-cta-wrap">
-              <button className="menu-cta menu-cta-center" onClick={goToMenuPage}>
-                {t("viewAllMenu")}
-              </button>
-            </div>
           </section>
 
-          <section className="gallery-strip section-padding">
-            <div className="container">
-            <div className="section-title centered">
-              <p className="section-kicker">{t("galleryKicker")}</p>
-              <h3>{t("galleryTitle")}</h3>
-            </div>
-            <div className="gallery-mosaic">
-              {galleryImages.map((imageUrl, idx) => {
-                const classes = ["mosaic-item"];
-                const patternIdx = idx % 6;
-                if (patternIdx === 0 || patternIdx === 3) classes.push("tall");
-                if (patternIdx === 1 || patternIdx === 5) classes.push("wide");
-                return (
-                  <img
-                    key={`gallery-image-${idx}`}
-                    src={imageUrl}
-                    alt={`Galleria ${idx + 1}`}
-                    className={classes.join(" ")}
-                  />
-                );
-              })}
-            </div>
-            </div>
-          </section>
-
-          <section className="container section-padding final-cta-section">
-            <div className="visit-cta-center fade-up">
-              <div>
-                <p className="section-kicker">{t("visitKicker")}</p>
-                <h3>{t("visitTitle")}</h3>
-                <p>{t("visitBody")}</p>
+          <section className="final-cta-fullbleed">
+            <div className="container final-cta-inner reveal-item">
+              <div className="final-cta-text">
+                <p className="section-kicker final-kicker">{t("visitKicker")}</p>
+                <h2 className="final-headline">{t("visitTitle")}</h2>
+                <p className="final-body">{t("visitBody")}</p>
               </div>
-              <a className="phone-cta" href={`tel:${businessPhone}`}>
-                {t("callUs")}
-              </a>
+              <div className="final-cta-actions">
+                <a className="phone-cta" href={`tel:${businessPhone}`}>
+                  {t("callUs")}
+                </a>
+                <button className="menu-cta menu-cta-outline-white" onClick={goToMenuPage}>
+                  Vai al menu
+                </button>
+              </div>
             </div>
           </section>
         </>
