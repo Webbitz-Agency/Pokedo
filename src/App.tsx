@@ -5512,12 +5512,39 @@ export default function App() {
                 <h3>{t("galleryTitle")}</h3>
               </div>
             </div>
-            <div className="gallery-scroll-track">
-              {galleryImages.map((imageUrl, idx) => (
-                <div key={`gallery-image-${idx}`} className="gallery-scroll-item">
-                  <img src={imageUrl} alt={`Galleria ${idx + 1}`} />
+            <div className="gallery-marquee-wrapper">
+              <div className="gallery-fade-left" aria-hidden="true" />
+              <div className="gallery-fade-right" aria-hidden="true" />
+              {/* Riga 1 — sinistra → destra */}
+              <div className="gallery-marquee-track">
+                <div className="gallery-marquee-inner gallery-marquee-ltr">
+                  {galleryImages.map((imageUrl, idx) => (
+                    <div key={`g1a-${idx}`} className="gallery-marquee-item">
+                      <img src={imageUrl} alt={`Galleria ${idx + 1}`} />
+                    </div>
+                  ))}
+                  {galleryImages.map((imageUrl, idx) => (
+                    <div key={`g1b-${idx}`} className="gallery-marquee-item" aria-hidden="true">
+                      <img src={imageUrl} alt="" />
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+              {/* Riga 2 — destra → sinistra */}
+              <div className="gallery-marquee-track">
+                <div className="gallery-marquee-inner gallery-marquee-rtl">
+                  {galleryImages.map((imageUrl, idx) => (
+                    <div key={`g2a-${idx}`} className="gallery-marquee-item">
+                      <img src={imageUrl} alt={`Galleria ${idx + 1}`} />
+                    </div>
+                  ))}
+                  {galleryImages.map((imageUrl, idx) => (
+                    <div key={`g2b-${idx}`} className="gallery-marquee-item" aria-hidden="true">
+                      <img src={imageUrl} alt="" />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
 
