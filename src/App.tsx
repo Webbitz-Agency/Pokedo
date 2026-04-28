@@ -2216,6 +2216,11 @@ export default function App() {
       ".hero-overlay > *",
       ".section-title",
       ".category-mosaic-tile",
+      ".category-bento-card",
+      ".about-manifesto-text",
+      ".about-number-card",
+      ".final-cta-inner",
+      ".gallery-scroll-item",
       ".mosaic-item",
       ".visit-cta",
       ".menu-hero-content > *",
@@ -5416,20 +5421,20 @@ export default function App() {
           <section className="about-strip about-strip-v2">
             <div className="about-manifesto-band">
               <div className="container about-manifesto-inner">
-                <div className="about-manifesto-text reveal-item">
+                <div className="about-manifesto-text">
                   <p className="section-kicker about-kicker-light">{t("aboutKicker")}</p>
                   <h3 className="about-manifesto-headline">{t("aboutTitle")}</h3>
                 </div>
                 <div className="about-numbers-row">
-                  <div className="about-number-card reveal-item">
+                  <div className="about-number-card">
                     <strong>100%</strong>
                     <span>Freschezza garantita ogni giorno</span>
                   </div>
-                  <div className="about-number-card reveal-item">
+                  <div className="about-number-card">
                     <strong>5+</strong>
                     <span>Anni a Firenze con passione</span>
                   </div>
-                  <div className="about-number-card reveal-item">
+                  <div className="about-number-card">
                     <strong>50+</strong>
                     <span>Ingredienti tra cui scegliere</span>
                   </div>
@@ -5474,7 +5479,7 @@ export default function App() {
                 {featuredFoodCategories.map((c: any, idx: number) => (
                   <article
                     key={c.id}
-                    className={`category-bento-card bento-card-${(idx % 6) + 1} reveal-item`}
+                    className={`category-bento-card bento-card-${(idx % 6) + 1}`}
                     role="button"
                     tabIndex={0}
                     onClick={() => goTo(`/menu#${slug(c.name)}`)}
@@ -5517,7 +5522,7 @@ export default function App() {
           </section>
 
           <section className="final-cta-fullbleed">
-            <div className="container final-cta-inner reveal-item">
+            <div className="container final-cta-inner">
               <div className="final-cta-text">
                 <p className="section-kicker final-kicker">{t("visitKicker")}</p>
                 <h2 className="final-headline">{t("visitTitle")}</h2>

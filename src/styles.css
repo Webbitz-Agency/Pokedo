@@ -7326,6 +7326,13 @@ table button:hover {
   position: relative;
 }
 
+/* Ensure hero overlay children are always visible (fade-up handles entrance) */
+.hero-home-v2 .hero-overlay > *.reveal-item {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
 .hero-home-v2 .hero-shade {
   background: linear-gradient(
     165deg,
