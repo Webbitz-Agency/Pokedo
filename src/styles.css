@@ -7324,7 +7324,10 @@ table button:hover {
 
 /* ── Hero v2 ────────────────────────────────────────────────────── */
 .hero-home-v2 {
-  min-height: 100svh;
+  /* La topbar sticky è alta 70px: sottraiamo per avere la stats-strip
+     esattamente al bordo inferiore del viewport al caricamento pagina */
+  height: calc(100svh - 70px);
+  min-height: 500px;
   position: relative;
 }
 
