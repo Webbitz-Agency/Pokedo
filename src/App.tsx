@@ -5401,18 +5401,18 @@ export default function App() {
                 </div>
                 <div className="hero-stat-divider"></div>
                 <div className="hero-stat-item">
-                  <strong>QR</strong>
-                  <span>Ordine da tavolo</span>
+                  <strong>Asporto</strong>
+                  <span>e ordini da tavolo</span>
                 </div>
                 <div className="hero-stat-divider"></div>
                 <div className="hero-stat-item">
-                  <strong>∞</strong>
-                  <span>Combinazioni possibili</span>
+                  <strong>Pokè</strong>
+                  <span>come vuoi te</span>
                 </div>
                 <div className="hero-stat-divider"></div>
                 <div className="hero-stat-item">
-                  <strong>Firenze</strong>
-                  <span>Ti aspettiamo</span>
+                  <strong>San Miniato</strong>
+                  <span>PI · ti aspettiamo</span>
                 </div>
               </div>
             </div>
