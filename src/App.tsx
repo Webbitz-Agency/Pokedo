@@ -5441,7 +5441,7 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <div className="container about-split-v2 section-padding">
+            <div className="container about-split about-split-v2 section-padding">
               <div className="about-image about-shadow-right about-reveal-left">
                 <img
                   src={resolveMediaSrc(appSettings.site.about_image_url || DEFAULT_APP_SETTINGS.site.about_image_url)}

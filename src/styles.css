@@ -808,7 +808,9 @@ select {
 }
 
 .about-split.about-in-view .about-reveal-left,
-.about-split.about-in-view .about-reveal-right {
+.about-split.about-in-view .about-reveal-right,
+.about-split-v2.about-in-view .about-reveal-left,
+.about-split-v2.about-in-view .about-reveal-right {
   opacity: 1;
   transform: translate3d(0, 0, 0);
 }
