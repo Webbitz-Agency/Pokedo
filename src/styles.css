@@ -7546,20 +7546,22 @@ table button:hover {
   position: relative;
   min-height: 380vh;
   background: var(--color-bg);
+  /* clip sliding lines horizontally without breaking sticky */
+  overflow-x: clip;
 }
 
 /* Sticky panel — title near top, circle fills remaining space */
 .poke-story-sticky {
   position: sticky;
   top: 70px;
-  height: calc(100vh - 70px);
+  height: calc(100svh - 70px);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
   gap: 1.2rem;
   padding: 1.5rem 1rem 0.5rem;
-  overflow: clip; /* clip without scroll, lets ring paint over edges */
+  /* NO overflow:clip here — it was clipping the ring on smaller viewports */
 }
 
 /* Text block */
@@ -7598,11 +7600,11 @@ table button:hover {
   flex: 1;
 }
 
-/* Ring wrap — bigger, centered */
+/* Ring wrap — responsive: never taller than ~60% of available sticky height */
 .poke-story-ring-wrap {
   position: relative;
-  width: 560px;
-  height: 560px;
+  width:  clamp(280px, min(560px, calc(100svh - 260px)), 560px);
+  height: clamp(280px, min(560px, calc(100svh - 260px)), 560px);
   flex-shrink: 0;
   justify-self: center;
 }
@@ -7757,8 +7759,14 @@ table button:hover {
     text-align: left;
   }
   .poke-story-ring-wrap {
-    width: 280px;
-    height: 280px;
+    /* on mobile use clamp so it doesn't overflow the sticky viewport */
+    width:  clamp(220px, 70vw, 320px);
+    height: clamp(220px, 70vw, 320px);
+  }
+  /* hide sliding lines on mobile */
+  .poke-story-labels-left .poke-story-label::before,
+  .poke-story-labels-right .poke-story-label::after {
+    display: none;
   }
 }
 
