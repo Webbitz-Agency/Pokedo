@@ -7658,40 +7658,38 @@ table button:hover {
   position: relative;
 }
 
-/* Sliding line — left labels: grows from left edge toward text */
+/* Sliding line — left labels: enters from off-screen LEFT → slides right into position */
 .poke-story-labels-left .poke-story-label::before {
   content: '';
   position: absolute;
-  right: calc(100% + 1.2rem);
-  top: 1rem;
-  height: 3px;
+  right: calc(100% + 1.4rem);
+  top: 0.85rem;
+  height: 10px;
   width: 60vw;
-  border-radius: 2px;
+  border-radius: 6px;
   background: var(--label-color, currentColor);
-  transform-origin: right center;
-  transform: scaleX(0);
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+  transform: translateX(-100vw); /* starts fully off-screen left */
+  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
 }
 .poke-story-labels-left .poke-story-label.is-label-visible::before {
-  transform: scaleX(1);
+  transform: translateX(0); /* slides in to position */
 }
 
-/* Sliding line — right labels: grows from right edge toward text */
+/* Sliding line — right labels: enters from off-screen RIGHT → slides left into position */
 .poke-story-labels-right .poke-story-label::after {
   content: '';
   position: absolute;
-  left: calc(100% + 1.2rem);
-  top: 1rem;
-  height: 3px;
+  left: calc(100% + 1.4rem);
+  top: 0.85rem;
+  height: 10px;
   width: 60vw;
-  border-radius: 2px;
+  border-radius: 6px;
   background: var(--label-color, currentColor);
-  transform-origin: left center;
-  transform: scaleX(0);
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+  transform: translateX(100vw); /* starts fully off-screen right */
+  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
 }
 .poke-story-labels-right .poke-story-label.is-label-visible::after {
-  transform: scaleX(1);
+  transform: translateX(0); /* slides in to position */
 }
 
 .poke-label-pct {
