@@ -2288,7 +2288,7 @@ export default function App() {
     const section = pokeStoryRef.current;
     if (!section) return;
 
-    const CIRC = 2 * Math.PI * 138; // circumference for r=138
+    const CIRC = 2 * Math.PI * 175; // circumference for r=175
     const SEG_PCTS = [0.4, 0.3, 0.25, 0.05];
 
     const onScroll = () => {
@@ -5525,28 +5525,28 @@ export default function App() {
                   style={{ opacity: 0, transform: "scale(0.85)", transition: "opacity 0.6s ease, transform 0.6s ease" }}
                 >
                   <div className="poke-story-circle-bg" />
-                  {/* r=138, cx=cy=160, circ≈867.08. Ring floats outside gray circle (r_gray=112) */}
-                  <svg className="poke-story-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    {/* Base 40% (346.83px) — -90° */}
-                    <circle data-ring-idx="0" cx="160" cy="160" r="138"
-                      fill="none" stroke="#2563eb" strokeWidth="16" strokeLinecap="round"
-                      strokeDasharray="346.83 867.08" strokeDashoffset="346.83"
-                      transform="rotate(-90,160,160)" />
-                    {/* Proteine 30% (260.12px) — 54° */}
-                    <circle data-ring-idx="1" cx="160" cy="160" r="138"
-                      fill="none" stroke="#f59e0b" strokeWidth="16" strokeLinecap="round"
-                      strokeDasharray="260.12 867.08" strokeDashoffset="260.12"
-                      transform="rotate(54,160,160)" />
-                    {/* Green 25% (216.77px) — 162° */}
-                    <circle data-ring-idx="2" cx="160" cy="160" r="138"
-                      fill="none" stroke="#22c55e" strokeWidth="16" strokeLinecap="round"
-                      strokeDasharray="216.77 867.08" strokeDashoffset="216.77"
-                      transform="rotate(162,160,160)" />
-                    {/* Crunchy 5% (43.35px) — 252° */}
-                    <circle data-ring-idx="3" cx="160" cy="160" r="138"
-                      fill="none" stroke="#ef4444" strokeWidth="16" strokeLinecap="round"
-                      strokeDasharray="43.35 867.08" strokeDashoffset="43.35"
-                      transform="rotate(252,160,160)" />
+                  {/* r=175, cx=cy=200, circ≈1099.56. Ring floats ~15px outside gray circle (r_gray=160) */}
+                  <svg className="poke-story-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    {/* Base 40% (439.82px) — -90° */}
+                    <circle data-ring-idx="0" cx="200" cy="200" r="175"
+                      fill="none" stroke="#2563eb" strokeWidth="11" strokeLinecap="round"
+                      strokeDasharray="439.82 1099.56" strokeDashoffset="439.82"
+                      transform="rotate(-90,200,200)" />
+                    {/* Proteine 30% (329.87px) — 54° */}
+                    <circle data-ring-idx="1" cx="200" cy="200" r="175"
+                      fill="none" stroke="#f59e0b" strokeWidth="11" strokeLinecap="round"
+                      strokeDasharray="329.87 1099.56" strokeDashoffset="329.87"
+                      transform="rotate(54,200,200)" />
+                    {/* Green 25% (274.89px) — 162° */}
+                    <circle data-ring-idx="2" cx="200" cy="200" r="175"
+                      fill="none" stroke="#22c55e" strokeWidth="11" strokeLinecap="round"
+                      strokeDasharray="274.89 1099.56" strokeDashoffset="274.89"
+                      transform="rotate(162,200,200)" />
+                    {/* Crunchy 5% (54.98px) — 252° */}
+                    <circle data-ring-idx="3" cx="200" cy="200" r="175"
+                      fill="none" stroke="#ef4444" strokeWidth="11" strokeLinecap="round"
+                      strokeDasharray="54.98 1099.56" strokeDashoffset="54.98"
+                      transform="rotate(252,200,200)" />
                   </svg>
                 </div>
 

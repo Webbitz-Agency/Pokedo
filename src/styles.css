@@ -7601,8 +7601,8 @@ table button:hover {
 /* Ring wrap — bigger, centered */
 .poke-story-ring-wrap {
   position: relative;
-  width: 320px;
-  height: 320px;
+  width: 400px;
+  height: 400px;
   flex-shrink: 0;
   justify-self: center;
 }
@@ -7610,8 +7610,8 @@ table button:hover {
 /* Gray circle sits inside the SVG ring with visible gap */
 .poke-story-circle-bg {
   position: absolute;
-  /* inset=48px → radius from center=112px; ring r=138 → gap≈26px */
-  inset: 48px;
+  /* inset=40px → radius from center=160px; ring r=175 → gap≈15px */
+  inset: 40px;
   border-radius: 50%;
   background: #d1d5db;
   box-shadow: inset 0 2px 16px rgba(0,0,0,0.10);
@@ -7681,9 +7681,10 @@ table button:hover {
   margin-top: 1px;
 }
 
-/* Left labels: dot on the right of text */
+/* Left labels: DOM order is [poke-label-text][poke-label-dot]
+   → normal row = text on left, dot on right ✓ */
 .poke-story-labels-left .poke-story-label {
-  flex-direction: row-reverse; /* dot on right, text on left */
+  flex-direction: row;
 }
 
 .poke-story-labels-left .poke-label-text {
@@ -7724,8 +7725,8 @@ table button:hover {
     text-align: left;
   }
   .poke-story-ring-wrap {
-    width: 240px;
-    height: 240px;
+    width: 280px;
+    height: 280px;
   }
 }
 
