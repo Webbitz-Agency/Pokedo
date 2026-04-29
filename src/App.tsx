@@ -2288,7 +2288,8 @@ export default function App() {
     const section = pokeStoryRef.current;
     if (!section) return;
 
-    const CIRC = 2 * Math.PI * 175; // circumference for r=175
+    const CIRC = 2 * Math.PI * 258; // circumference for r=258
+    const GAP = 32;                  // px gap between each segment
     const SEG_PCTS = [0.4, 0.3, 0.25, 0.05];
 
     const onScroll = () => {
@@ -2302,8 +2303,8 @@ export default function App() {
         const segStart = SEG_PCTS.slice(0, idx).reduce((s, p) => s + p, 0);
         const segPct = SEG_PCTS[idx];
         const t = Math.max(0, Math.min(1, (progress - segStart) / segPct));
-        const segLen = segPct * CIRC;
-        ring.style.strokeDashoffset = String(segLen * (1 - t));
+        const segLen = segPct * CIRC - GAP;
+        ring.style.strokeDashoffset = String(Math.max(0, segLen * (1 - t)));
       });
 
       const labels = section.querySelectorAll<HTMLElement>("[data-ring-label]");
@@ -5525,28 +5526,29 @@ export default function App() {
                   style={{ opacity: 0, transform: "scale(0.85)", transition: "opacity 0.6s ease, transform 0.6s ease" }}
                 >
                   <div className="poke-story-circle-bg" />
-                  {/* r=175, cx=cy=200, circ≈1099.56. Ring floats ~15px outside gray circle (r_gray=160) */}
-                  <svg className="poke-story-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    {/* Base 40% (439.82px) — -90° */}
-                    <circle data-ring-idx="0" cx="200" cy="200" r="175"
+                  {/* r=258, cx=cy=280, circ≈1620.93. Ring ~23px outside gray circle (r_gray=235).
+                      Each dash is (pct*circ - 32) to create a visible gap between segments. */}
+                  <svg className="poke-story-svg" viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    {/* Base 40% → 0.4×1620.93-32=616.37px — starts at -90° */}
+                    <circle data-ring-idx="0" cx="280" cy="280" r="258"
                       fill="none" stroke="#2563eb" strokeWidth="11" strokeLinecap="round"
-                      strokeDasharray="439.82 1099.56" strokeDashoffset="439.82"
-                      transform="rotate(-90,200,200)" />
-                    {/* Proteine 30% (329.87px) — 54° */}
-                    <circle data-ring-idx="1" cx="200" cy="200" r="175"
+                      strokeDasharray="616.37 1620.93" strokeDashoffset="616.37"
+                      transform="rotate(-90,280,280)" />
+                    {/* Proteine 30% → 0.3×1620.93-32=454.28px — starts at 54° */}
+                    <circle data-ring-idx="1" cx="280" cy="280" r="258"
                       fill="none" stroke="#f59e0b" strokeWidth="11" strokeLinecap="round"
-                      strokeDasharray="329.87 1099.56" strokeDashoffset="329.87"
-                      transform="rotate(54,200,200)" />
-                    {/* Green 25% (274.89px) — 162° */}
-                    <circle data-ring-idx="2" cx="200" cy="200" r="175"
+                      strokeDasharray="454.28 1620.93" strokeDashoffset="454.28"
+                      transform="rotate(54,280,280)" />
+                    {/* Green 25% → 0.25×1620.93-32=373.23px — starts at 162° */}
+                    <circle data-ring-idx="2" cx="280" cy="280" r="258"
                       fill="none" stroke="#22c55e" strokeWidth="11" strokeLinecap="round"
-                      strokeDasharray="274.89 1099.56" strokeDashoffset="274.89"
-                      transform="rotate(162,200,200)" />
-                    {/* Crunchy 5% (54.98px) — 252° */}
-                    <circle data-ring-idx="3" cx="200" cy="200" r="175"
+                      strokeDasharray="373.23 1620.93" strokeDashoffset="373.23"
+                      transform="rotate(162,280,280)" />
+                    {/* Crunchy 5% → 0.05×1620.93-32=49.05px — starts at 252° */}
+                    <circle data-ring-idx="3" cx="280" cy="280" r="258"
                       fill="none" stroke="#ef4444" strokeWidth="11" strokeLinecap="round"
-                      strokeDasharray="54.98 1099.56" strokeDashoffset="54.98"
-                      transform="rotate(252,200,200)" />
+                      strokeDasharray="49.05 1620.93" strokeDashoffset="49.05"
+                      transform="rotate(252,280,280)" />
                   </svg>
                 </div>
 
