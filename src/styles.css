@@ -7636,34 +7636,41 @@ table button:hover {
   overflow: visible; /* allow rounded caps to render outside bounds */
 }
 
-/* CTA button centered over the circle image */
+/* CTA button — round, perfectly centered on the poke image */
 .poke-story-center-btn {
   position: absolute;
-  bottom: 15%;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   z-index: 2;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  width: clamp(90px, 16%, 118px);
+  height: clamp(90px, 16%, 118px);
+  border-radius: 50%;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: var(--color-primary);
-  font-size: clamp(0.7rem, 1.1vw, 0.9rem);
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  font-size: clamp(0.58rem, 0.9vw, 0.72rem);
+  font-weight: 900;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  border: 2px solid var(--color-primary);
-  border-radius: 999px;
-  padding: 0.55rem 1.2rem;
+  border: 2.5px solid var(--color-primary);
   cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 16px rgba(37,99,235,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.5rem;
+  line-height: 1.25;
+  transition: background 0.22s ease, color 0.22s ease,
+              transform 0.22s ease, box-shadow 0.22s ease;
+  box-shadow: 0 4px 20px rgba(37,99,235,0.22);
 }
 .poke-story-center-btn:hover {
   background: var(--color-primary);
   color: #fff;
-  transform: translateX(-50%) scale(1.05);
-  box-shadow: 0 6px 24px rgba(37,99,235,0.35);
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 8px 28px rgba(37,99,235,0.4);
 }
 
 /* Labels — shared */
@@ -7797,6 +7804,88 @@ table button:hover {
   .poke-story-labels-left .poke-story-label::before,
   .poke-story-labels-right .poke-story-label::after {
     display: none;
+  }
+}
+
+/* ── Category stacked / perspective grid ───────────────────────── */
+.category-stack-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  perspective: 900px;
+  perspective-origin: 50% 40%;
+  padding: 1rem 0 2rem;
+}
+
+.category-stack-card {
+  position: relative;
+  width: 200px;
+  flex-shrink: 0;
+  aspect-ratio: 3 / 4;
+  margin-right: -28px; /* overlap */
+  margin-bottom: 2.5rem;
+  border-radius: 14px;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.35s ease,
+              z-index 0s 0s;
+  box-shadow: 4px 6px 20px rgba(0,0,0,0.28);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+  overflow: hidden;
+}
+/* tilt variants — slight fan effect */
+.stack-tilt-1 { transform: rotate(-3deg)   rotateY(4deg); }
+.stack-tilt-2 { transform: rotate(-1deg)   rotateY(2deg); }
+.stack-tilt-3 { transform: rotate(0.5deg)  rotateY(-1deg); }
+.stack-tilt-4 { transform: rotate(2deg)    rotateY(-3deg); }
+.stack-tilt-5 { transform: rotate(3.5deg)  rotateY(-5deg); }
+
+.category-stack-card:hover {
+  transform: rotate(0deg) rotateY(0deg) translateY(-14px) scale(1.06) !important;
+  box-shadow: 8px 24px 48px rgba(0,0,0,0.38);
+  z-index: 50 !important;
+}
+.category-stack-card:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 4px;
+}
+
+.stack-card-num {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.6);
+}
+
+.stack-card-body h4 {
+  font-size: clamp(0.95rem, 1.4vw, 1.2rem);
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 0.3rem;
+  line-height: 1.2;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.stack-card-body small {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.65);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 768px) {
+  .category-stack-card {
+    width: 150px;
+    margin-right: -18px;
+  }
+  .stack-tilt-1, .stack-tilt-2, .stack-tilt-3,
+  .stack-tilt-4, .stack-tilt-5 {
+    transform: rotate(0deg);
   }
 }
 

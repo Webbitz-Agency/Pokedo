@@ -5596,33 +5596,32 @@ export default function App() {
                   {t("viewAllMenu")} →
                 </button>
               </div>
-              <div className="category-flat-grid">
-                {featuredFoodCategories.map((c: any, idx: number) => {
-                  const PALETTE = [
-                    "#e85d04","#f4a261","#2a9d8f","#264653",
-                    "#e9c46a","#d62839","#457b9d","#6a4c93",
-                  ];
-                  return (
-                    <article
-                      key={c.id}
-                      className="category-flat-card"
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => goTo(`/menu#${slug(c.name)}`)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          goTo(`/menu#${slug(c.name)}`);
-                        }
-                      }}
-                      style={{ background: PALETTE[idx % PALETTE.length] }}
-                    >
-                      <span className="flat-card-num">{String(idx + 1).padStart(2, "0")}</span>
-                      <h4 className="flat-card-name">{c.name}</h4>
-                      <small className="flat-card-count">{c.items_count} {t("dishes")}</small>
-                    </article>
-                  );
-                })}
+              <div className="category-stack-grid">
+                {featuredFoodCategories.map((c: any, idx: number) => (
+                  <article
+                    key={c.id}
+                    className={`category-stack-card stack-tilt-${(idx % 5) + 1}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => goTo(`/menu#${slug(c.name)}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        goTo(`/menu#${slug(c.name)}`);
+                      }
+                    }}
+                    style={{
+                      backgroundImage: `linear-gradient(160deg, rgba(15,23,42,0.06) 0%, rgba(15,23,42,0.75) 100%), url(${resolveMediaSrc(c.image_url || showcaseImages[idx % showcaseImages.length])})`,
+                      zIndex: idx + 1,
+                    }}
+                  >
+                    <span className="stack-card-num">{String(idx + 1).padStart(2, "0")}</span>
+                    <div className="stack-card-body">
+                      <h4>{c.name}</h4>
+                      <small>{c.items_count} {t("dishes")}</small>
+                    </div>
+                  </article>
+                ))}
               </div>
             </div>
           </section>
