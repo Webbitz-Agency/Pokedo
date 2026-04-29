@@ -7658,18 +7658,19 @@ table button:hover {
 }
 
 .poke-label-dot {
-  width: 11px;
-  height: 11px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .poke-label-text strong {
   display: block;
-  font-size: 1.05rem;
+  font-size: clamp(1.1rem, 1.5vw, 1.5rem);
   font-weight: 800;
   color: var(--color-text-dark);
   line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .poke-label-text strong em {
@@ -7678,16 +7679,18 @@ table button:hover {
 
 .poke-label-pct {
   display: block;
-  font-size: 1.5rem;
+  font-size: clamp(2.2rem, 3.5vw, 3.8rem);
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1;
+  letter-spacing: -0.03em;
 }
 
 .poke-label-text span:not(.poke-label-pct) {
   display: block;
-  font-size: 0.8rem;
+  font-size: clamp(0.85rem, 1vw, 1rem);
   color: var(--color-text-muted);
-  margin-top: 1px;
+  margin-top: 4px;
+  line-height: 1.4;
 }
 
 /* Left labels: DOM order is [poke-label-text][poke-label-dot]
