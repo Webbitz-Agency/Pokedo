@@ -5528,6 +5528,13 @@ export default function App() {
                   style={{ opacity: 0, transform: "scale(0.85)", transition: "opacity 0.6s ease, transform 0.6s ease" }}
                 >
                   <div className="poke-story-circle-bg" style={{ backgroundImage: `url(${pokeCircleImg})` }} />
+                  <button
+                    className="poke-story-center-btn"
+                    onClick={() => goTo("/crea-la-tua-poke")}
+                    aria-label="Componi il tuo pokè"
+                  >
+                    Componi il tuo pokè
+                  </button>
                   {/* r=258, cx=cy=280, circ≈1620.93. Ring ~23px outside gray circle (r_gray=235).
                       Each dash is (pct*circ - 32) to create a visible gap between segments. */}
                   <svg className="poke-story-svg" viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
