@@ -24,6 +24,7 @@
 
 body {
   margin: 0;
+  overflow-x: hidden; /* prevent horizontal scroll from off-screen animated elements */
 }
 
 button,
@@ -7546,8 +7547,7 @@ table button:hover {
   position: relative;
   min-height: 380vh;
   background: var(--color-bg);
-  /* clip sliding lines horizontally without breaking sticky */
-  overflow-x: clip;
+  /* NO overflow set here — any overflow value breaks position:sticky on Safari */
 }
 
 /* Sticky panel — title near top, circle fills remaining space */

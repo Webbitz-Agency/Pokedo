@@ -2321,12 +2321,12 @@ export default function App() {
         label.classList.toggle("is-label-visible", visible);
       });
 
-      // Show circle once user starts scrolling into the section
+      // Show circle as soon as the section enters/overlaps the viewport
       const circleEl = section.querySelector<HTMLElement>(".poke-story-ring-wrap");
       if (circleEl) {
-        const appeared = progress > 0.02;
-        circleEl.style.opacity = appeared ? "1" : "0";
-        circleEl.style.transform = appeared ? "scale(1)" : "scale(0.85)";
+        const inView = rect.top < window.innerHeight && rect.bottom > 0;
+        circleEl.style.opacity = inView ? "1" : "0";
+        circleEl.style.transform = inView ? "scale(1)" : "scale(0.85)";
       }
     };
 
