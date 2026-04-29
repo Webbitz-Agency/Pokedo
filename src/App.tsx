@@ -2315,7 +2315,10 @@ export default function App() {
         const threshold = segStart + SEG_PCTS[idx] * 0.4;
         const visible = progress >= threshold;
         label.style.opacity = visible ? "1" : "0";
-        label.style.transform = visible ? "translateY(0)" : "translateY(10px)";
+        label.style.transform = visible ? "translateX(0)" : (
+          label.closest(".poke-story-labels-left") ? "translateX(-20px)" : "translateX(20px)"
+        );
+        label.classList.toggle("is-label-visible", visible);
       });
 
       // Show circle once user starts scrolling into the section
@@ -5509,7 +5512,7 @@ export default function App() {
                       key={seg.idx}
                       data-ring-label={seg.idx}
                       className="poke-story-label"
-                      style={{ opacity: 0, transform: "translateX(-12px)", transition: "opacity 0.45s ease, transform 0.45s ease" }}
+                      style={{ opacity: 0, transform: "translateX(-20px)", transition: "opacity 0.45s ease, transform 0.45s ease", ['--label-color' as string]: seg.color }}
                     >
                       <div className="poke-label-text">
                         <span className="poke-label-pct" style={{ color: seg.color }}>{seg.pct} <em>{seg.name}</em></span>
@@ -5561,7 +5564,7 @@ export default function App() {
                       key={seg.idx}
                       data-ring-label={seg.idx}
                       className="poke-story-label"
-                      style={{ opacity: 0, transform: "translateX(12px)", transition: "opacity 0.45s ease, transform 0.45s ease" }}
+                      style={{ opacity: 0, transform: "translateX(20px)", transition: "opacity 0.45s ease, transform 0.45s ease", ['--label-color' as string]: seg.color }}
                     >
                       <div className="poke-label-text">
                         <span className="poke-label-pct" style={{ color: seg.color }}>{seg.pct} <em>{seg.name}</em></span>

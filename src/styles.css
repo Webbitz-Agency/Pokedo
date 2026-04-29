@@ -7655,6 +7655,43 @@ table button:hover {
   display: flex;
   align-items: center;
   gap: 0.7rem;
+  position: relative;
+}
+
+/* Sliding line — left labels: grows from left edge toward text */
+.poke-story-labels-left .poke-story-label::before {
+  content: '';
+  position: absolute;
+  right: calc(100% + 1.2rem);
+  top: 1rem;
+  height: 3px;
+  width: 60vw;
+  border-radius: 2px;
+  background: var(--label-color, currentColor);
+  transform-origin: right center;
+  transform: scaleX(0);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+}
+.poke-story-labels-left .poke-story-label.is-label-visible::before {
+  transform: scaleX(1);
+}
+
+/* Sliding line — right labels: grows from right edge toward text */
+.poke-story-labels-right .poke-story-label::after {
+  content: '';
+  position: absolute;
+  left: calc(100% + 1.2rem);
+  top: 1rem;
+  height: 3px;
+  width: 60vw;
+  border-radius: 2px;
+  background: var(--label-color, currentColor);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+}
+.poke-story-labels-right .poke-story-label.is-label-visible::after {
+  transform: scaleX(1);
 }
 
 .poke-label-pct {
