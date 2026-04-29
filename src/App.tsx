@@ -5376,14 +5376,9 @@ export default function App() {
             />
             <div className="hero-shade" />
             <div className="hero-overlay container">
-              <div className="hero-eyebrow-row fade-up">
-                <span className="hero-dot"></span>
-                <p className="hero-kicker">{t("heroKicker")}</p>
-              </div>
               <h2 className="fade-up">
                 {t("heroTitle")}
               </h2>
-              <p className="hero-sub fade-up">{t("heroSubtitle")}</p>
               <div className="hero-cta-row fade-up">
                 <button className="menu-cta" onClick={goToMenuPage}>
                   {t("goFullMenu")}
@@ -5411,8 +5406,8 @@ export default function App() {
                 </div>
                 <div className="hero-stat-divider"></div>
                 <div className="hero-stat-item">
-                  <strong>San Miniato</strong>
-                  <span>PI · ti aspettiamo</span>
+                  <strong>San Miniato (PI)</strong>
+                  <span>ti aspettiamo</span>
                 </div>
               </div>
             </div>
