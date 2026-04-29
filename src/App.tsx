@@ -2289,7 +2289,7 @@ export default function App() {
     if (!section) return;
 
     const CIRC = 2 * Math.PI * 258; // circumference for r=258
-    const GAP = 32;                  // px gap between each segment
+    const GAP = 16;                  // px gap between each segment
     const SEG_PCTS = [0.4, 0.3, 0.25, 0.05];
 
     const onScroll = () => {
@@ -5529,25 +5529,25 @@ export default function App() {
                   {/* r=258, cx=cy=280, circ≈1620.93. Ring ~23px outside gray circle (r_gray=235).
                       Each dash is (pct*circ - 32) to create a visible gap between segments. */}
                   <svg className="poke-story-svg" viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    {/* Base 40% → 0.4×1620.93-32=616.37px — starts at -90° */}
+                    {/* Base 40% → 0.4×1620.93-16=632.37px — starts at -90° */}
                     <circle data-ring-idx="0" cx="280" cy="280" r="258"
                       fill="none" stroke="#2563eb" strokeWidth="11" strokeLinecap="round"
-                      strokeDasharray="616.37 1620.93" strokeDashoffset="616.37"
+                      strokeDasharray="632.37 1620.93" strokeDashoffset="632.37"
                       transform="rotate(-90,280,280)" />
-                    {/* Proteine 30% → 0.3×1620.93-32=454.28px — starts at 54° */}
+                    {/* Proteine 30% → 0.3×1620.93-16=470.28px — starts at 54° */}
                     <circle data-ring-idx="1" cx="280" cy="280" r="258"
                       fill="none" stroke="#f59e0b" strokeWidth="11" strokeLinecap="round"
-                      strokeDasharray="454.28 1620.93" strokeDashoffset="454.28"
+                      strokeDasharray="470.28 1620.93" strokeDashoffset="470.28"
                       transform="rotate(54,280,280)" />
-                    {/* Green 25% → 0.25×1620.93-32=373.23px — starts at 162° */}
+                    {/* Green 25% → 0.25×1620.93-16=389.23px — starts at 162° */}
                     <circle data-ring-idx="2" cx="280" cy="280" r="258"
                       fill="none" stroke="#22c55e" strokeWidth="11" strokeLinecap="round"
-                      strokeDasharray="373.23 1620.93" strokeDashoffset="373.23"
+                      strokeDasharray="389.23 1620.93" strokeDashoffset="389.23"
                       transform="rotate(162,280,280)" />
-                    {/* Crunchy 5% → 0.05×1620.93-32=49.05px — starts at 252° */}
+                    {/* Crunchy 5% → 0.05×1620.93-16=65.05px — starts at 252° */}
                     <circle data-ring-idx="3" cx="280" cy="280" r="258"
                       fill="none" stroke="#ef4444" strokeWidth="11" strokeLinecap="round"
-                      strokeDasharray="49.05 1620.93" strokeDashoffset="49.05"
+                      strokeDasharray="65.05 1620.93" strokeDashoffset="65.05"
                       transform="rotate(252,280,280)" />
                   </svg>
                 </div>
