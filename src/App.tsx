@@ -5596,32 +5596,33 @@ export default function App() {
                   {t("viewAllMenu")} →
                 </button>
               </div>
-              <div className="category-bento-grid">
-                {featuredFoodCategories.map((c: any, idx: number) => (
-                  <article
-                    key={c.id}
-                    className={`category-bento-card bento-card-${(idx % 6) + 1}`}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => goTo(`/menu#${slug(c.name)}`)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        goTo(`/menu#${slug(c.name)}`);
-                      }
-                    }}
-                    style={{
-                      backgroundImage: `linear-gradient(160deg, rgba(15,23,42,0.08) 0%, rgba(15,23,42,0.72) 100%), url(${resolveMediaSrc(c.image_url || showcaseImages[idx % showcaseImages.length])})`
-                    }}
-                  >
-                    <span className="bento-num">0{idx + 1}</span>
-                    <div className="bento-body">
-                      <h4>{c.name}</h4>
-                      <p>{translateDescription(c.description) || "Scopri i nostri migliori abbinamenti."}</p>
-                      <small>{c.items_count} piatti</small>
-                    </div>
-                  </article>
-                ))}
+              <div className="category-flat-grid">
+                {featuredFoodCategories.map((c: any, idx: number) => {
+                  const PALETTE = [
+                    "#e85d04","#f4a261","#2a9d8f","#264653",
+                    "#e9c46a","#d62839","#457b9d","#6a4c93",
+                  ];
+                  return (
+                    <article
+                      key={c.id}
+                      className="category-flat-card"
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => goTo(`/menu#${slug(c.name)}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          goTo(`/menu#${slug(c.name)}`);
+                        }
+                      }}
+                      style={{ background: PALETTE[idx % PALETTE.length] }}
+                    >
+                      <span className="flat-card-num">{String(idx + 1).padStart(2, "0")}</span>
+                      <h4 className="flat-card-name">{c.name}</h4>
+                      <small className="flat-card-count">{c.items_count} {t("dishes")}</small>
+                    </article>
+                  );
+                })}
               </div>
             </div>
           </section>
