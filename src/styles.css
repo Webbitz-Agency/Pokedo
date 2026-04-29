@@ -7616,7 +7616,14 @@ table button:hover {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  /* multiply removes the white background: white × site-bg = site-bg */
+  mix-blend-mode: multiply;
+  animation: poke-bowl-spin 20s linear infinite;
+}
+
+@keyframes poke-bowl-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 .poke-story-svg {
