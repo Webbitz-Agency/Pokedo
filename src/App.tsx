@@ -5414,28 +5414,6 @@ export default function App() {
           </section>
 
           <section className="about-strip about-strip-v2">
-            <div className="about-manifesto-band">
-              <div className="container about-manifesto-inner">
-                <div className="about-manifesto-text">
-                  <p className="section-kicker about-kicker-light">{t("aboutKicker")}</p>
-                  <h3 className="about-manifesto-headline">{t("aboutTitle")}</h3>
-                </div>
-                <div className="about-numbers-row">
-                  <div className="about-number-card">
-                    <strong>100%</strong>
-                    <span>Freschezza garantita ogni giorno</span>
-                  </div>
-                  <div className="about-number-card">
-                    <strong>5+</strong>
-                    <span>Anni a Firenze con passione</span>
-                  </div>
-                  <div className="about-number-card">
-                    <strong>50+</strong>
-                    <span>Ingredienti tra cui scegliere</span>
-                  </div>
-                </div>
-              </div>
-            </div>
             <div className="container about-split about-split-v2 section-padding">
               <div className="about-image about-shadow-right about-reveal-left">
                 <img
