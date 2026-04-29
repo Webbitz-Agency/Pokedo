@@ -5526,7 +5526,7 @@ export default function App() {
                   className="poke-story-ring-wrap"
                   style={{ opacity: 0, transform: "scale(0.85)", transition: "opacity 0.6s ease, transform 0.6s ease" }}
                 >
-                  <img className="poke-story-circle-bg" src={pokeCircleImg} alt="Pokè bowl" />
+                  <div className="poke-story-circle-bg" style={{ backgroundImage: `url(${pokeCircleImg})` }} />
                   {/* r=258, cx=cy=280, circ≈1620.93. Ring ~23px outside gray circle (r_gray=235).
                       Each dash is (pct*circ - 32) to create a visible gap between segments. */}
                   <svg className="poke-story-svg" viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">

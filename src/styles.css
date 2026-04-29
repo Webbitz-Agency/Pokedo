@@ -7613,10 +7613,10 @@ table button:hover {
   /* inset=45px → radius from center=235px; ring r=258 → gap≈23px */
   inset: 45px;
   border-radius: 50%;
-  object-fit: cover;
-  object-position: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-  display: block;
 }
 
 .poke-story-svg {
