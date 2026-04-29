@@ -2288,7 +2288,7 @@ export default function App() {
     const section = pokeStoryRef.current;
     if (!section) return;
 
-    const CIRC = 2 * Math.PI * 110; // circumference for r=110
+    const CIRC = 2 * Math.PI * 138; // circumference for r=138
     const SEG_PCTS = [0.4, 0.3, 0.25, 0.05];
 
     const onScroll = () => {
@@ -5490,63 +5490,16 @@ export default function App() {
           {/* ── Poke Story sticky-scroll section ─────────────────────── */}
           <section className="poke-story-section" ref={pokeStoryRef as React.RefObject<HTMLElement>}>
             <div className="poke-story-sticky">
+              {/* Title block — sticks near navbar */}
               <div className="poke-story-text-block">
                 <p className="poke-story-eyebrow">La nostra filosofia</p>
-                <h2 className="poke-story-headline">Si può fare la pokè<br/>come ci pare e piace.</h2>
-                <p className="poke-story-subheadline">Ogni bowl è unica. Scegli ogni strato su misura per te.</p>
+                <h2 className="poke-story-headline">La pokè come vuoi te.</h2>
               </div>
+              {/* 3-column layout: left labels | circle | right labels */}
               <div className="poke-story-visual">
-                <div
-                  className="poke-story-ring-wrap"
-                  style={{ opacity: 0, transform: "scale(0.85)", transition: "opacity 0.6s ease, transform 0.6s ease" }}
-                >
-                  {/* Gray placeholder image circle */}
-                  <div className="poke-story-circle-bg" />
-                  {/* SVG ring — r=110, cx=cy=140, circ≈691.15 */}
-                  <svg className="poke-story-svg" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                    {/* Base 40% — starts at -90° (12 o'clock) */}
-                    <circle
-                      data-ring-idx="0"
-                      cx="140" cy="140" r="110"
-                      fill="none" stroke="#2563eb" strokeWidth="22" strokeLinecap="butt"
-                      strokeDasharray="276.46 691.15"
-                      strokeDashoffset="276.46"
-                      transform="rotate(-90,140,140)"
-                    />
-                    {/* Proteine 30% — starts at 54° */}
-                    <circle
-                      data-ring-idx="1"
-                      cx="140" cy="140" r="110"
-                      fill="none" stroke="#f59e0b" strokeWidth="22" strokeLinecap="butt"
-                      strokeDasharray="207.35 691.15"
-                      strokeDashoffset="207.35"
-                      transform="rotate(54,140,140)"
-                    />
-                    {/* Green 25% — starts at 162° */}
-                    <circle
-                      data-ring-idx="2"
-                      cx="140" cy="140" r="110"
-                      fill="none" stroke="#22c55e" strokeWidth="22" strokeLinecap="butt"
-                      strokeDasharray="172.79 691.15"
-                      strokeDashoffset="172.79"
-                      transform="rotate(162,140,140)"
-                    />
-                    {/* Crunchy 5% — starts at 252° */}
-                    <circle
-                      data-ring-idx="3"
-                      cx="140" cy="140" r="110"
-                      fill="none" stroke="#ef4444" strokeWidth="22" strokeLinecap="butt"
-                      strokeDasharray="34.56 691.15"
-                      strokeDashoffset="34.56"
-                      transform="rotate(252,140,140)"
-                    />
-                  </svg>
-                </div>
-                {/* Labels */}
-                <div className="poke-story-labels">
+                {/* LEFT: Green + Crunchy */}
+                <div className="poke-story-labels poke-story-labels-left">
                   {([
-                    { color: "#2563eb", pct: "40%", name: "Base", desc: "Scegli la base che più ti piace", idx: 0 },
-                    { color: "#f59e0b", pct: "30%", name: "Proteine", desc: "Fonti proteiche di qualità", idx: 1 },
                     { color: "#22c55e", pct: "25%", name: "Green", desc: "Verdure fresche di stagione", idx: 2 },
                     { color: "#ef4444", pct: "5%",  name: "Crunchy", desc: "Il tocco croccante finale",   idx: 3 },
                   ] as { color: string; pct: string; name: string; desc: string; idx: number }[]).map((seg) => (
@@ -5554,11 +5507,65 @@ export default function App() {
                       key={seg.idx}
                       data-ring-label={seg.idx}
                       className="poke-story-label"
-                      style={{ opacity: 0, transform: "translateY(10px)", transition: "opacity 0.45s ease, transform 0.45s ease" }}
+                      style={{ opacity: 0, transform: "translateX(-12px)", transition: "opacity 0.45s ease, transform 0.45s ease" }}
+                    >
+                      <div className="poke-label-text">
+                        <strong><em>{seg.name}</em></strong>
+                        <span className="poke-label-pct" style={{ color: seg.color }}>{seg.pct}</span>
+                        <span>{seg.desc}</span>
+                      </div>
+                      <div className="poke-label-dot" style={{ background: seg.color }} />
+                    </div>
+                  ))}
+                </div>
+
+                {/* CENTER: Circle + SVG ring */}
+                <div
+                  className="poke-story-ring-wrap"
+                  style={{ opacity: 0, transform: "scale(0.85)", transition: "opacity 0.6s ease, transform 0.6s ease" }}
+                >
+                  <div className="poke-story-circle-bg" />
+                  {/* r=138, cx=cy=160, circ≈867.08. Ring floats outside gray circle (r_gray=112) */}
+                  <svg className="poke-story-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    {/* Base 40% (346.83px) — -90° */}
+                    <circle data-ring-idx="0" cx="160" cy="160" r="138"
+                      fill="none" stroke="#2563eb" strokeWidth="16" strokeLinecap="round"
+                      strokeDasharray="346.83 867.08" strokeDashoffset="346.83"
+                      transform="rotate(-90,160,160)" />
+                    {/* Proteine 30% (260.12px) — 54° */}
+                    <circle data-ring-idx="1" cx="160" cy="160" r="138"
+                      fill="none" stroke="#f59e0b" strokeWidth="16" strokeLinecap="round"
+                      strokeDasharray="260.12 867.08" strokeDashoffset="260.12"
+                      transform="rotate(54,160,160)" />
+                    {/* Green 25% (216.77px) — 162° */}
+                    <circle data-ring-idx="2" cx="160" cy="160" r="138"
+                      fill="none" stroke="#22c55e" strokeWidth="16" strokeLinecap="round"
+                      strokeDasharray="216.77 867.08" strokeDashoffset="216.77"
+                      transform="rotate(162,160,160)" />
+                    {/* Crunchy 5% (43.35px) — 252° */}
+                    <circle data-ring-idx="3" cx="160" cy="160" r="138"
+                      fill="none" stroke="#ef4444" strokeWidth="16" strokeLinecap="round"
+                      strokeDasharray="43.35 867.08" strokeDashoffset="43.35"
+                      transform="rotate(252,160,160)" />
+                  </svg>
+                </div>
+
+                {/* RIGHT: Base + Proteine */}
+                <div className="poke-story-labels poke-story-labels-right">
+                  {([
+                    { color: "#2563eb", pct: "40%", name: "Base", desc: "Scegli la base che più ti piace", idx: 0 },
+                    { color: "#f59e0b", pct: "30%", name: "Proteine", desc: "Fonti proteiche di qualità",   idx: 1 },
+                  ] as { color: string; pct: string; name: string; desc: string; idx: number }[]).map((seg) => (
+                    <div
+                      key={seg.idx}
+                      data-ring-label={seg.idx}
+                      className="poke-story-label"
+                      style={{ opacity: 0, transform: "translateX(12px)", transition: "opacity 0.45s ease, transform 0.45s ease" }}
                     >
                       <div className="poke-label-dot" style={{ background: seg.color }} />
                       <div className="poke-label-text">
-                        <strong>{seg.pct} <em>{seg.name}</em></strong>
+                        <strong><em>{seg.name}</em></strong>
+                        <span className="poke-label-pct" style={{ color: seg.color }}>{seg.pct}</span>
                         <span>{seg.desc}</span>
                       </div>
                     </div>
