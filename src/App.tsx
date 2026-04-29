@@ -5512,11 +5512,9 @@ export default function App() {
                       style={{ opacity: 0, transform: "translateX(-12px)", transition: "opacity 0.45s ease, transform 0.45s ease" }}
                     >
                       <div className="poke-label-text">
-                        <strong><em>{seg.name}</em></strong>
-                        <span className="poke-label-pct" style={{ color: seg.color }}>{seg.pct}</span>
+                        <span className="poke-label-pct" style={{ color: seg.color }}>{seg.pct} <em>{seg.name}</em></span>
                         <span>{seg.desc}</span>
                       </div>
-                      <div className="poke-label-dot" style={{ background: seg.color }} />
                     </div>
                   ))}
                 </div>
@@ -5565,10 +5563,8 @@ export default function App() {
                       className="poke-story-label"
                       style={{ opacity: 0, transform: "translateX(12px)", transition: "opacity 0.45s ease, transform 0.45s ease" }}
                     >
-                      <div className="poke-label-dot" style={{ background: seg.color }} />
                       <div className="poke-label-text">
-                        <strong><em>{seg.name}</em></strong>
-                        <span className="poke-label-pct" style={{ color: seg.color }}>{seg.pct}</span>
+                        <span className="poke-label-pct" style={{ color: seg.color }}>{seg.pct} <em>{seg.name}</em></span>
                         <span>{seg.desc}</span>
                       </div>
                     </div>

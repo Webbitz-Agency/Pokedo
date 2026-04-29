@@ -7657,32 +7657,17 @@ table button:hover {
   gap: 0.7rem;
 }
 
-.poke-label-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.poke-label-text strong {
-  display: block;
-  font-size: clamp(1.1rem, 1.5vw, 1.5rem);
-  font-weight: 800;
-  color: var(--color-text-dark);
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-}
-
-.poke-label-text strong em {
-  font-style: normal;
-}
-
 .poke-label-pct {
   display: block;
   font-size: clamp(2.2rem, 3.5vw, 3.8rem);
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.03em;
+}
+
+/* name inside pct inherits size/weight/color */
+.poke-label-pct em {
+  font-style: normal;
 }
 
 .poke-label-text span:not(.poke-label-pct) {
