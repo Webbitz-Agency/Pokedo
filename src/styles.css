@@ -7607,14 +7607,16 @@ table button:hover {
   justify-self: center;
 }
 
-/* Gray circle sits inside the SVG ring with visible gap */
+/* Image circle sits inside the SVG ring with visible gap */
 .poke-story-circle-bg {
   position: absolute;
   /* inset=45px → radius from center=235px; ring r=258 → gap≈23px */
   inset: 45px;
   border-radius: 50%;
-  background: #d1d5db;
-  box-shadow: inset 0 2px 16px rgba(0,0,0,0.10);
+  object-fit: cover;
+  object-position: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  display: block;
 }
 
 .poke-story-svg {
