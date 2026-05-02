@@ -8161,7 +8161,7 @@ table button:hover {
   gap: 1rem;
 }
 
-/* Carosello a tutta larghezza schermo; padding orizzontale = respiro prima dell’ultima card */
+/* Carosello a tutta larghezza schermo, padding orizzontale = respiro prima dell’ultima card */
 .category-carousel-viewport--fullbleed {
   width: 100vw;
   margin-left: calc(50% - 50vw);
