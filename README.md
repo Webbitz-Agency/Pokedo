@@ -10,7 +10,9 @@ npm run dev
 ```
 
 - Dev: `http://127.0.0.1:5173` (proxy `/api` → Flask su `:8000`).
-- Variabili: copia `.env.example` in `.env.local`. Per la vetrina in produzione imposta `VITE_PUBLIC_TENANT_TOKEN` (vedi `DEPLOY-NOTES.md` nella root del repo).
+- Variabili: copia `.env.example` in `.env.local`.
+  - Per usare API remote in locale senza backend Flask locale, imposta `VITE_DEV_API_PROXY_TARGET` (es. `https://pokemanager.it`).
+  - Per la vetrina in produzione imposta `VITE_PUBLIC_TENANT_TOKEN` (vedi `DEPLOY-NOTES.md` nella root del repo).
 
 ## Collegamento a PokeManager
 

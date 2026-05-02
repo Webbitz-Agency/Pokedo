@@ -15,9 +15,11 @@ import {
   setPublicToken
 } from "./api";
 import { isPokeManagerMarketingPortal } from "./portal";
+import { CategoryScrollCarouselSection } from "./CategoryScrollCarouselSection";
 import pokedoLogo from "./pokedoLogo.png";
-import pokeCircleImg from "./poke.png";
 import pokeBlankScaffold from "./poke-blank-scaffold.json";
+// CTA 3D hover: decommentare quando riattivi ./Poke3DHoverButton.tsx
+// import Poke3DHoverButton from "./Poke3DHoverButton";
 
 const QR_TABLE_PRINT_PER_PAGE = 12;
 
@@ -2331,9 +2333,20 @@ export default function App() {
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    /* Due frame: dopo il mount il layout (offsetHeight / sticky) può stabilizzarsi subito dopo */
     onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [route]);
+    let innerRaf = 0;
+    const outerRaf = requestAnimationFrame(() => {
+      innerRaf = requestAnimationFrame(onScroll);
+    });
+    return () => {
+      cancelAnimationFrame(outerRaf);
+      cancelAnimationFrame(innerRaf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [route, loading, home, menu]);
   // ────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -5527,14 +5540,29 @@ export default function App() {
                   className="poke-story-ring-wrap"
                   style={{ opacity: 0, transform: "scale(0.85)", transition: "opacity 0.6s ease, transform 0.6s ease" }}
                 >
-                  <div className="poke-story-circle-bg" style={{ backgroundImage: `url(${pokeCircleImg})` }} />
-                  <button
-                    className="poke-story-center-btn"
-                    onClick={() => goTo("/crea-la-tua-poke")}
+                  <div
+                    className="poke-story-circle-hit"
+                    role="button"
+                    tabIndex={0}
                     aria-label="Componi il tuo pokè"
+                    onClick={() => goTo("/crea-la-tua-poke")}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        goTo("/crea-la-tua-poke");
+                      }
+                    }}
                   >
-                    Componi il tuo pokè
-                  </button>
+                    <div
+                      className="poke-story-circle-bg"
+                      style={{ backgroundImage: "url(/immagini/poke.png)" }}
+                    />
+                    <div className="poke-story-circle-glass" aria-hidden="true">
+                      <span className="poke-story-circle-glass-label">
+                        Componi il tuo pokè
+                      </span>
+                    </div>
+                  </div>
                   {/* r=258, cx=cy=280, circ≈1620.93. Ring ~23px outside gray circle (r_gray=235).
                       Each dash is (pct*circ - 32) to create a visible gap between segments. */}
                   <svg className="poke-story-svg" viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -5585,53 +5613,23 @@ export default function App() {
           </section>
           {/* ────────────────────────────────────────────────────────── */}
 
-          <section className="featured-menu-section-v2 section-padding">
-            <div className="container">
-              <div className="featured-header-v2">
-                <div>
-                  <p className="section-kicker">{t("dishesKicker")}</p>
-                  <h3>{t("dishesTitle")}</h3>
-                </div>
-                <button className="menu-cta menu-cta-ghost" onClick={goToMenuPage}>
-                  {t("viewAllMenu")} →
-                </button>
-              </div>
-              <div className="category-stack-grid">
-                {featuredFoodCategories.map((c: any, idx: number) => (
-                  <article
-                    key={c.id}
-                    className={`category-stack-card stack-tilt-${(idx % 5) + 1}`}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => goTo(`/menu#${slug(c.name)}`)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        goTo(`/menu#${slug(c.name)}`);
-                      }
-                    }}
-                    style={{
-                      backgroundImage: `linear-gradient(160deg, rgba(15,23,42,0.06) 0%, rgba(15,23,42,0.75) 100%), url(${resolveMediaSrc(c.image_url || showcaseImages[idx % showcaseImages.length])})`,
-                      zIndex: idx + 1,
-                    }}
-                  >
-                    <span className="stack-card-num">{String(idx + 1).padStart(2, "0")}</span>
-                    <div className="stack-card-body">
-                      <h4>{c.name}</h4>
-                      <small>{c.items_count} {t("dishes")}</small>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </section>
+          <CategoryScrollCarouselSection
+            categories={featuredFoodCategories}
+            showcaseImages={showcaseImages}
+            resolveMediaSrc={resolveMediaSrc}
+            slug={slug}
+            kicker={t("dishesKicker")}
+            title={t("dishesTitle")}
+            viewAllLabel={t("viewAllMenu")}
+            dishesWord={t("dishes")}
+            onCategoryNavigate={goTo}
+            onViewAll={goToMenuPage}
+          />
 
           <section className="gallery-strip gallery-strip-v2 section-padding">
             <div className="container gallery-header-row">
-              <div>
-                <p className="section-kicker">{t("galleryKicker")}</p>
-                <h3>{t("galleryTitle")}</h3>
-              </div>
+              <p className="section-kicker">{t("galleryKicker")}</p>
+              <h3>{t("galleryTitle")}</h3>
             </div>
             <div className="gallery-marquee-wrapper">
               <div className="gallery-fade-left" aria-hidden="true" />
@@ -5666,6 +5664,15 @@ export default function App() {
                   ))}
                 </div>
               </div>
+            </div>
+            <div className="gallery-strip-cta-wrap">
+              <button
+                type="button"
+                className="gallery-create-poke-btn"
+                onClick={() => goTo("/crea-la-tua-poke")}
+              >
+                <span className="gallery-create-poke-btn-label">{t("createPoke")}</span>
+              </button>
             </div>
           </section>
 

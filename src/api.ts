@@ -72,6 +72,8 @@ function readPublicTokenFromStorage(): string | null {
 }
 
 let publicToken = readPublicTokenFromStorage();
+let publicBackendUnavailableUntil = 0;
+const PUBLIC_BACKEND_RETRY_MS = 30_000;
 
 /**
  * Vetrina in produzione: un dominio = un cliente → imposta il token pubblico del tenant nel build.
@@ -192,6 +194,18 @@ export function getPublicToken() {
   return publicToken;
 }
 
+function isSafePublicRead(path: string, method: string) {
+  return path.startsWith("/api/public/") && (method === "GET" || method === "HEAD");
+}
+
+function getPublicFallback(path: string) {
+  if (path.endsWith("/menu")) return { categories: [] };
+  if (path.endsWith("/poke-rules")) return { builder_items: [] };
+  if (path.endsWith("/tables")) return [];
+  if (path.endsWith("/settings") || path.endsWith("/home-content")) return {};
+  return null;
+}
+
 async function request(path: string, init?: RequestInit) {
   const isAdminRoute = path.startsWith("/api/admin/");
   const isPublicRoute = path.startsWith("/api/public/");
@@ -205,6 +219,9 @@ async function request(path: string, init?: RequestInit) {
       return {};
     }
     return [];
+  }
+  if (import.meta.env.DEV && isSafePublicRead(path, method) && Date.now() < publicBackendUnavailableUntil) {
+    return getPublicFallback(path);
   }
 
   function buildHeaders(): Record<string, string> {
@@ -220,13 +237,26 @@ async function request(path: string, init?: RequestInit) {
     return headers;
   }
 
-  let response = await fetch(`${API_BASE}${path}`, {
-    headers: buildHeaders(),
-    ...init
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      headers: buildHeaders(),
+      ...init
+    });
+  } catch (error) {
+    if (import.meta.env.DEV && isSafePublicRead(path, method)) {
+      publicBackendUnavailableUntil = Date.now() + PUBLIC_BACKEND_RETRY_MS;
+      return getPublicFallback(path);
+    }
+    throw error;
+  }
   let bodyText = await response.text();
 
   if (!response.ok) {
+    if (import.meta.env.DEV && isSafePublicRead(path, method) && response.status >= 500) {
+      publicBackendUnavailableUntil = Date.now() + PUBLIC_BACKEND_RETRY_MS;
+      return getPublicFallback(path);
+    }
     if (path.startsWith("/api/admin/")) {
       try {
         const parsed = JSON.parse(bodyText) as { error?: string; message?: string };
