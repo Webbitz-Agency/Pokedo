@@ -15,9 +15,11 @@ import {
   setPublicToken
 } from "./api";
 import { isPokeManagerMarketingPortal } from "./portal";
+import { CategoryScrollCarouselSection } from "./CategoryScrollCarouselSection";
 import pokedoLogo from "./pokedoLogo.png";
-import pokeCircleImg from "./poke.png";
 import pokeBlankScaffold from "./poke-blank-scaffold.json";
+// CTA 3D hover: decommentare quando riattivi ./Poke3DHoverButton.tsx
+// import Poke3DHoverButton from "./Poke3DHoverButton";
 
 const QR_TABLE_PRINT_PER_PAGE = 12;
 
@@ -232,6 +234,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     heroSubtitle:
       "Ingredienti selezionati, combinazioni personalizzabili e ordine digitale veloce: tutta la qualità Pokedo, senza attese.",
     goFullMenu: "Vai al menu completo",
+    homeHeroSlide1Lead: "Crea la tua bowl in sala o da asporto",
+    homeHeroSlide2Title: "Il menu completo, digitale e sempre aggiornato.",
+    homeHeroSlide2Sub:
+      "Categorie, allergeni e piatti con prezzi chiari: sfoglia tutto il digitale Pokedo prima di ordinare in sala o da asporto.",
     aboutKicker: "Chi siamo",
     aboutTitle: "La nostra filosofia in ogni bowl",
     aboutEyebrow: "Pokè bar contemporaneo a Firenze",
@@ -286,8 +292,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     phase_proteins: "Proteine",
     phase_green: "Green",
     phase_sauces: "Salsa",
-    phase_crunchy: "Crunchy",
-    dishes: "piatti"
+    phase_crunchy: "Crunchy"
   },
   en: {
     home: "Home",
@@ -300,6 +305,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     heroTitle: "A new way to order poke, dine-in or takeaway.",
     heroSubtitle: "Clean interface, guided ingredient choice, and always clear information.",
     goFullMenu: "See full menu",
+    homeHeroSlide1Lead: "Build your bowl to enjoy in the restaurant or as takeaway.",
+    homeHeroSlide2Title: "The full menu — digital and always up to date.",
+    homeHeroSlide2Sub:
+      "Categories, allergens and dishes with clear prices: browse the full Pokedo menu before you order dine-in or takeaway.",
     aboutKicker: "About us",
     aboutTitle: "Our philosophy in every bowl",
     aboutEyebrow: "Contemporary poke bar",
@@ -365,6 +374,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     heroTitle: "Die neue Art, Poké zu bestellen – im Restaurant oder zum Mitnehmen.",
     heroSubtitle: "Klare Oberfläche, geführte Auswahl und jederzeit verständliche Informationen.",
     goFullMenu: "Ganzes Menü ansehen",
+    homeHeroSlide1Lead: "Stell dir deine Bowl zusammen – vor Ort oder zum Mitnehmen.",
+    homeHeroSlide2Title: "Das komplette Menü — digital und immer aktuell.",
+    homeHeroSlide2Sub:
+      "Kategorien, Allergene und Gerichte mit klaren Preisen: blättere durch das gesamte Pokedo-Menü, bevor du bestellst.",
     aboutKicker: "Über uns",
     aboutTitle: "Unsere Philosophie in jeder Bowl",
     aboutEyebrow: "Modernes Poké-Bar-Konzept",
@@ -430,6 +443,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     heroTitle: "La nueva forma de pedir poké, en sala o para llevar.",
     heroSubtitle: "Interfaz limpia, selección guiada y toda la información clara.",
     goFullMenu: "Ver menú completo",
+    homeHeroSlide1Lead: "Crea tu bowl en sala o para llevar.",
+    homeHeroSlide2Title: "El menú completo, digital y siempre actualizado.",
+    homeHeroSlide2Sub:
+      "Categorías, alérgenos y platos con precios claros: revisa todo el menú digital de Pokedo antes de pedir en sala o para llevar.",
     aboutKicker: "Quiénes somos",
     aboutTitle: "Nuestra filosofía en cada bowl",
     aboutEyebrow: "Poké bar contemporáneo",
@@ -491,7 +508,11 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     orderSummary: "Résumé de commande",
     completeOrder: "Finaliser commande",
     sendOrder: "Envoyer commande",
-    callUs: "Appelle-nous"
+    callUs: "Appelle-nous",
+    homeHeroSlide1Lead: "Compose ton bowl sur place ou à emporter.",
+    homeHeroSlide2Title: "Le menu complet, numérique et toujours à jour.",
+    homeHeroSlide2Sub:
+      "Catégories, allergènes et plats avec des prix clairs : parcours tout le menu Pokedo avant de commander sur place ou à emporter."
   },
   zh: {
     home: "首页",
@@ -500,7 +521,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     orderSummary: "订单摘要",
     completeOrder: "完成订单",
     sendOrder: "发送订单",
-    callUs: "联系我们"
+    callUs: "联系我们",
+    homeHeroSlide1Lead: "在店享用或外带，随心搭配你的碗。",
+    homeHeroSlide2Title: "完整电子菜单，实时更新。",
+    homeHeroSlide2Sub: "分类、过敏原与价格一目了然：堂食或外带前先浏览 Pokedo 全部菜品。"
   },
   ja: {
     home: "ホーム",
@@ -509,7 +533,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     orderSummary: "注文サマリー",
     completeOrder: "注文を完了",
     sendOrder: "注文を送信",
-    callUs: "電話する"
+    callUs: "電話する",
+    homeHeroSlide1Lead: "店内でもテイクアウトでも、自分好みのボウルを。",
+    homeHeroSlide2Title: "フルメニューをデジタルで、いつでも最新に。",
+    homeHeroSlide2Sub: "カテゴリ・アレルゲン・価格が明確。店内・テイクアウトの前に Pokedo のメニューをじっくりチェック。"
   }
 };
 
@@ -1246,6 +1273,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [routeOverlayLoading, setRouteOverlayLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [homeHeroSlide, setHomeHeroSlide] = useState(0);
   const [saving, setSaving] = useState(false);
   const [adminLoggedIn, setAdminLoggedIn] = useState(
     (typeof window !== "undefined" ? window.location.pathname.startsWith("/amministrazione") : false) &&
@@ -2332,9 +2360,20 @@ export default function App() {
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    requestAnimationFrame(onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [route, home]);
+    window.addEventListener("resize", onScroll, { passive: true });
+    /* Due frame: dopo il mount il layout (offsetHeight / sticky) può stabilizzarsi subito dopo */
+    onScroll();
+    let innerRaf = 0;
+    const outerRaf = requestAnimationFrame(() => {
+      innerRaf = requestAnimationFrame(onScroll);
+    });
+    return () => {
+      cancelAnimationFrame(outerRaf);
+      cancelAnimationFrame(innerRaf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [route, loading, home, menu]);
   // ────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -2966,6 +3005,23 @@ export default function App() {
     if (!isTableOrderMode || route !== "/") return;
     goToMenuPage();
   }, [isTableOrderMode, route]);
+
+  useEffect(() => {
+    if (route !== "/") {
+      setHomeHeroSlide(0);
+    }
+  }, [route]);
+
+  useEffect(() => {
+    if (route !== "/" || loading) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+    const id = window.setInterval(() => {
+      setHomeHeroSlide((s) => (s + 1) % 2);
+    }, 7000);
+    return () => window.clearInterval(id);
+  }, [route, loading]);
 
   useEffect(() => {
     if (!tableOrderSuccessOpen) return;
@@ -5425,24 +5481,83 @@ export default function App() {
 
       {!loading && !error && route === "/" && home && menu && (
         <>
-          <section className="hero-home hero-home-v2">
-            <img
-              src={resolveMediaSrc(appSettings.site.home_hero_url || DEFAULT_APP_SETTINGS.site.home_hero_url)}
-              alt="Pokè bowl colorato"
-            />
-            <div className="hero-shade" />
-            <div className="hero-overlay container">
-              <h2 className="fade-up">
-                {t("heroTitle")}
-              </h2>
-              <div className="hero-cta-row fade-up">
-                <button className="menu-cta" onClick={goToMenuPage}>
-                  {t("goFullMenu")}
-                </button>
-                <button className="menu-cta menu-cta-blue" onClick={() => goToPokePage()}>
-                  {t("createPoke")}
-                </button>
+          <section
+            className="hero-home hero-home-v2 hero-home-carousel"
+            aria-roledescription="carousel"
+            aria-label={t("home")}
+          >
+            <div className="hero-carousel-viewport">
+              <div
+                className="hero-carousel-track"
+                style={{ transform: `translate3d(-${homeHeroSlide * 50}%, 0, 0)` }}
+              >
+                <div
+                  id="home-hero-slide-1"
+                  className="hero-carousel-slide hero-carousel-slide--split"
+                  role="group"
+                  aria-roledescription="slide"
+                  aria-label="1 / 2"
+                  aria-hidden={homeHeroSlide !== 0}
+                >
+                  <div className="hero-slide-watermark" aria-hidden="true">
+                    <img src="/immagini/hero.svg" alt="" />
+                  </div>
+                  <div className="hero-slide-visual">
+                    <img src="/immagini/hero.svg" alt="" />
+                  </div>
+                  <div className="hero-slide-center-photo" aria-hidden="true">
+                    <img src="/immagini/fotoHero.png" alt="" />
+                  </div>
+                  <div className="hero-slide-copy hero-slide-copy--split">
+                    <p className="hero-carousel-lead fade-up">{t("homeHeroSlide1Lead")}</p>
+                    <p className="hero-carousel-slide1-sub fade-up">{t("heroSubtitle")}</p>
+                    <button
+                      type="button"
+                      className="menu-cta menu-cta-blue hero-carousel-cta fade-up"
+                      onClick={() => goToPokePage()}
+                    >
+                      {t("createPoke")}
+                    </button>
+                  </div>
+                </div>
+                <div
+                  id="home-hero-slide-2"
+                  className="hero-carousel-slide hero-carousel-slide--bleed"
+                  role="group"
+                  aria-roledescription="slide"
+                  aria-label="2 / 2"
+                  aria-hidden={homeHeroSlide !== 1}
+                >
+                  <img className="hero-carousel-bleed-img" src="/immagini/categorie2.jpg" alt="" />
+                  <div className="hero-carousel-bleed-scrim" aria-hidden="true" />
+                  <div className="hero-carousel-bleed-inner hero-carousel-bleed-inner--mirror">
+                    <p className="hero-carousel-slide2-lead fade-up">{t("homeHeroSlide2Title")}</p>
+                    <p className="hero-carousel-slide2-sub fade-up">{t("homeHeroSlide2Sub")}</p>
+                    <button
+                      type="button"
+                      className="menu-cta hero-carousel-cta hero-carousel-cta--menu fade-up"
+                      onClick={goToMenuPage}
+                    >
+                      {t("goFullMenu")}
+                    </button>
+                  </div>
+                </div>
               </div>
+            </div>
+            <div className="hero-carousel-dots" role="tablist" aria-label="Slide">
+              {[0, 1].map((idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  role="tab"
+                  tabIndex={homeHeroSlide === idx ? 0 : -1}
+                  aria-selected={homeHeroSlide === idx}
+                  aria-controls={idx === 0 ? "home-hero-slide-1" : "home-hero-slide-2"}
+                  aria-label={`${idx + 1} / 2`}
+                  className={`hero-carousel-dot ${homeHeroSlide === idx ? "is-active" : ""}`.trim()}
+                  onClick={() => setHomeHeroSlide(idx)}
+                />
+              ))}
             </div>
             <div className="hero-stats-strip">
               <div className="container hero-stats-inner">
@@ -5526,15 +5641,31 @@ export default function App() {
                 {/* CENTER: Circle + SVG ring */}
                 <div
                   className="poke-story-ring-wrap"
+                  style={{ opacity: 0, transform: "scale(0.85)", transition: "opacity 0.6s ease, transform 0.6s ease" }}
                 >
-                  <div className="poke-story-circle-bg" style={{ backgroundImage: `url(${pokeCircleImg})` }} />
-                  <button
-                    className="poke-story-center-btn"
-                    onClick={() => goTo("/crea-la-tua-poke")}
+                  <div
+                    className="poke-story-circle-hit"
+                    role="button"
+                    tabIndex={0}
                     aria-label="Componi il tuo pokè"
+                    onClick={() => goTo("/crea-la-tua-poke")}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        goTo("/crea-la-tua-poke");
+                      }
+                    }}
                   >
-                    Componi il tuo pokè
-                  </button>
+                    <div
+                      className="poke-story-circle-bg"
+                      style={{ backgroundImage: "url(/immagini/poke.png)" }}
+                    />
+                    <div className="poke-story-circle-glass" aria-hidden="true">
+                      <span className="poke-story-circle-glass-label">
+                        Componi il tuo pokè
+                      </span>
+                    </div>
+                  </div>
                   {/* r=258, cx=cy=280, circ≈1620.93. Ring ~23px outside gray circle (r_gray=235).
                       Each dash is (pct*circ - 32) to create a visible gap between segments. */}
                   <svg className="poke-story-svg" viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -5585,53 +5716,23 @@ export default function App() {
           </section>
           {/* ────────────────────────────────────────────────────────── */}
 
-          <section className="featured-menu-section-v2 section-padding">
-            <div className="container">
-              <div className="featured-header-v2">
-                <div>
-                  <p className="section-kicker">{t("dishesKicker")}</p>
-                  <h3>{t("dishesTitle")}</h3>
-                </div>
-                <button className="menu-cta menu-cta-ghost" onClick={goToMenuPage}>
-                  {t("viewAllMenu")} →
-                </button>
-              </div>
-              <div className="category-stack-grid">
-                {featuredFoodCategories.map((c: any, idx: number) => (
-                  <article
-                    key={c.id}
-                    className={`category-stack-card stack-tilt-${(idx % 5) + 1}`}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => goTo(`/menu#${slug(c.name)}`)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        goTo(`/menu#${slug(c.name)}`);
-                      }
-                    }}
-                    style={{
-                      backgroundImage: `linear-gradient(160deg, rgba(15,23,42,0.06) 0%, rgba(15,23,42,0.75) 100%), url(${resolveMediaSrc(c.image_url || showcaseImages[idx % showcaseImages.length])})`,
-                      zIndex: idx + 1,
-                    }}
-                  >
-                    <span className="stack-card-num">{String(idx + 1).padStart(2, "0")}</span>
-                    <div className="stack-card-body">
-                      <h4>{c.name}</h4>
-                      <small>{c.items_count} {t("dishes")}</small>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </section>
+          <CategoryScrollCarouselSection
+            categories={featuredFoodCategories}
+            showcaseImages={showcaseImages}
+            resolveMediaSrc={resolveMediaSrc}
+            slug={slug}
+            kicker={t("dishesKicker")}
+            title={t("dishesTitle")}
+            viewAllLabel={t("viewAllMenu")}
+            dishesWord={t("dishes")}
+            onCategoryNavigate={goTo}
+            onViewAll={goToMenuPage}
+          />
 
           <section className="gallery-strip gallery-strip-v2 section-padding">
             <div className="container gallery-header-row">
-              <div>
-                <p className="section-kicker">{t("galleryKicker")}</p>
-                <h3>{t("galleryTitle")}</h3>
-              </div>
+              <p className="section-kicker">{t("galleryKicker")}</p>
+              <h3>{t("galleryTitle")}</h3>
             </div>
             <div className="gallery-marquee-wrapper">
               <div className="gallery-fade-left" aria-hidden="true" />
@@ -5666,6 +5767,15 @@ export default function App() {
                   ))}
                 </div>
               </div>
+            </div>
+            <div className="gallery-strip-cta-wrap">
+              <button
+                type="button"
+                className="gallery-create-poke-btn"
+                onClick={() => goTo("/crea-la-tua-poke")}
+              >
+                <span className="gallery-create-poke-btn-label">{t("createPoke")}</span>
+              </button>
             </div>
           </section>
 
