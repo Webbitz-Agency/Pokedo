@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import QRCode from "qrcode";
 import {
@@ -74,6 +74,40 @@ function extractAllergenCodesFromName(name: string) {
   const allergens = match[1].split(",").map((value) => value.trim()).filter(Boolean).join(", ");
   return { cleanName, allergens: allergens || null };
 }
+
+function OptionSurchargeCrownIcon({ className = "option-chip-crown" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      width={18}
+      height={18}
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 20h14M5 16h14l1-9-4 3-4-5-4 5-4-3 1 9Z"
+      />
+    </svg>
+  );
+}
+
+type PokeSummaryLinePart = {
+  text: string;
+  hasSurcharge: boolean;
+  surchargeTotal: number;
+};
+
+type PokeSummaryRowModel = {
+  label: string;
+  normalParts: PokeSummaryLinePart[];
+  extraParts: PokeSummaryLinePart[];
+};
 type BuilderItem = {
   id: number;
   name: string;
@@ -227,6 +261,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     menu: "Menu",
     createPoke: "Crea il tuo poke",
     orderSummary: "Resoconto ordine",
+    orderSummaryPokeTab: "Resoconto pokè",
     completeOrder: "Completa ordine",
     sendOrder: "Invia ordine",
     heroKicker: "Pokedo",
@@ -288,6 +323,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     finalSummary: "Riepilogo finale",
     servicePickup: "Servizio: Asporto (Ritiro {pickup})",
     phase_size: "Dimensione",
+    size_pick_cta: "Scegli",
     phase_base: "Base",
     phase_proteins: "Proteine",
     phase_green: "Green",
@@ -299,6 +335,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     menu: "Menu",
     createPoke: "Build your poke",
     orderSummary: "Order summary",
+    orderSummaryPokeTab: "Poke recap",
     completeOrder: "Complete order",
     sendOrder: "Send order",
     heroKicker: "Pokedo Experience",
@@ -357,6 +394,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     finalSummary: "Final summary",
     servicePickup: "Service: Takeaway (Pickup {pickup})",
     phase_size: "Size",
+    size_pick_cta: "Choose",
     phase_base: "Base",
     phase_proteins: "Proteins",
     phase_green: "Green",
@@ -368,6 +406,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     menu: "Menü",
     createPoke: "Poké erstellen",
     orderSummary: "Bestellübersicht",
+    orderSummaryPokeTab: "Poké-Übersicht",
     completeOrder: "Bestellung abschließen",
     sendOrder: "Bestellung senden",
     heroKicker: "Pokedo Experience",
@@ -426,6 +465,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     finalSummary: "Endübersicht",
     servicePickup: "Service: Abholung ({pickup})",
     phase_size: "Größe",
+    size_pick_cta: "Wählen",
     phase_base: "Basis",
     phase_proteins: "Proteine",
     phase_green: "Gemüse",
@@ -437,6 +477,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     menu: "Menú",
     createPoke: "Crea tu poké",
     orderSummary: "Resumen del pedido",
+    orderSummaryPokeTab: "Resumen poké",
     completeOrder: "Completar pedido",
     sendOrder: "Enviar pedido",
     heroKicker: "Pokedo Experience",
@@ -495,6 +536,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     finalSummary: "Resumen final",
     servicePickup: "Servicio: Para llevar (Recogida {pickup})",
     phase_size: "Tamaño",
+    size_pick_cta: "Elegir",
     phase_base: "Base",
     phase_proteins: "Proteínas",
     phase_green: "Verduras",
@@ -506,37 +548,43 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     menu: "Menu",
     createPoke: "Crée ton poke",
     orderSummary: "Résumé de commande",
+    orderSummaryPokeTab: "Récap poké",
     completeOrder: "Finaliser commande",
     sendOrder: "Envoyer commande",
     callUs: "Appelle-nous",
     homeHeroSlide1Lead: "Compose ton bowl sur place ou à emporter.",
     homeHeroSlide2Title: "Le menu complet, numérique et toujours à jour.",
     homeHeroSlide2Sub:
-      "Catégories, allergènes et plats avec des prix clairs : parcours tout le menu Pokedo avant de commander sur place ou à emporter."
+      "Catégories, allergènes et plats avec des prix clairs : parcours tout le menu Pokedo avant de commander sur place ou à emporter.",
+    size_pick_cta: "Choisir"
   },
   zh: {
     home: "首页",
     menu: "菜单",
     createPoke: "创建你的 Poke",
     orderSummary: "订单摘要",
+    orderSummaryPokeTab: "波奇摘要",
     completeOrder: "完成订单",
     sendOrder: "发送订单",
     callUs: "联系我们",
     homeHeroSlide1Lead: "在店享用或外带，随心搭配你的碗。",
     homeHeroSlide2Title: "完整电子菜单，实时更新。",
-    homeHeroSlide2Sub: "分类、过敏原与价格一目了然：堂食或外带前先浏览 Pokedo 全部菜品。"
+    homeHeroSlide2Sub: "分类、过敏原与价格一目了然：堂食或外带前先浏览 Pokedo 全部菜品。",
+    size_pick_cta: "选择"
   },
   ja: {
     home: "ホーム",
     menu: "メニュー",
     createPoke: "ポケを作る",
     orderSummary: "注文サマリー",
+    orderSummaryPokeTab: "ポケ内容",
     completeOrder: "注文を完了",
     sendOrder: "注文を送信",
     callUs: "電話する",
     homeHeroSlide1Lead: "店内でもテイクアウトでも、自分好みのボウルを。",
     homeHeroSlide2Title: "フルメニューをデジタルで、いつでも最新に。",
-    homeHeroSlide2Sub: "カテゴリ・アレルゲン・価格が明確。店内・テイクアウトの前に Pokedo のメニューをじっくりチェック。"
+    homeHeroSlide2Sub: "カテゴリ・アレルゲン・価格が明確。店内・テイクアウトの前に Pokedo のメニューをじっくりチェック。",
+    size_pick_cta: "選ぶ"
   }
 };
 
@@ -701,6 +749,14 @@ function getTodayIsoDate() {
   const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function pokeOptionGridWidthCh(options: readonly { name: string; price?: number }[]): string {
+  if (options.length === 0) return "26";
+  const crownPad = options.some((o) => (o.price ?? 0) > 0) ? 3 : 0;
+  const maxLen = options.reduce((m, o) => Math.max(m, o.name.trim().length), 0);
+  const withPad = Math.max(maxLen + 14 + crownPad, 22);
+  return String(Math.min(52, withPad));
 }
 
 function detectRoute(pathOrPathname: string): Route {
@@ -1469,6 +1525,7 @@ export default function App() {
   const [tableAccessRevoked, setTableAccessRevoked] = useState(false);
   const [menuAllergenAccordionOpen, setMenuAllergenAccordionOpen] = useState(false);
   const [pokeAllergenAccordionOpen, setPokeAllergenAccordionOpen] = useState(false);
+  const [pokeSummaryModalOpen, setPokeSummaryModalOpen] = useState(false);
   const [mobilePokeSummarySheetOpen, setMobilePokeSummarySheetOpen] = useState(false);
   const [editingPokeIngredientName, setEditingPokeIngredientName] = useState<{
     phaseKey: string;
@@ -2726,33 +2783,73 @@ export default function App() {
     () => Math.max(0, pokePhases.findIndex((phase) => phase.key === activePhaseKey)),
     [pokePhases, activePhaseKey]
   );
-  const pokeSummaryRows = useMemo(() => {
-    const rows: Record<
-      string,
-      {
-        label: string;
-        normal: string[];
-        extras: string[];
-      }
-    > = {};
+  const pokeSummaryRows = useMemo((): PokeSummaryRowModel[] => {
+    const rows: Record<string, PokeSummaryRowModel> = {};
 
     selectedOptionsByGroup.forEach((entry) => {
       const baseKey = getBaseKey(entry.group.name);
       const cleanedGroupName = displayPhaseName(entry.group.name);
       if (!rows[baseKey]) {
-        rows[baseKey] = { label: cleanedGroupName, normal: [], extras: [] };
+        rows[baseKey] = { label: cleanedGroupName, normalParts: [], extraParts: [] };
       }
-      const items = entry.selections.map((selection) => `${selection.option.name} x${selection.quantity}`);
+      const parts: PokeSummaryLinePart[] = entry.selections.map((selection) => {
+        const hasSurcharge = selection.option.price > 0;
+        return {
+          text: `${selection.option.name} x${selection.quantity}`,
+          hasSurcharge,
+          surchargeTotal: hasSurcharge ? selection.option.price * selection.quantity : 0
+        };
+      });
       if (isExtraGroup(entry.group.name)) {
-        rows[baseKey].extras.push(...items);
+        rows[baseKey].extraParts.push(...parts);
       } else {
         rows[baseKey].label = cleanedGroupName;
-        rows[baseKey].normal.push(...items);
+        rows[baseKey].normalParts.push(...parts);
       }
     });
 
     return Object.values(rows);
   }, [selectedOptionsByGroup]);
+
+  const pokeSummarySegments = useCallback((parts: PokeSummaryLinePart[]) => {
+    return (
+      <>
+        {parts.map((part, idx) => (
+          <Fragment key={`${idx}-${part.text}`}>
+            {idx > 0 ? ", " : null}
+            <span
+              className={`poke-summary-chip ${part.hasSurcharge ? "poke-summary-chip--premium" : ""}`.trim()}
+            >
+              {part.hasSurcharge ? <OptionSurchargeCrownIcon className="poke-summary-modal-crown" /> : null}
+              <span className="poke-summary-chip-text">{part.text}</span>
+              {part.hasSurcharge ? (
+                <span className="poke-summary-chip-price">{formatCurrency(part.surchargeTotal)}</span>
+              ) : null}
+            </span>
+          </Fragment>
+        ))}
+      </>
+    );
+  }, []);
+
+  const pokeSummaryRowStrongContent = useCallback(
+    (row: PokeSummaryRowModel) => {
+      return (
+        <>
+          {row.normalParts.length > 0
+            ? pokeSummarySegments(row.normalParts)
+            : `${t("nonePrefix")} ${row.label.toLowerCase()}`}
+          {row.extraParts.length > 0 && (
+            <>
+              <span className="poke-summary-extras-gap">{" + "}</span>
+              {pokeSummarySegments(row.extraParts)}
+            </>
+          )}
+        </>
+      );
+    },
+    [pokeSummarySegments, t]
+  );
   const maxSequentialAccessibleStep = useMemo(() => {
     if (!selectedBuilderId) return 0;
     let maxStep = 1;
@@ -3822,7 +3919,7 @@ export default function App() {
       }
       window.history.replaceState({}, "", `${url.pathname}${url.search}`);
     }
-    pokeProgressRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollPokeProgressIntoView();
   }
 
   function openOrderDrawer() {
@@ -4116,6 +4213,10 @@ export default function App() {
     return selectedCount >= group.force_min && selectedCount <= group.force_max;
   }
 
+  function scrollPokeProgressIntoView() {
+    pokeProgressRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function goNextPokeStep() {
     if (pokeFlowStep === 0) {
       if (!selectedBuilderId) {
@@ -4125,6 +4226,7 @@ export default function App() {
       setPokeFlowStep(1);
       setPokeMaxVisitedStep((old) => Math.max(old, 1));
       setPokeActionMessage("");
+      scrollPokeProgressIntoView();
       return;
     }
     if (!pokeCurrentGroup) return;
@@ -4144,7 +4246,7 @@ export default function App() {
       return next;
     });
     setPokeActionMessage("");
-    pokeProgressRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollPokeProgressIntoView();
   }
 
   async function changeOrderStatus(orderId: number, status: string) {
@@ -5453,18 +5555,20 @@ export default function App() {
                 <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
               </button>
             </header>
-            <ul>
+            <ul className="mobile-poke-summary-ul">
               <li>
-                <span>{t("phase_size")}</span>
-                <strong>{selectedBuilder?.name || t("nonePrefix")}</strong>
+                <span className="poke-summary-phase-label">{t("phase_size")}</span>
+                <strong className="poke-summary-strong poke-summary-strong--size">
+                  {selectedBuilder?.name || t("nonePrefix")}
+                  {selectedBuilder ? (
+                    <span className="poke-summary-size-price">{formatCurrency(selectedBuilder.price)}</span>
+                  ) : null}
+                </strong>
               </li>
               {pokeSummaryRows.map((row) => (
                 <li key={`mobile-summary-${row.label}`}>
-                  <span>{row.label}</span>
-                  <strong>
-                    {row.normal.length > 0 ? row.normal.join(", ") : `${t("nonePrefix")} ${row.label.toLowerCase()}`}
-                    {row.extras.length > 0 && <em className="summary-extras-inline">{` + ${row.extras.join(", ")}`}</em>}
-                  </strong>
+                  <span className="poke-summary-phase-label">{row.label}</span>
+                  <strong className="poke-summary-strong">{pokeSummaryRowStrongContent(row)}</strong>
                 </li>
               ))}
             </ul>
@@ -5821,33 +5925,71 @@ export default function App() {
                 <h3>{t("phase_size")}</h3>
               </div>
               <div className="builder-size-cards">
-                {pokeBuilderItemsPublic.map((item) => (
-                  <article key={item.id} className="size-card">
-                    <h4>{item.name}</h4>
-                    <p>
-                      <strong>{getBuilderGroupLimit(item, "base")}</strong> {t("phase_base")}
-                    </p>
-                    <p>
-                      <strong>{item.included_proteins}</strong> {t("phase_proteins")}
-                    </p>
-                    <p>
-                      <strong>{getBuilderGroupLimit(item, "green")}</strong> {t("phase_green")}
-                    </p>
-                    <p>
-                      <strong>{getBuilderGroupLimit(item, "sals")}</strong> {t("phase_sauces")}
-                    </p>
-                    <p>
-                      <strong>{getBuilderGroupLimit(item, "crunch")}</strong> {t("phase_crunchy")}
-                    </p>
-                    <p><strong>{formatCurrency(item.price)}</strong></p>
-                    <button
-                      className="menu-cta size-pick-btn"
+                {pokeBuilderItemsPublic.map((item) => {
+                  const sizeImgSrc = resolveMediaSrc(item.image_url);
+                  const sizeCardLabel = `${item.name}. ${formatCurrency(item.price)}. ${t("size_pick_cta")}.`;
+                  return (
+                    <div
+                      key={item.id}
+                      className="size-card-wrap size-card-wrap--interactive"
+                      role="button"
+                      tabIndex={0}
+                      aria-label={sizeCardLabel}
                       onClick={() => goToPokePage(item.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          goToPokePage(item.id);
+                        }
+                      }}
                     >
-                      {t("phase_size")}
-                    </button>
-                  </article>
-                ))}
+                      <div className="size-card-move">
+                        <div className="size-card-price-pin">{formatCurrency(item.price)}</div>
+                        <article className="size-card">
+                          <div className="size-card-surface">
+                          <div className="size-card-head">
+                            <h4 className="size-card-title">{item.name}</h4>
+                          </div>
+                          <div className="size-card-photo-wrap">
+                            {sizeImgSrc ? (
+                              <img src={sizeImgSrc} alt="" className="size-card-photo-img" />
+                            ) : (
+                              <div className="size-card-photo-placeholder" aria-hidden />
+                            )}
+                          </div>
+                          <div className="size-card-footer-meta">
+                            <ul className="size-card-specs">
+                              <li>
+                                <strong>{getBuilderGroupLimit(item, "base")}</strong>
+                                <span>{t("phase_base")}</span>
+                              </li>
+                              <li>
+                                <strong>{item.included_proteins}</strong>
+                                <span>{t("phase_proteins")}</span>
+                              </li>
+                              <li>
+                                <strong>{getBuilderGroupLimit(item, "green")}</strong>
+                                <span>{t("phase_green")}</span>
+                              </li>
+                              <li>
+                                <strong>{getBuilderGroupLimit(item, "sals")}</strong>
+                                <span>{t("phase_sauces")}</span>
+                              </li>
+                              <li>
+                                <strong>{getBuilderGroupLimit(item, "crunch")}</strong>
+                                <span>{t("phase_crunchy")}</span>
+                              </li>
+                            </ul>
+                            <span className="menu-cta size-pick-btn" aria-hidden="true">
+                              {t("size_pick_cta")}
+                            </span>
+                          </div>
+                        </div>
+                      </article>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -5982,21 +6124,9 @@ export default function App() {
 
       {!loading && !error && route === "/crea-la-tua-poke" && menu && (
         <section className="poke-builder-page">
-          <div className="menu-hero poke-builder-hero">
-            <img
-              src={resolveMediaSrc(appSettings.site.poke_hero_url || DEFAULT_APP_SETTINGS.site.poke_hero_url)}
-              alt="Crea la tua poke"
-            />
-            <div className="menu-hero-overlay" />
-            <div className="container menu-hero-content">
-              <p className="section-kicker">{t("createPoke")}</p>
-              <h2>Componi la tua bowl step by step.</h2>
-              <p>Scegli dimensione, base, proteine e tutti gli extra con totale sempre aggiornato.</p>
-            </div>
-          </div>
-
           <section className="poke-phase-strip">
             <div className="container">
+              <div className="poke-step-progress-row">
               <div className="poke-step-progress" ref={pokeProgressRef}>
                 {pokePhases.map((phase, idx) => {
                   const isActive = idx === activePhaseIndex;
@@ -6021,6 +6151,7 @@ export default function App() {
                           return;
                         }
                           setPokeFlowStep(targetStep);
+                          scrollPokeProgressIntoView();
                         }}
                       >
                         <span className="dot-number">{idx + 1}</span>
@@ -6042,12 +6173,16 @@ export default function App() {
                   );
                 })}
               </div>
+              </div>
               <div className="poke-step-mobile-nav">
                 <button
                   className="poke-step-mobile-arrow"
                   aria-label={t("prevPhase")}
                   disabled={pokeFlowStep === 0}
-                  onClick={() => setPokeFlowStep((step) => Math.max(0, step - 1))}
+                  onClick={() => {
+                    setPokeFlowStep((step) => Math.max(0, step - 1));
+                    scrollPokeProgressIntoView();
+                  }}
                 >
                   <wa-icon name="chevron-left" variant="solid" aria-hidden="true"></wa-icon>
                 </button>
@@ -6067,98 +6202,223 @@ export default function App() {
             </div>
           </section>
 
-          <section className="container poke-allergen-filter-wrap">
-            <div className="menu-allergen-filter">
-              <header className="section-title centered menu-category-title">
-                <p className="section-kicker">Allergeni</p>
-                <h3>Filtra gli ingredienti in base agli allergeni</h3>
-                <p>
-                  Se selezioni una o piu icone qui sotto, gli ingredienti che contengono quegli allergeni non saranno visibili.
-                </p>
-                <button
-                  type="button"
-                  className="mobile-allergen-toggle"
-                  onClick={() => setPokeAllergenAccordionOpen((old) => !old)}
-                  aria-expanded={pokeAllergenAccordionOpen}
-                >
-                  {pokeAllergenAccordionOpen ? "Nascondi filtro" : "Mostra filtro"}
-                </button>
-              </header>
-              <div className={`public-allergen-accordion ${pokeAllergenAccordionOpen ? "open" : ""}`.trim()}>
-              <div className="public-allergen-grid">
-                {ALLERGEN_OPTIONS.map((allergen) => {
-                  const selected = pokeExcludedAllergens.includes(allergen.id);
-                  return (
-                    <button
-                      key={`public-poke-allergen-${allergen.id}`}
-                      type="button"
-                      className={`public-allergen-option ${selected ? "selected" : ""}`.trim()}
-                      onClick={() =>
-                        setPokeExcludedAllergens((old) =>
-                          old.includes(allergen.id)
-                            ? old.filter((code) => code !== allergen.id)
-                            : [...old, allergen.id].sort((a, b) => a - b)
-                        )
-                      }
-                    >
-                      {allergen.icon_url ? (
-                        <img src={allergen.icon_url} alt={allergen.title} />
-                      ) : (
-                        <span className="allergen-fallback">{allergen.id}</span>
-                      )}
-                      <small>
-                        {allergen.id}. {allergen.title}
-                      </small>
-                    </button>
-                  );
-                })}
-              </div>
-              {pokeExcludedAllergens.length > 0 && (
-                <div className="public-allergen-actions">
-                  <button className="plain-link" onClick={() => setPokeExcludedAllergens([])}>
-                    Mostra tutti gli ingredienti
+          {/* ── Allergen side tab ── */}
+          <button
+            type="button"
+            className="allergen-side-tab"
+            onClick={() => setPokeAllergenAccordionOpen(true)}
+            aria-label="Filtra allergeni"
+          >
+            <span className="allergen-side-tab-label">Filtra allergeni</span>
+            {pokeExcludedAllergens.length > 0 && (
+              <span className="allergen-side-tab-badge">{pokeExcludedAllergens.length}</span>
+            )}
+          </button>
+
+          {/* ── Allergen filter modal ── */}
+          {pokeAllergenAccordionOpen && (
+            <div
+              className="allergen-modal-overlay"
+              onClick={(e) => { if (e.target === e.currentTarget) setPokeAllergenAccordionOpen(false); }}
+            >
+              <div className="allergen-modal" role="dialog" aria-modal="true" aria-label="Filtra allergeni">
+                <div className="allergen-modal-header">
+                  <div>
+                    <p className="section-kicker">Allergeni</p>
+                    <h3>Filtra gli ingredienti in base agli allergeni</h3>
+                    <p className="allergen-modal-sub">
+                      Se selezioni una o più icone, gli ingredienti con quegli allergeni non saranno visibili.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="allergen-modal-close"
+                    onClick={() => setPokeAllergenAccordionOpen(false)}
+                    aria-label="Chiudi"
+                  >
+                    <wa-icon name="xmark" variant="solid" aria-hidden="true" />
                   </button>
                 </div>
-              )}
+                <div className="public-allergen-grid">
+                  {ALLERGEN_OPTIONS.map((allergen) => {
+                    const selected = pokeExcludedAllergens.includes(allergen.id);
+                    return (
+                      <button
+                        key={`public-poke-allergen-${allergen.id}`}
+                        type="button"
+                        className={`public-allergen-option ${selected ? "selected" : ""}`.trim()}
+                        onClick={() =>
+                          setPokeExcludedAllergens((old) =>
+                            old.includes(allergen.id)
+                              ? old.filter((code) => code !== allergen.id)
+                              : [...old, allergen.id].sort((a, b) => a - b)
+                          )
+                        }
+                      >
+                        {allergen.icon_url ? (
+                          <img src={allergen.icon_url} alt={allergen.title} />
+                        ) : (
+                          <span className="allergen-fallback">{allergen.id}</span>
+                        )}
+                        <small>{allergen.id}. {allergen.title}</small>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="allergen-modal-footer">
+                  {pokeExcludedAllergens.length > 0 && (
+                    <button className="plain-link" onClick={() => setPokeExcludedAllergens([])}>
+                      Mostra tutti gli ingredienti
+                    </button>
+                  )}
+                  <button
+                    className="menu-cta menu-cta-blue"
+                    onClick={() => setPokeAllergenAccordionOpen(false)}
+                  >
+                    Applica filtro
+                  </button>
+                </div>
               </div>
             </div>
-          </section>
+          )}
 
-          <div className="container section-padding poke-builder-layout">
+          {/* ── Order summary side tab (right) ── */}
+          <button
+            type="button"
+            className="order-summary-side-tab"
+            onClick={() => setPokeSummaryModalOpen(true)}
+            aria-label={t("orderSummaryPokeTab")}
+          >
+            <span className="order-summary-side-tab-label">{t("orderSummaryPokeTab")}</span>
+            {orderCount > 0 && <span className="order-summary-side-tab-badge">{orderCount}</span>}
+          </button>
+
+          {pokeSummaryModalOpen && (
+            <div
+              className="allergen-modal-overlay"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setPokeSummaryModalOpen(false);
+              }}
+            >
+              <div
+                className="allergen-modal poke-summary-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-label={t("orderSummary")}
+              >
+                <div className="allergen-modal-header">
+                  <div>
+                    <h3>{t("orderSummary")}</h3>
+                  </div>
+                  <button
+                    type="button"
+                    className="allergen-modal-close"
+                    onClick={() => setPokeSummaryModalOpen(false)}
+                    aria-label="Chiudi"
+                  >
+                    <wa-icon name="xmark" variant="solid" aria-hidden="true" />
+                  </button>
+                </div>
+                <ul className="poke-summary-modal-ul">
+                  <li>
+                    <span className="poke-summary-phase-label">{t("phase_size")}</span>
+                    <strong className="poke-summary-strong poke-summary-strong--size">
+                      {selectedBuilder?.name || t("nonePrefix")}
+                      {selectedBuilder ? (
+                        <span className="poke-summary-size-price">{formatCurrency(selectedBuilder.price)}</span>
+                      ) : null}
+                    </strong>
+                  </li>
+                  {pokeSummaryRows.map((row) => (
+                    <li key={`poke-summary-modal-${row.label}`}>
+                      <span className="poke-summary-phase-label">{row.label}</span>
+                      <strong className="poke-summary-strong">{pokeSummaryRowStrongContent(row)}</strong>
+                    </li>
+                  ))}
+                </ul>
+                <p className="order-total poke-summary-modal-total">
+                  {t("total")}: {formatCurrency(orderTotal)}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div
+            className={`container section-padding poke-builder-layout${pokeAddedMessage ? " poke-builder-layout--poke-added-success" : ""}`.trim()}
+          >
             {!pokeAddedMessage ? (
               <>
-                <section className="card poke-builder-main">
+                <section className="poke-builder-main poke-builder-main--flush">
               {pokeFlowStep === 0 && (
                 <>
                   <h3>{t("phase_size")}</h3>
                   <div className="builder-size-cards">
-                    {pokeBuilderItemsPublic.map((item) => (
-                      <article
-                        key={item.id}
-                        className={`size-card ${selectedBuilderId === item.id ? "selected" : ""}`}
-                      >
-                        <h4>{item.name}</h4>
-                        <p>
-                          <strong>{getBuilderGroupLimit(item, "base")}</strong> {t("phase_base")}
-                        </p>
-                        <p>
-                          <strong>{item.included_proteins}</strong> {t("phase_proteins")}
-                        </p>
-                        <p>
-                          <strong>{getBuilderGroupLimit(item, "green")}</strong> {t("phase_green")}
-                        </p>
-                        <p>
-                          <strong>{getBuilderGroupLimit(item, "sals")}</strong> {t("phase_sauces")}
-                        </p>
-                        <p>
-                          <strong>{getBuilderGroupLimit(item, "crunch")}</strong> {t("phase_crunchy")}
-                        </p>
-                        <p><strong>{formatCurrency(item.price)}</strong></p>
-                        <button className="menu-cta size-pick-btn" onClick={() => pickBuilder(item.id)}>
-                          {t("phase_size")}
-                        </button>
-                      </article>
-                    ))}
+                    {pokeBuilderItemsPublic.map((item) => {
+                      const sizeImgSrc = resolveMediaSrc(item.image_url);
+                      const isSel = selectedBuilderId === item.id;
+                      const sizeCardLabel = `${item.name}. ${formatCurrency(item.price)}. ${t("size_pick_cta")}.`;
+                      return (
+                        <div
+                          key={item.id}
+                          className="size-card-wrap size-card-wrap--interactive"
+                          role="button"
+                          tabIndex={0}
+                          aria-label={sizeCardLabel}
+                          onClick={() => pickBuilder(item.id)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              pickBuilder(item.id);
+                            }
+                          }}
+                        >
+                          <div className="size-card-move">
+                            <div className="size-card-price-pin">{formatCurrency(item.price)}</div>
+                            <article className={`size-card ${isSel ? "selected" : ""}`}>
+                            <div className="size-card-surface">
+                              <div className="size-card-head">
+                                <h4 className="size-card-title">{item.name}</h4>
+                              </div>
+                              <div className="size-card-photo-wrap">
+                                {sizeImgSrc ? (
+                                  <img src={sizeImgSrc} alt="" className="size-card-photo-img" />
+                                ) : (
+                                  <div className="size-card-photo-placeholder" aria-hidden />
+                                )}
+                              </div>
+                              <div className="size-card-footer-meta">
+                                <ul className="size-card-specs">
+                                  <li>
+                                    <strong>{getBuilderGroupLimit(item, "base")}</strong>
+                                    <span>{t("phase_base")}</span>
+                                  </li>
+                                  <li>
+                                    <strong>{item.included_proteins}</strong>
+                                    <span>{t("phase_proteins")}</span>
+                                  </li>
+                                  <li>
+                                    <strong>{getBuilderGroupLimit(item, "green")}</strong>
+                                    <span>{t("phase_green")}</span>
+                                  </li>
+                                  <li>
+                                    <strong>{getBuilderGroupLimit(item, "sals")}</strong>
+                                    <span>{t("phase_sauces")}</span>
+                                  </li>
+                                  <li>
+                                    <strong>{getBuilderGroupLimit(item, "crunch")}</strong>
+                                    <span>{t("phase_crunchy")}</span>
+                                  </li>
+                                </ul>
+                                <span className="menu-cta size-pick-btn" aria-hidden="true">
+                                  {t("size_pick_cta")}
+                                </span>
+                              </div>
+                            </div>
+                          </article>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </>
               )}
@@ -6175,23 +6435,33 @@ export default function App() {
                     const combinedOptions = mergeExtraWithIncluded ? [...includedOptions, ...extraOptions] : includedOptions;
                     return (
                       <>
-                  <h3>{getOrderEditPhaseLabel(selectedBuilder, pokeCurrentGroup.id)}</h3>
-                  {pokeCurrentGroup.description && (
-                    <p className="muted">{translateDescription(pokeCurrentGroup.description)}</p>
-                  )}
-                  <p className="muted">
+                  <div className="poke-phase-intro">
+                    <h3>{getOrderEditPhaseLabel(selectedBuilder, pokeCurrentGroup.id)}</h3>
+                    {pokeCurrentGroup.description && (
+                      <p className="muted poke-phase-description">
+                        {translateDescription(pokeCurrentGroup.description)}
+                      </p>
+                    )}
+                  </div>
+                  <p className="muted poke-phase-selection">
                     {t("selectedMax", {
                       selected: getGroupSelectionCount(pokeCurrentGroup.id),
                       max: pokeCurrentGroup.force_max
                     })}
                     {pokeCurrentGroup.required ? t("minPart", { min: pokeCurrentGroup.force_min }) : ""}
                   </p>
-                  {pokeLimitMessage && <p className="warning warning-animated">{pokeLimitMessage}</p>}
 
                   {combinedOptions.length > 0 && (
                     <div className="poke-options-block">
                       {!mergeExtraWithIncluded && <p className="muted"><strong>{t("included")}</strong></p>}
-                      <div className="option-grid">
+                      <div
+                        className="option-grid option-grid--poke-builder"
+                          style={
+                            {
+                              "--poke-chip-w": `${pokeOptionGridWidthCh(combinedOptions)}ch`
+                            } as CSSProperties
+                          }
+                      >
                         {combinedOptions.map((option) => {
                             const optionQty = getOptionQuantity(pokeCurrentGroup.id, option.id);
                             return (
@@ -6199,42 +6469,59 @@ export default function App() {
                                 key={option.id}
                                 role="button"
                                 tabIndex={0}
-                                className={`option-chip ${optionQty > 0 ? "selected" : ""} ${option.is_out_of_stock ? "disabled" : ""}`}
+                                className={`option-chip ${option.price > 0 ? "option-chip--surcharge" : ""} ${optionQty > 0 ? "selected" : ""} ${option.is_out_of_stock ? "disabled" : ""}`}
                                 onClick={() => incrementOption(pokeCurrentGroup, option)}
                                 onKeyDown={(e) => {
                                   if (e.key === "Enter" || e.key === " ") incrementOption(pokeCurrentGroup, option);
                                 }}
                               >
-                                <span>{option.name}</span>
-                                <em>
-                                  {optionQty > 0
-                                    ? `Qta ${optionQty}`
-                                    : option.price > 0
-                                      ? `+ ${formatCurrency(option.price)}`
-                                      : ""}
-                                </em>
-                                {optionQty > 0 && (
-                                  <span className="chip-qty-actions">
-                                    <button
-                                      className="qty-text-action"
+                                <span className="option-chip-label">
+                                  {option.price > 0 ? <OptionSurchargeCrownIcon /> : null}
+                                  {option.name}
+                                </span>
+                                <div className="option-chip-trailing">
+                                  {optionQty > 0 ? (
+                                    <span
+                                      className="chip-qty-pill"
+                                      role="group"
+                                      aria-label={`Quantità ${optionQty}`}
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        decrementOption(pokeCurrentGroup.id, option.id);
                                       }}
-                                    >
-                                      -
-                                    </button>
-                                    <button
-                                      className="qty-text-action"
-                                      onClick={(e) => {
+                                      onKeyDown={(e) => {
                                         e.stopPropagation();
-                                        incrementOption(pokeCurrentGroup, option);
                                       }}
                                     >
-                                      +
-                                    </button>
-                                  </span>
-                                )}
+                                      <button
+                                        type="button"
+                                        className="chip-qty-pill-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          decrementOption(pokeCurrentGroup.id, option.id);
+                                        }}
+                                        aria-label="Diminuisci quantità"
+                                      >
+                                        −
+                                      </button>
+                                      <span className="chip-qty-pill-num">{optionQty}</span>
+                                      <button
+                                        type="button"
+                                        className="chip-qty-pill-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          incrementOption(pokeCurrentGroup, option);
+                                        }}
+                                        aria-label="Aumenta quantità"
+                                      >
+                                        +
+                                      </button>
+                                    </span>
+                                  ) : (
+                                    <em className={option.price > 0 ? "chip-price-surcharge" : undefined}>
+                                      {option.price > 0 ? `+ ${formatCurrency(option.price)}` : ""}
+                                    </em>
+                                  )}
+                                </div>
                               </div>
                             );
                           })}
@@ -6245,7 +6532,12 @@ export default function App() {
                   {!mergeExtraWithIncluded && extraOptions.length > 0 && (
                     <div className="poke-options-block">
                       <p className="muted"><strong>{t("extra")}</strong></p>
-                      <div className="option-grid">
+                      <div
+                        className="option-grid option-grid--poke-builder"
+                        style={
+                          { "--poke-chip-w": `${pokeOptionGridWidthCh(extraOptions)}ch` } as CSSProperties
+                        }
+                      >
                         {extraOptions.map((option) => {
                             const optionQty = getOptionQuantity(pokeCurrentGroup.id, option.id);
                             return (
@@ -6253,36 +6545,57 @@ export default function App() {
                                 key={option.id}
                                 role="button"
                                 tabIndex={0}
-                                className={`option-chip ${optionQty > 0 ? "selected" : ""} ${option.is_out_of_stock ? "disabled" : ""}`}
+                                className={`option-chip ${option.price > 0 ? "option-chip--surcharge" : ""} ${optionQty > 0 ? "selected" : ""} ${option.is_out_of_stock ? "disabled" : ""}`}
                                 onClick={() => incrementOption(pokeCurrentGroup, option)}
                                 onKeyDown={(e) => {
                                   if (e.key === "Enter" || e.key === " ") incrementOption(pokeCurrentGroup, option);
                                 }}
                               >
-                                <span>{option.name}</span>
-                                <em>{`+ ${formatCurrency(option.price)}`}</em>
-                                {optionQty > 0 && (
-                                  <span className="chip-qty-actions">
-                                    <button
-                                      className="qty-text-action"
+                                <span className="option-chip-label">
+                                  <OptionSurchargeCrownIcon />
+                                  {option.name}
+                                </span>
+                                <div className="option-chip-trailing">
+                                  {optionQty > 0 ? (
+                                    <span
+                                      className="chip-qty-pill"
+                                      role="group"
+                                      aria-label={`Quantità ${optionQty}`}
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        decrementOption(pokeCurrentGroup.id, option.id);
                                       }}
-                                    >
-                                      -
-                                    </button>
-                                    <button
-                                      className="qty-text-action"
-                                      onClick={(e) => {
+                                      onKeyDown={(e) => {
                                         e.stopPropagation();
-                                        incrementOption(pokeCurrentGroup, option);
                                       }}
                                     >
-                                      +
-                                    </button>
-                                  </span>
-                                )}
+                                      <button
+                                        type="button"
+                                        className="chip-qty-pill-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          decrementOption(pokeCurrentGroup.id, option.id);
+                                        }}
+                                        aria-label="Diminuisci quantità"
+                                      >
+                                        −
+                                      </button>
+                                      <span className="chip-qty-pill-num">{optionQty}</span>
+                                      <button
+                                        type="button"
+                                        className="chip-qty-pill-btn"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          incrementOption(pokeCurrentGroup, option);
+                                        }}
+                                        aria-label="Aumenta quantità"
+                                      >
+                                        +
+                                      </button>
+                                    </span>
+                                  ) : (
+                                    <em className="chip-price-surcharge">+ {formatCurrency(option.price)}</em>
+                                  )}
+                                </div>
                               </div>
                             );
                           })}
@@ -6296,15 +6609,12 @@ export default function App() {
               )}
 
               <div className="builder-actions">
-                {(pokeLimitMessage || pokeActionMessage) && (
-                  <div className="builder-notifications">
-                    {pokeLimitMessage && <p className="warning warning-animated">{pokeLimitMessage}</p>}
-                    {pokeActionMessage && <p className="warning warning-orange warning-animated">{pokeActionMessage}</p>}
-                  </div>
-                )}
                 <button
                   disabled={pokeFlowStep === 0}
-                  onClick={() => setPokeFlowStep((s) => Math.max(0, s - 1))}
+                  onClick={() => {
+                    setPokeFlowStep((s) => Math.max(0, s - 1));
+                    scrollPokeProgressIntoView();
+                  }}
                 >
                   {t("back")}
                 </button>
@@ -6327,32 +6637,9 @@ export default function App() {
               </div>
               {pokeAddedMessage && <p className="success">{pokeAddedMessage}</p>}
                 </section>
-
-                <aside className="card poke-builder-summary">
-                  <h4>{t("orderSummary")}</h4>
-                  <ul>
-                    <li>
-                      <span>{t("phase_size")}</span>
-                      <strong>{selectedBuilder?.name || t("nonePrefix")}</strong>
-                    </li>
-                    {pokeSummaryRows.map((row) => (
-                      <li key={row.label}>
-                        <span>{row.label}</span>
-                        <strong>
-                          {row.normal.length > 0 ? row.normal.join(", ") : `${t("nonePrefix")} ${row.label.toLowerCase()}`}
-                          {row.extras.length > 0 && <em className="summary-extras-inline">{` + ${row.extras.join(", ")}`}</em>}
-                        </strong>
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="order-total">{t("total")}: {formatCurrency(orderTotal)}</p>
-                  <button className="cta big" onClick={() => (orderOpen ? closeOrderDrawer() : openOrderDrawer())}>
-                    {t("viewOrder")}
-                  </button>
-                </aside>
               </>
             ) : (
-              <section className="card poke-added-card">
+              <section className="poke-added-card">
                 <div className="poke-added-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24">
                     <path d="M9.2 16.2 5.5 12.5l-1.4 1.4 5.1 5.1L20 8.2l-1.4-1.4z" />
@@ -6370,6 +6657,45 @@ export default function App() {
               </section>
             )}
           </div>
+
+          {(pokeLimitMessage || pokeActionMessage) && (
+            <div className="poke-builder-toast-stack" aria-live="polite">
+              {pokeLimitMessage && (
+                <div className="poke-builder-toast poke-builder-toast--limit" role="alert">
+                  <p className="poke-builder-toast-text">{pokeLimitMessage}</p>
+                  <button
+                    type="button"
+                    className="poke-builder-toast-dismiss"
+                    onClick={() => {
+                      if (pokeLimitTimerRef.current) window.clearTimeout(pokeLimitTimerRef.current);
+                      pokeLimitTimerRef.current = null;
+                      setPokeLimitMessage("");
+                    }}
+                    aria-label="Chiudi avviso"
+                  >
+                    <wa-icon name="xmark" variant="solid" aria-hidden="true" />
+                  </button>
+                </div>
+              )}
+              {pokeActionMessage && (
+                <div className="poke-builder-toast poke-builder-toast--action" role="status">
+                  <p className="poke-builder-toast-text">{pokeActionMessage}</p>
+                  <button
+                    type="button"
+                    className="poke-builder-toast-dismiss"
+                    onClick={() => {
+                      if (pokeActionTimerRef.current) window.clearTimeout(pokeActionTimerRef.current);
+                      pokeActionTimerRef.current = null;
+                      setPokeActionMessage("");
+                    }}
+                    aria-label="Chiudi avviso"
+                  >
+                    <wa-icon name="xmark" variant="solid" aria-hidden="true" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </section>
       )}
 

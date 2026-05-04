@@ -1193,7 +1193,13 @@ select {
 }
 
 .poke-builder-page {
+  /* Riempie l’area tra header e footer (flex col su .app-root) così non si vede il #f4f8ff globale sopra il footer */
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   padding-bottom: 24px;
+  background: #fff;
 }
 
 .poke-builder-hero {
@@ -1206,15 +1212,31 @@ select {
 
 .poke-phase-strip {
   width: 100%;
-  margin-top: 52px;
-  padding: 22px 0 32px;
+  margin-top: 16px;
+  padding: 12px 0 14px;
 }
 
 .poke-builder-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.9fr);
+  grid-template-columns: 1fr;
   gap: 14px;
   align-items: start;
+}
+
+/* Schermata “poke aggiunta”: centra il blocco nell’area sotto allo stepper */
+.poke-builder-layout.poke-builder-layout--poke-added-success {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  align-items: center;
+  gap: 0;
+  min-height: 0;
+}
+
+.poke-builder-layout.poke-builder-layout--poke-added-success.section-padding {
+  padding-top: 28px;
+  padding-bottom: 40px;
 }
 
 .poke-builder-main {
@@ -1222,11 +1244,142 @@ select {
   gap: 12px;
 }
 
+.poke-builder-main--flush {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.poke-builder-main--flush .poke-phase-intro {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.poke-builder-main--flush .poke-phase-intro h3 {
+  margin: 0;
+  text-align: center;
+}
+
+.poke-phase-description {
+  margin: 0 !important;
+  font-size: 0.93rem;
+  line-height: 1.42;
+  max-width: min(520px, 100%);
+}
+
+.poke-phase-selection {
+  margin: 0 auto 8px !important;
+  padding: 0 !important;
+  font-size: 0.76rem !important;
+  line-height: 1.32;
+  text-align: center;
+}
+
+/* Avvisi limiti poke — toast fisso alto-destra */
+.poke-builder-toast-stack {
+  position: fixed;
+  top: calc(74px + env(safe-area-inset-top, 0px));
+  right: max(14px, env(safe-area-inset-right, 0px));
+  z-index: 88;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.poke-builder-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(360px, calc(100vw - 36px));
+  padding: 12px 12px 12px 14px;
+  border-radius: 14px;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.22);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  animation: pokeBuilderToastIn 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes pokeBuilderToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.poke-builder-toast--limit {
+  background: linear-gradient(155deg, #ef4444 0%, #b91c1c 100%);
+  border: 1px solid rgba(127, 29, 29, 0.45);
+}
+
+.poke-builder-toast--action {
+  background: linear-gradient(135deg, #ea580c 0%, #f59e0b 100%);
+}
+
+.poke-builder-toast-text {
+  margin: 0;
+  flex: 1;
+  align-self: center;
+  min-height: 0;
+}
+
+.poke-builder-toast-dismiss {
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.poke-builder-toast-dismiss:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.poke-builder-toast-dismiss:active {
+  transform: scale(0.94);
+}
+
+.poke-builder-toast-dismiss wa-icon {
+  font-size: 15px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poke-builder-toast {
+    animation: none;
+  }
+}
+
+.poke-step-progress-row {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
 .poke-step-progress {
   display: flex;
   align-items: flex-start;
-  max-width: 980px;
-  margin: 0 auto;
+  width: 100%;
 }
 
 .poke-step-mobile-nav {
@@ -1238,6 +1391,11 @@ select {
   align-items: flex-start;
   flex: 1;
   min-width: 0;
+}
+
+/* Solo l'ultimo step non ha connector: non deve rubare tutto il flex-grow a vuoto */
+.poke-step-node:last-child {
+  flex: 0 0 auto;
 }
 
 .poke-step-dot {
@@ -1381,7 +1539,12 @@ select {
 .poke-added-card {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 32px 20px;
+  padding: 28px 20px 48px;
+  margin-inline: auto;
+  max-width: 560px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .poke-added-icon {
@@ -1802,6 +1965,393 @@ select {
   margin-bottom: 10px;
 }
 
+/* ── Allergen side tab ──────────────────────────────────────────────── */
+.allergen-side-tab {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) translateX(-50%);
+  z-index: 800;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  color: #2563eb;
+  border: 2px solid #2563eb;
+  border-radius: 12px;
+  padding: 20px 14px 20px 44px;
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s ease,
+              background 0.2s ease,
+              border-color 0.2s ease;
+  box-shadow: 3px 4px 16px rgba(37,99,235,0.15);
+}
+
+.allergen-side-tab:hover {
+  transform: translateY(-50%) translateX(-30%);
+  background: #eff6ff;
+  border-color: #1d4ed8;
+  box-shadow: 4px 6px 20px rgba(37,99,235,0.22);
+}
+
+.allergen-side-tab-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #2563eb;
+}
+
+.allergen-side-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* ── Order summary side tab (right, mirror of allergen tab) ─────────── */
+.order-summary-side-tab {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%) translateX(50%);
+  z-index: 800;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(120deg, #2563eb, #0ea5e9);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 20px 44px 20px 14px;
+  cursor: pointer;
+  overflow: visible;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.3s ease;
+  box-shadow: -3px 4px 18px rgba(37,99,235,0.3);
+}
+
+.order-summary-side-tab:hover {
+  transform: translateY(-50%) translateX(30%);
+  box-shadow: -4px 6px 24px rgba(37,99,235,0.45);
+}
+
+.order-summary-side-tab-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.order-summary-side-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.poke-summary-modal-ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.poke-summary-modal-ul li {
+  display: grid;
+  gap: 4px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.poke-summary-modal-ul li:last-child {
+  border-bottom: none;
+}
+
+.poke-summary-modal-total {
+  margin: 0;
+  padding-top: 4px;
+  padding-bottom: 8px;
+  font-weight: 900;
+}
+
+/* Resoconto ordine poke: tema più colorato + extra con corona / oro */
+.allergen-modal.poke-summary-modal {
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid rgba(37, 99, 235, 0.14);
+  background:
+    radial-gradient(120% 85% at 100% -30%, rgba(14, 165, 233, 0.12), transparent 48%),
+    radial-gradient(80% 55% at 0% -10%, rgba(37, 99, 235, 0.08), transparent 45%),
+    linear-gradient(180deg, #f6faff 0%, #ffffff 74%);
+  box-shadow:
+    0 20px 48px rgba(30, 64, 175, 0.11),
+    0 1px 0 rgba(255, 255, 255, 0.88) inset;
+}
+
+.poke-summary-modal .allergen-modal-header {
+  align-items: center;
+}
+
+.poke-summary-modal .allergen-modal-close {
+  border-color: rgba(37, 99, 235, 0.22);
+  background: linear-gradient(180deg, #eff6ff, #ffffff);
+}
+
+.poke-summary-modal .allergen-modal-header h3 {
+  margin: 0;
+  background: linear-gradient(118deg, #1e3a8a 0%, #2563eb 50%, #0ea5e9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@supports not (background-clip: text) {
+  .poke-summary-modal .allergen-modal-header h3 {
+    background: none;
+    color: #1e40af;
+  }
+}
+
+.poke-summary-phase-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.085em;
+  color: #2563eb;
+}
+
+.poke-summary-strong {
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.58;
+}
+
+.poke-summary-strong--size .poke-summary-size-price {
+  margin-left: 8px;
+  font-size: 0.91rem;
+  font-weight: 800;
+  color: #1d4ed8;
+  background: linear-gradient(125deg, rgba(37, 99, 235, 0.14), rgba(14, 165, 233, 0.1));
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.poke-summary-chip {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 5px;
+  vertical-align: middle;
+}
+
+.poke-summary-chip--premium {
+  color: #78350f;
+}
+
+.poke-summary-chip-text {
+  font-weight: 700;
+}
+
+.poke-summary-chip--premium .poke-summary-chip-text {
+  font-weight: 800;
+}
+
+.poke-summary-modal-crown {
+  flex-shrink: 0;
+  width: 15px !important;
+  height: 15px !important;
+  color: #d97706;
+}
+
+.poke-summary-chip-price {
+  font-size: 0.71rem;
+  font-weight: 800;
+  color: #92400e;
+  background: rgba(251, 191, 36, 0.38);
+  border: 1px solid rgba(217, 119, 6, 0.42);
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-left: 2px;
+}
+
+.poke-summary-extras-gap {
+  font-weight: 700;
+  color: #64748b;
+  margin-inline: 2px;
+}
+
+.poke-summary-modal-ul li {
+  border-bottom-color: rgba(148, 163, 184, 0.38);
+}
+
+.poke-summary-modal-total.order-total {
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 1.06rem;
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  background: linear-gradient(125deg, rgba(219, 234, 254, 0.75), rgba(224, 242, 254, 0.55));
+  margin-top: 6px;
+  color: #0f172a;
+}
+
+.mobile-poke-summary-ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.mobile-poke-summary-ul .poke-summary-phase-label {
+  letter-spacing: 0.07em;
+}
+
+.mobile-poke-summary-ul li {
+  display: grid;
+  gap: 4px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.38);
+  padding-bottom: 8px;
+}
+
+.mobile-poke-summary-ul li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+@keyframes allergen-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes allergen-modal-in {
+  from { opacity: 0; transform: scale(0.94) translateY(12px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.allergen-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: allergen-overlay-in 0.22s ease;
+}
+
+.allergen-modal {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 24px 64px rgba(15,23,42,0.18);
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
+  animation: allergen-modal-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.allergen-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.allergen-modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 4px 0 6px;
+}
+
+.allergen-modal-sub {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.allergen-modal-close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.18s, color 0.18s;
+}
+
+.allergen-modal-close:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.allergen-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
+  padding-top: 4px;
+  border-top: 1px solid #f1f5f9;
+}
+
+@media (max-width: 600px) {
+  .allergen-modal {
+    padding: 20px 16px;
+  }
+  .allergen-modal .public-allergen-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .allergen-modal-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .allergen-modal-footer .menu-cta {
+    text-align: center;
+  }
+}
+
 .poke-builder-layout.section-padding {
   padding-top: 22px;
 }
@@ -1955,7 +2505,8 @@ select {
   position: fixed;
   inset: 0;
   background: rgba(2, 6, 23, 0.45);
-  z-index: 90;
+  /* Sopra linguette poke (filtra allergeni / resoconto, z-index 800) e navbar; sotto modali dedicati es. allergeni (9000) */
+  z-index: 920;
   display: flex;
   justify-content: flex-end;
   animation: fadeIn 0.2s ease;
@@ -2412,26 +2963,6 @@ select {
   gap: 12px;
 }
 
-.builder-size-cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.size-card {
-  border: 1px solid #bfdbfe;
-  border-radius: 12px;
-  padding: 12px;
-  text-align: left;
-  background: #eff6ff;
-  cursor: pointer;
-}
-
-.size-card.selected {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px #93c5fd inset;
-}
-
 .step-label {
   margin: 0;
   font-size: 12px;
@@ -2508,12 +3039,139 @@ select {
   cursor: not-allowed;
 }
 
-.chip-qty-actions {
-  grid-column: 1 / -1;
+/* Poke builder: opzione con sovrapprezzo — corona oro + prezzo su sfondo ambra trasparente */
+.poke-builder-main .option-grid--poke-builder .option-chip-label {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
+  min-width: 0;
+}
+
+.poke-builder-main .option-grid--poke-builder .option-chip-crown {
+  flex-shrink: 0;
+  color: #d97706;
+  filter: drop-shadow(0 0 0.5px rgba(180, 83, 9, 0.22));
+}
+
+.poke-builder-main .option-grid--poke-builder .option-chip.selected .option-chip-crown {
+  color: #b45309;
+  filter: drop-shadow(0 0 0.5px rgba(251, 191, 36, 0.28));
+}
+
+.poke-builder-main .option-grid--poke-builder em.chip-price-surcharge {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 13px;
+  color: #92400e;
+  background: rgba(251, 191, 36, 0.32);
+  border: 1px solid rgba(217, 119, 6, 0.38);
+  border-radius: 999px;
+  padding: 4px 10px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Cornice oro: ombra neutra leggera (niente alone colorato fra le card) */
+.poke-builder-main .option-grid--poke-builder .option-chip.option-chip--surcharge {
+  border-width: 2px;
+  border-style: solid;
+  border-color: #ca8a04;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.poke-builder-main .option-grid--poke-builder .option-chip.option-chip--surcharge.selected {
+  border-color: #eab308;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 1px 3px rgba(15, 23, 42, 0.07);
+}
+
+/* Poke builder chips: qty on one row, pill banner like navbar “Crea il tuo poke” (.cta) */
+.poke-builder-main .option-grid--poke-builder .option-chip-trailing {
   justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.poke-builder-main .option-grid--poke-builder .option-chip-trailing em {
+  justify-self: auto;
+}
+
+.poke-builder-main .option-grid--poke-builder .chip-qty-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, #2563eb, #0ea5e9);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  font-variant-numeric: tabular-nums;
+}
+
+.poke-builder-main .option-grid--poke-builder .chip-qty-pill-num {
+  min-width: 1.35ch;
+  text-align: center;
+  padding: 0 1px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.poke-builder-main .option-grid--poke-builder .chip-qty-pill-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0 5px;
+  flex-shrink: 0;
+  border-radius: 0;
+  transition: opacity 0.15s ease, transform 0.12s ease;
+}
+
+.poke-builder-main .option-grid--poke-builder .chip-qty-pill-btn:hover {
+  opacity: 0.88;
+}
+
+.poke-builder-main .option-grid--poke-builder .chip-qty-pill-btn:active {
+  transform: scale(0.94);
+}
+
+.poke-builder-main .option-grid.option-grid--poke-builder .option-chip {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  /* stessa “sagoma” selezionato / non selezionato (prima il pill tirava più in alto la riga) */
+  min-height: 52px;
+}
+
+.poke-builder-main .option-grid.option-grid--poke-builder {
+  grid-template-columns: repeat(2, minmax(0, var(--poke-chip-w, 26ch)));
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+  margin-inline: auto;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .builder-actions {
@@ -2521,6 +3179,8 @@ select {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
+  justify-content: center;
+  align-items: center;
 }
 
 .builder-actions button {
@@ -2540,12 +3200,6 @@ select {
 .builder-actions button:active {
   transform: translateY(0);
   box-shadow: 0 4px 8px rgba(15, 23, 42, 0.12);
-}
-
-.builder-notifications {
-  width: 100%;
-  display: grid;
-  gap: 8px;
 }
 
 .checkout-card {
@@ -6856,21 +7510,11 @@ table button:hover {
   }
 
   .builder-size-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: clamp(10px, 2vw, 18px);
   }
 
   .size-card {
-    text-align: center;
-    padding: 10px;
-  }
-
-  .size-card h4 {
-    margin-bottom: 8px;
-  }
-
-  .size-card p {
-    margin: 4px 0;
+    max-width: min(380px, 92vw);
   }
 
   .size-pick-btn {
@@ -6883,14 +7527,34 @@ table button:hover {
   .admin-poke-cards-grid,
   .admin-poke-included-grid,
   .rules-grid,
-  .builder-size-cards,
-  .option-grid,
+  .option-grid:not(.option-grid--poke-builder),
   .form-grid,
   .admin-poke-form-row,
   .about-split,
   .admin-flex,
   .footer-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Griglia poke: colonne compatte dalla larghezza del testo più lungo */
+  .poke-builder-main .option-grid.option-grid--poke-builder {
+    grid-template-columns: repeat(2, minmax(0, var(--poke-chip-w, 26ch))) !important;
+    justify-content: center;
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  @media (max-width: 520px) {
+    .poke-builder-main .option-grid.option-grid--poke-builder {
+      grid-template-columns: 1fr !important;
+      justify-items: center;
+      width: 100%;
+    }
+
+    .poke-builder-main .option-grid.option-grid--poke-builder .option-chip {
+      width: min(100%, var(--poke-chip-w, 340px));
+    }
   }
 
   .admin-poke-add-row {
@@ -9487,60 +10151,220 @@ table button:hover {
   color: #1d4ed8;
 }
 
-/* ── Menu size cards — premium style ────────────────────────────── */
+/* ── Dimensione poke — portrait cards, prezzo sopra il bordo ─── */
 .builder-size-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-top: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 3vw, 28px);
+  margin-top: 4px;
+  max-width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.size-card {
-  background: #fff;
-  border: 2px solid #e2e8f0;
-  border-radius: 22px;
-  padding: 32px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+.size-card-wrap {
+  position: relative;
+  padding-top: 30px;
 }
 
-.size-card:hover {
-  border-color: #2563eb;
-  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.14);
+.size-card-move {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.22s ease;
+}
+
+.size-card-wrap--interactive:hover .size-card-move {
   transform: translateY(-4px);
 }
 
-.size-card h4 {
-  font-size: 1.3rem;
+.size-card-wrap--interactive:active .size-card-move {
+  transform: translateY(-2px);
+}
+
+.size-card-wrap--interactive {
+  cursor: pointer;
+  outline: none;
+}
+
+.size-card-wrap--interactive:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 8px;
+  border-radius: 20px;
+}
+
+.size-card-wrap--interactive:focus-visible:not(:hover) .size-card-move {
+  transform: none;
+}
+
+.size-card-wrap--interactive:hover .size-card {
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+}
+
+.size-card-wrap--interactive:hover .size-card.selected {
+  border-color: #1e40af;
+  box-shadow:
+    0 0 0 4px rgba(147, 197, 253, 0.9),
+    0 0 0 11px rgba(37, 99, 235, 0.12),
+    0 18px 44px rgba(37, 99, 235, 0.35);
+}
+
+.size-card-price-pin {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  min-width: 74px;
+  padding: 9px 15px;
+  background: linear-gradient(120deg, #2563eb, #0ea5e9);
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 12px;
+  font-size: clamp(1.02rem, 2.65vw, 1.26rem);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.02em;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1.18;
+  box-shadow:
+    0 4px 16px rgba(37, 99, 235, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.size-card {
+  position: relative;
+  border-radius: 20px;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  aspect-ratio: 17 / 25;
+  max-width: 400px;
+  margin: 0 auto;
+  width: 100%;
+  background: #fff;
+  border: 2px solid #f59e0b;
+  box-shadow: 0 6px 22px rgba(15, 23, 42, 0.1);
+  transition:
+    border-color 0.2s ease,
+    border-width 0.2s ease,
+    box-shadow 0.22s ease;
+  pointer-events: none;
+}
+
+.size-card.selected {
+  border-width: 3px;
+  border-color: #1d4ed8;
+  box-shadow:
+    0 0 0 5px rgba(191, 219, 254, 0.55),
+    0 0 0 13px rgba(37, 99, 235, 0.1),
+    0 14px 40px rgba(37, 99, 235, 0.3);
+}
+
+.size-card-surface {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: #fff;
+}
+
+.size-card-head {
+  padding: 18px 16px 8px;
+  flex-shrink: 0;
+}
+
+.size-card-head .size-card-title {
+  margin: 0;
+  font-size: clamp(1.06rem, 2.65vw, 1.42rem);
   font-weight: 900;
   color: #0f172a;
-  margin: 0 0 8px;
   letter-spacing: -0.02em;
+  line-height: 1.25;
+  text-align: center;
 }
 
-.size-card p {
-  font-size: 0.88rem;
-  color: #475569;
-  margin: 0;
+.size-card-photo-wrap {
+  flex: 1;
+  min-height: 120px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  padding: 10px 14px;
+  pointer-events: none;
+  background: #fff;
 }
 
-.size-card p strong {
-  color: #2563eb;
+.size-card-photo-img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: min(240px, 40vh);
+  object-fit: contain;
+  filter: drop-shadow(0 10px 22px rgba(15, 23, 42, 0.14));
+}
+
+.size-card-photo-placeholder {
+  width: 58%;
+  max-width: 200px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  margin: auto;
+  opacity: 0.52;
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.45), transparent 60%),
+    linear-gradient(150deg, #e2e8f0, #cbd5e1);
+}
+
+.size-card-footer-meta {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding: 14px 14px 16px;
+  background: linear-gradient(100deg, #1d4ed8 0%, #2563eb 52%, #0ea5e9 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.size-card-specs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-self: stretch;
+  width: 100%;
+  font-size: clamp(0.8rem, 1.95vw, 0.93rem);
+  color: rgba(255, 255, 255, 0.92);
+  text-align: center;
+  line-height: 1.35;
+}
+
+.size-card-specs li strong {
+  color: #fff;
   font-weight: 800;
-  font-size: 1rem;
+  margin-right: 6px;
+}
+
+.size-card .size-pick-btn {
+  margin-top: 2px;
+  border-radius: 999px !important;
+  font-weight: 800 !important;
+  padding: 9px 20px !important;
+  width: auto;
+  align-self: center;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
 }
 
 .size-pick-btn {
-  margin-top: 16px;
   border-radius: 999px !important;
   font-weight: 800 !important;
-  padding: 12px 0 !important;
-  width: 100%;
 }
 
 /* ── Topbar v2 — pill nav ───────────────────────────────────────── */
