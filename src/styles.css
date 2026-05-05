@@ -875,6 +875,11 @@ select {
   letter-spacing: -0.02em;
 }
 
+.about-strip-v2 .about-text h4 {
+  font-family: var(--font-title);
+  font-weight: 800;
+}
+
 .about-text p {
   margin: 0 0 12px;
   color: #1f2937;
@@ -949,23 +954,26 @@ select {
 .about-call-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   width: fit-content;
   margin-top: 10px;
   border-radius: 12px;
-  padding: 10px 16px;
-  background: #0284c7;
+  padding: 12px 24px;
+  background: #f59e0b;
   color: #ffffff;
   text-decoration: none;
-  font-weight: 700;
-  box-shadow: 0 8px 18px rgba(2, 132, 199, 0.28);
+  font-family: var(--font-subtitle);
+  font-weight: 800;
+  box-shadow: 0 10px 22px rgba(245, 158, 11, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.8);
   transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
 }
 
 .about-call-btn:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   filter: brightness(1.04);
-  box-shadow: 0 12px 22px rgba(2, 132, 199, 0.34);
+  box-shadow: 0 14px 26px rgba(245, 158, 11, 0.42);
 }
 
 .featured-title h3 {
@@ -1057,7 +1065,7 @@ select {
 }
 
 .gallery-strip.section-padding {
-  padding-top: 72px;
+  padding-top: 0;
   padding-bottom: 72px;
 }
 
@@ -1128,6 +1136,7 @@ select {
   background: #f59e0b;
   color: #ffffff;
   text-decoration: none;
+  font-family: var(--font-subtitle);
   font-weight: 800;
   box-shadow: 0 10px 22px rgba(245, 158, 11, 0.35);
   border: 2px solid rgba(255, 255, 255, 0.8);
@@ -7444,7 +7453,7 @@ table button:hover {
 
   .about-strip.section-padding,
   .gallery-strip.section-padding {
-    padding-top: 52px;
+    padding-top: 0;
     padding-bottom: 52px;
   }
 
@@ -8671,6 +8680,64 @@ table button:hover {
 .about-strip-v2 {
   background: #fff;
   padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Quattro “file” di pesci (AboutFishLanes.tsx): scroll → moto lungo X, direzioni alternate */
+.about-fish-lanes {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.about-fish-lane {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.about-fish-lane-track {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4rem);
+  width: max-content;
+  will-change: transform;
+  opacity: 0.3;
+}
+
+.about-fish-lane-img {
+  width: clamp(94px, 16vw, 146px);
+  height: auto;
+  flex-shrink: 0;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.12));
+}
+
+.about-fish-lane--left .about-fish-lane-img {
+  transform: scaleX(-1);
+}
+
+.about-strip.about-strip-v2 .container {
+  position: relative;
+  z-index: 2;
+}
+
+.about-strip-v2 .about-image {
+  position: relative;
+  z-index: 3;
+}
+
+.about-strip-v2 .about-text {
+  position: relative;
+  z-index: 2;
 }
 
 .about-manifesto-band {
@@ -8762,6 +8829,11 @@ table button:hover {
   /* NO overflow set here — any overflow value breaks position:sticky on Safari */
 }
 
+/* Hero side graphics: full-height, edge-to-edge, opacity < 10% */
+.poke-story-sticky {
+  z-index: 1;
+}
+
 /* Sticky panel — title near top, circle fills remaining space */
 .poke-story-sticky {
   position: sticky;
@@ -8772,14 +8844,54 @@ table button:hover {
   justify-content: flex-start;
   align-items: center;
   gap: 1.2rem;
-  padding: 1.5rem 1rem 0.5rem;
+  padding: 0 1rem 0.5rem;
   /* NO overflow:clip here — it was clipping the ring on smaller viewports */
+}
+
+/* Hero side graphics attaccate al pannello sticky: restano fisse finche termina la section */
+.poke-story-sticky::before,
+.poke-story-sticky::after {
+  --poke-story-side-graphic-w: clamp(210px, 24vw, 460px);
+  --poke-story-side-graphic-bleed: clamp(56px, 7vw, 130px);
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--poke-story-side-graphic-w) + var(--poke-story-side-graphic-bleed));
+  background: url("/immagini/decorazioni/hero.svg") center center / auto 100% no-repeat;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.poke-story-sticky::before {
+  left: calc(-1 * var(--poke-story-side-graphic-bleed));
+  transform: scaleX(-1);
+}
+
+.poke-story-sticky::after {
+  right: calc(-1 * var(--poke-story-side-graphic-bleed));
+}
+
+.poke-story-sticky > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* Text block */
 .poke-story-text-block {
   text-align: center;
-  max-width: 700px;
+  max-width: none;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: 16px clamp(14px, 2.8vw, 28px) 14px;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
 }
 
 .poke-story-eyebrow {
@@ -9003,7 +9115,7 @@ table button:hover {
 /* Mobile */
 @media (max-width: 768px) {
   .poke-story-sticky {
-    padding: 1.25rem 0.75rem 0.75rem;
+    padding: 0 0.75rem 0.75rem;
     gap: 1.25rem;
   }
   .poke-story-headline {
@@ -9204,7 +9316,7 @@ table button:hover {
 
 /* ── Featured menu bento grid (legacy, kept for possible reuse) ── */
 .featured-menu-section-v2 {
-  --featured-categories-bg: url("/immagini/categorie1.jpg");
+  --featured-categories-bg: url("/immagini/categorie/categorie1.jpg");
   position: relative;
   overflow: visible;
   z-index: 2;
@@ -9378,6 +9490,62 @@ table button:hover {
     linear-gradient(to top, rgba(30, 64, 175, 0.045) 0%, transparent 40%);
 }
 
+/*
+ * Card editoriale (reference sushi burrito): zona bianca sopra + fascia #004AAD sotto,
+ * separazione obliqua ~30°. Filigrana hero solo sul bianco. Il toast resta a colori naturali
+ * sopra entrambe le zone (::before/::after sotto al <img> grazie allo z-index).
+ */
+.category-carousel-card--split-editorial {
+  border-radius: 32px;
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.12),
+    0 0 0 1px rgba(15, 23, 42, 0.06);
+}
+
+.category-carousel-card-visual--split-editorial {
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 368px;
+}
+
+.category-carousel-card-visual--split-editorial::after {
+  background-image: linear-gradient(
+    to bottom,
+    rgba(15, 23, 42, 0.04) 0%,
+    transparent 22%
+  );
+}
+
+.category-carousel-card-media--split-editorial {
+  background: #ffffff !important;
+  overflow: hidden;
+}
+
+/* Filigrana hero solo sul poligono bianco (stesso bordo obliquo della fascia blu) */
+.category-carousel-card-media--split-editorial::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Diagonale ~22° (meno inclinata, target 20-25°) */
+  clip-path: polygon(0 0, 100% 0, 100% 22%, 0 62%);
+  background: url("/immagini/categorie/hero.svg") 50% 26% / 92% auto no-repeat;
+  opacity: 0.08;
+}
+
+/* Fascia blu sotto la diagonale (sotto al toast: z-index 0) */
+.category-carousel-card-media--split-editorial::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  clip-path: polygon(0 100%, 100% 100%, 100% 22%, 0 62%);
+  background: #004aad;
+}
+
 .category-carousel-card-media {
   position: absolute;
   inset: 0;
@@ -9445,6 +9613,24 @@ table button:hover {
     0 1px 3px rgba(255, 255, 255, 0.85);
 }
 
+/* Sopra le regole --icon: titolo Parkinsans (come da design system), scuro su bianco */
+.category-carousel-card--split-editorial .category-carousel-card-title {
+  z-index: 3;
+  font-family: var(--font-title);
+  font-weight: 800;
+  color: #0f172a;
+  text-shadow: none;
+  padding-top: 18px;
+  letter-spacing: -0.02em;
+}
+
+.category-carousel-card--split-editorial .category-carousel-card-meta {
+  z-index: 3;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+  padding-bottom: 20px;
+}
+
 .category-carousel-card-icon-img {
   --carousel-icon-y: 18px;
   position: relative;
@@ -9460,6 +9646,11 @@ table button:hover {
     hue-rotate(214deg) brightness(98%) contrast(96%);
 }
 
+.category-carousel-card-icon-img[data-carousel-icon="toast"] {
+  --carousel-icon-y: 8px;
+  max-height: min(308px, 70vmin);
+}
+
 .category-carousel-card-icon-img[data-carousel-icon="avocado"] {
   --carousel-icon-y: 0px;
   max-height: min(302px, 68vmin);
@@ -9473,6 +9664,39 @@ table button:hover {
 .category-carousel-card-icon-img[data-carousel-icon="expanded"] {
   --carousel-icon-y: 18px;
   max-height: min(453px, 86vmin);
+}
+
+/* Toast editoriale: niente filtro blu delle altre icone; sopra fascia e filigrana */
+.category-carousel-card.category-carousel-card--split-editorial
+  .category-carousel-card-icon-img {
+  position: relative;
+  z-index: 2;
+  max-width: 92%;
+  max-height: min(78%, 280px);
+  width: auto;
+  height: auto;
+  --carousel-icon-y: 6px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 20px rgba(15, 23, 42, 0.16));
+}
+
+/* Pasta / secondi / dolci: immagine centrale più grande */
+.category-carousel-card.category-carousel-card--split-editorial
+  .category-carousel-card-icon-img[data-carousel-icon="pasta"],
+.category-carousel-card.category-carousel-card--split-editorial
+  .category-carousel-card-icon-img[data-carousel-icon="secondi"],
+.category-carousel-card.category-carousel-card--split-editorial
+  .category-carousel-card-icon-img[data-carousel-icon="dolci"] {
+  max-width: 96%;
+  max-height: min(88%, 318px);
+}
+
+/* Altri piatti: asset più compatto */
+.category-carousel-card.category-carousel-card--split-editorial
+  .category-carousel-card-icon-img[data-carousel-icon="altripiatti"] {
+  max-width: 84%;
+  max-height: min(62%, 218px);
+  --carousel-icon-y: 18px;
 }
 
 .category-carousel-card:hover .category-carousel-card-icon-img,
@@ -9528,6 +9752,7 @@ table button:hover {
   border: 2px solid #2563eb !important;
   border-radius: 999px !important;
   padding: 12px 26px !important;
+  font-family: var(--font-subtitle) !important;
   font-weight: 800 !important;
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
 }
@@ -9576,6 +9801,30 @@ table button:hover {
     font-size: clamp(1.45rem, 5.2vw, 2rem);
     padding-top: 12px;
   }
+  .category-carousel-card-icon-img[data-carousel-icon="toast"] {
+    max-height: min(276px, 64vmin);
+  }
+
+  .category-carousel-card.category-carousel-card--split-editorial
+    .category-carousel-card-icon-img {
+    max-height: min(74%, 236px);
+  }
+
+  .category-carousel-card.category-carousel-card--split-editorial
+    .category-carousel-card-icon-img[data-carousel-icon="pasta"],
+  .category-carousel-card.category-carousel-card--split-editorial
+    .category-carousel-card-icon-img[data-carousel-icon="secondi"],
+  .category-carousel-card.category-carousel-card--split-editorial
+    .category-carousel-card-icon-img[data-carousel-icon="dolci"] {
+    max-height: min(82%, 268px);
+  }
+
+  .category-carousel-card.category-carousel-card--split-editorial
+    .category-carousel-card-icon-img[data-carousel-icon="altripiatti"] {
+    max-height: min(58%, 188px);
+    --carousel-icon-y: 14px;
+  }
+
   .category-carousel-card-icon-img[data-carousel-icon="avocado"] {
     max-height: min(268px, 62vmin);
   }
@@ -9709,6 +9958,56 @@ table button:hover {
 .gallery-strip-v2 {
   background: #fff;
   overflow: hidden;
+  position: relative;
+}
+
+.gallery-strip-v2::before,
+.gallery-strip-v2::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: clamp(320px, 44vw, 700px);
+  aspect-ratio: 1 / 1;
+  height: auto;
+  pointer-events: none;
+  z-index: 2;
+  background-repeat: no-repeat;
+  background-size: contain;
+  margin: 0;
+  padding: 0;
+  display: none;
+}
+
+.gallery-strip-v2::before {
+  left: 0;
+  top: 0;
+  background-image: url("/immagini/decorazioni/decoTL.png");
+  background-position: left top;
+  opacity: 0.8;
+}
+
+.gallery-strip-v2::after {
+  right: 0;
+  top: 0;
+  background-image: url("/immagini/decorazioni/decoTR.png");
+  background-position: right top;
+  opacity: 0.8;
+}
+
+.gallery-strip-v2 > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Titolo sopra le decorazioni */
+.gallery-strip-v2 .gallery-header-row {
+  z-index: 3;
+}
+
+/* Marquee sotto le decorazioni */
+.gallery-strip-v2 .gallery-marquee-wrapper,
+.gallery-strip-v2 .gallery-strip-cta-wrap {
+  z-index: 1;
 }
 
 .gallery-strip-v2 .gallery-header-row {
@@ -9718,7 +10017,17 @@ table button:hover {
   justify-content: center;
   text-align: center;
   gap: 0.35rem;
-  margin-bottom: 36px;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-top: 0;
+  margin-bottom: 34px;
+  padding: 18px clamp(14px, 2.8vw, 28px) 16px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
 }
 
 .gallery-strip-v2 .gallery-header-row .section-kicker {
@@ -9728,6 +10037,7 @@ table button:hover {
 .gallery-strip-v2 .gallery-header-row h3 {
   font-size: clamp(1.5rem, 3vw, 2.2rem);
   font-weight: 900;
+  font-family: var(--font-title);
   color: #0f172a;
   margin: 0;
   letter-spacing: -0.025em;
@@ -9747,7 +10057,7 @@ table button:hover {
   justify-content: center;
   padding: 1.15rem 2.85rem;
   min-height: 58px;
-  font-family: inherit;
+  font-family: var(--font-subtitle);
   font-size: clamp(1.05rem, 2.2vw, 1.35rem);
   font-weight: 900;
   letter-spacing: 0.04em;
@@ -9767,18 +10077,6 @@ table button:hover {
   box-shadow: 0 6px 22px rgba(15, 23, 42, 0.08);
 }
 
-.gallery-create-poke-btn::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 42%, #1d4ed8 100%);
-  transform: scaleY(0);
-  transform-origin: 50% 100%;
-  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
 .gallery-create-poke-btn-label {
   position: relative;
   z-index: 1;
@@ -9786,17 +10084,9 @@ table button:hover {
 
 .gallery-create-poke-btn:hover,
 .gallery-create-poke-btn:focus-visible {
-  transform: scale(1.07);
   color: #ffffff;
   border-color: #3b82f6;
-  box-shadow:
-    0 14px 42px rgba(37, 99, 235, 0.42),
-    0 0 48px rgba(59, 130, 246, 0.35);
-}
-
-.gallery-create-poke-btn:hover::before,
-.gallery-create-poke-btn:focus-visible::before {
-  transform: scaleY(1);
+  box-shadow: 0 14px 42px rgba(37, 99, 235, 0.28);
 }
 
 .gallery-create-poke-btn:focus-visible {
@@ -9807,10 +10097,6 @@ table button:hover {
 @media (prefers-reduced-motion: reduce) {
   .gallery-create-poke-btn {
     transition: color 0.2s linear, border-color 0.2s linear, box-shadow 0.2s linear;
-  }
-
-  .gallery-create-poke-btn::before {
-    transition: transform 0.2s linear;
   }
 
   .gallery-create-poke-btn:hover,
@@ -9831,22 +10117,7 @@ table button:hover {
 /* Sfumature sinistra/destra */
 .gallery-fade-left,
 .gallery-fade-right {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 140px;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.gallery-fade-left {
-  left: 0;
-  background: linear-gradient(to right, #fff 0%, transparent 100%);
-}
-
-.gallery-fade-right {
-  right: 0;
-  background: linear-gradient(to left, #fff 0%, transparent 100%);
+  display: none;
 }
 
 /* Track singola riga */
@@ -9981,6 +10252,7 @@ table button:hover {
   border-radius: 999px;
   padding: 13px 30px;
   font-size: 0.95rem;
+  font-family: var(--font-subtitle);
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
@@ -10545,3 +10817,141 @@ table button:hover {
   }
 }
 
+
+/* ── Home CTA: Blob button style ────────────────────────────────── */
+.home-blob-goo-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.home-blob-btn {
+  --blob-color: #0505a9;
+  --blob-text: #ffffff;
+  --blob-border-w: 2px;
+  z-index: 1;
+  position: relative;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--blob-color) !important;
+  font-weight: 800 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 30px !important;
+  box-shadow: none !important;
+  overflow: visible;
+  transition: color 0.5s ease;
+}
+
+.home-blob-btn::before {
+  content: "";
+  z-index: 1;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border: var(--blob-border-w) solid var(--blob-color);
+  border-radius: 30px;
+  pointer-events: none;
+}
+
+.home-blob-btn::after {
+  content: "";
+  z-index: -2;
+  position: absolute;
+  left: calc(var(--blob-border-w) * 1.5);
+  top: calc(var(--blob-border-w) * 1.5);
+  width: 100%;
+  height: 100%;
+  border-radius: 30px;
+  transition: all 0.3s 0.2s;
+}
+
+.home-blob-btn:hover,
+.home-blob-btn:focus-visible {
+  color: var(--blob-text) !important;
+  transform: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.home-blob-btn:hover::after,
+.home-blob-btn:focus-visible::after {
+  left: 0;
+  top: 0;
+  transition: all 0.3s;
+}
+
+.home-blob-btn__label {
+  position: relative;
+  z-index: 2;
+}
+
+.home-blob-btn__inner {
+  z-index: -1;
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 30px;
+  background: #ffffff;
+}
+
+.home-blob-btn__blobs {
+  position: relative;
+  display: block;
+  height: 100%;
+  filter: url('#goo');
+}
+
+.home-blob-btn__blob {
+  position: absolute;
+  top: var(--blob-border-w);
+  width: 25%;
+  height: 100%;
+  background: var(--blob-color);
+  border-radius: 100%;
+  transform: translate3d(0, 150%, 0) scale(1.4);
+  transition: transform 0.45s;
+}
+
+.home-blob-btn__blob:nth-child(1) {
+  left: 0%;
+  transition-delay: 0s;
+}
+.home-blob-btn__blob:nth-child(2) {
+  left: 30%;
+  transition-delay: 0.08s;
+}
+.home-blob-btn__blob:nth-child(3) {
+  left: 60%;
+  transition-delay: 0.16s;
+}
+.home-blob-btn__blob:nth-child(4) {
+  left: 90%;
+  transition-delay: 0.24s;
+}
+
+.home-blob-btn:hover .home-blob-btn__blob,
+.home-blob-btn:focus-visible .home-blob-btn__blob {
+  transform: translateZ(0) scale(1.4);
+}
+
+.home-blob-btn.menu-cta-outline-white {
+  --blob-text: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .home-blob-btn {
+    border-radius: 22px !important;
+  }
+  .home-blob-btn::before,
+  .home-blob-btn::after,
+  .home-blob-btn__inner {
+    border-radius: 22px;
+  }
+}

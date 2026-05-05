@@ -15,6 +15,7 @@ import {
   setPublicToken
 } from "./api";
 import { isPokeManagerMarketingPortal } from "./portal";
+import { AboutFishLanes } from "./AboutFishLanes";
 import { CategoryScrollCarouselSection } from "./CategoryScrollCarouselSection";
 import pokedoLogo from "./pokedoLogo.png";
 import pokeBlankScaffold from "./poke-blank-scaffold.json";
@@ -1503,6 +1504,7 @@ export default function App() {
   const pokeProgressRef = useRef<HTMLDivElement | null>(null);
   const settingsGalleryInputRef = useRef<HTMLInputElement | null>(null);
   const pokeStoryRef = useRef<HTMLElement | null>(null);
+  const aboutStripRef = useRef<HTMLElement | null>(null);
   const [menuCheckoutStep, setMenuCheckoutStep] = useState(1);
   const [menuCheckoutMessage, setMenuCheckoutMessage] = useState("");
   const [menuCheckoutCompleted, setMenuCheckoutCompleted] = useState(false);
@@ -5236,6 +5238,15 @@ export default function App() {
 
   return (
     <>
+      <svg className="home-blob-goo-defs" xmlns="http://www.w3.org/2000/svg" version="1.1" aria-hidden="true" focusable="false">
+        <defs>
+          <filter id="goo">
+            <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10"></feGaussianBlur>
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 21 -7" result="goo"></feColorMatrix>
+            <feBlend in="SourceGraphic" in2="goo" result="mix"></feBlend>
+          </filter>
+        </defs>
+      </svg>
     <div
       className={`app-root${isPokeManagerMarketingPortal ? " portal-pokemanager" : ""}${
         isTableOrderMode ? " table-order-mode" : ""
@@ -5604,10 +5615,10 @@ export default function App() {
                   aria-hidden={homeHeroSlide !== 0}
                 >
                   <div className="hero-slide-watermark" aria-hidden="true">
-                    <img src="/immagini/hero.svg" alt="" />
+                    <img src="/immagini/decorazioni/hero.svg" alt="" />
                   </div>
                   <div className="hero-slide-visual">
-                    <img src="/immagini/hero.svg" alt="" />
+                    <img src="/immagini/decorazioni/hero.svg" alt="" />
                   </div>
                   <div className="hero-slide-center-photo" aria-hidden="true">
                     <img src="/immagini/fotoHero.png" alt="" />
@@ -5617,10 +5628,18 @@ export default function App() {
                     <p className="hero-carousel-slide1-sub fade-up">{t("heroSubtitle")}</p>
                     <button
                       type="button"
-                      className="menu-cta menu-cta-blue hero-carousel-cta fade-up"
+                      className="menu-cta menu-cta-blue hero-carousel-cta fade-up home-blob-btn"
                       onClick={() => goToPokePage()}
                     >
-                      {t("createPoke")}
+                      <span className="home-blob-btn__label">{t("createPoke")}</span>
+                      <span className="home-blob-btn__inner" aria-hidden="true">
+                        <span className="home-blob-btn__blobs">
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                        </span>
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -5632,17 +5651,25 @@ export default function App() {
                   aria-label="2 / 2"
                   aria-hidden={homeHeroSlide !== 1}
                 >
-                  <img className="hero-carousel-bleed-img" src="/immagini/categorie2.jpg" alt="" />
+                  <img className="hero-carousel-bleed-img" src="/immagini/categorie/categorie2.jpg" alt="" />
                   <div className="hero-carousel-bleed-scrim" aria-hidden="true" />
                   <div className="hero-carousel-bleed-inner hero-carousel-bleed-inner--mirror">
                     <p className="hero-carousel-slide2-lead fade-up">{t("homeHeroSlide2Title")}</p>
                     <p className="hero-carousel-slide2-sub fade-up">{t("homeHeroSlide2Sub")}</p>
                     <button
                       type="button"
-                      className="menu-cta hero-carousel-cta hero-carousel-cta--menu fade-up"
+                      className="menu-cta hero-carousel-cta hero-carousel-cta--menu fade-up home-blob-btn"
                       onClick={goToMenuPage}
                     >
-                      {t("goFullMenu")}
+                      <span className="home-blob-btn__label">{t("goFullMenu")}</span>
+                      <span className="home-blob-btn__inner" aria-hidden="true">
+                        <span className="home-blob-btn__blobs">
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                        </span>
+                      </span>
                     </button>
                   </div>
                 </div>
@@ -5688,7 +5715,8 @@ export default function App() {
             </div>
           </section>
 
-          <section className="about-strip about-strip-v2">
+          <section ref={aboutStripRef} className="about-strip about-strip-v2">
+            <AboutFishLanes triggerRef={aboutStripRef} />
             <div className="container about-split about-split-v2 section-padding">
               <div className="about-image about-shadow-right about-reveal-left">
                 <img
@@ -5875,10 +5903,18 @@ export default function App() {
             <div className="gallery-strip-cta-wrap">
               <button
                 type="button"
-                className="gallery-create-poke-btn"
+                className="gallery-create-poke-btn home-blob-btn"
                 onClick={() => goTo("/crea-la-tua-poke")}
               >
-                <span className="gallery-create-poke-btn-label">{t("createPoke")}</span>
+                <span className="home-blob-btn__label gallery-create-poke-btn-label">{t("createPoke")}</span>
+                <span className="home-blob-btn__inner" aria-hidden="true">
+                  <span className="home-blob-btn__blobs">
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                  </span>
+                </span>
               </button>
             </div>
           </section>
@@ -5892,10 +5928,19 @@ export default function App() {
               </div>
               <div className="final-cta-actions">
                 <a className="phone-cta" href={`tel:${businessPhone}`}>
+                  <span aria-hidden="true">☎</span>
                   {t("callUs")}
                 </a>
-                <button className="menu-cta menu-cta-outline-white" onClick={goToMenuPage}>
-                  Vai al menu
+                <button className="menu-cta menu-cta-outline-white home-blob-btn" onClick={goToMenuPage}>
+                  <span className="home-blob-btn__label">Vai al menu</span>
+                  <span className="home-blob-btn__inner" aria-hidden="true">
+                    <span className="home-blob-btn__blobs">
+                      <span className="home-blob-btn__blob"></span>
+                      <span className="home-blob-btn__blob"></span>
+                      <span className="home-blob-btn__blob"></span>
+                      <span className="home-blob-btn__blob"></span>
+                    </span>
+                  </span>
                 </button>
               </div>
             </div>
@@ -7377,6 +7422,7 @@ export default function App() {
               <p>{t("aboutHighlight")}</p>
             </div>
             <div>
+            <span aria-hidden="true">☎ </span>
               <h5>{t("callUs")}</h5>
               <p>{businessAddress}</p>
               <a href={`tel:${businessPhone}`}>{businessPhone}</a>

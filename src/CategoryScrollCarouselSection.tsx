@@ -14,27 +14,57 @@ function categorySlugForIcon(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-/** Chiave = slug categoria (categorySlugForIcon); file in public/icone — stesso pattern di avocado toast */
+/**
+ * Chiave = slug categoria (categorySlugForIcon).
+ * Asset illustrativi in `public/immagini/categorie/*.svg` (stesso layout “split” del toast).
+ */
 const CATEGORY_HOME_ICONS: Record<string, string> = {
-  "avocado-toast": "/icone/avocadoToast.png",
-  aperisushi: "/icone/aperisushi.png",
-  tartare: "/icone/tartare.png",
-  poke: "/icone/poke.png",
-  "poke-do": "/icone/poke.png",
-  "pokedo": "/icone/poke.png",
-  dolci: "/icone/dolci.png",
-  pasta: "/icone/pasta.png",
-  secondi: "/icone/secondi.png",
-  sushi: "/icone/sushi.png",
-  "altri-piatti": "/icone/altriPiatti.png",
-  "altri-piatti-by-pokedo": "/icone/altriPiatti.png"
+  "avocado-toast": "/immagini/categorie/toast.svg",
+  aperisushi: "/immagini/categorie/aperisushi.svg",
+  tartare: "/immagini/categorie/tartare.svg",
+  poke: "/immagini/categorie/poke.svg",
+  "poke-do": "/immagini/categorie/poke.svg",
+  pokedo: "/immagini/categorie/poke.svg",
+  dolci: "/immagini/categorie/dolci.svg",
+  pasta: "/immagini/categorie/pasta.svg",
+  secondi: "/immagini/categorie/secondi.svg",
+  sushi: "/immagini/categorie/sushi.svg",
+  "altri-piatti": "/immagini/categorie/altripiatti.svg",
+  "altri-piatti-by-pokedo": "/immagini/categorie/altripiatti.svg"
 };
 
-/** Per layout/size CSS: avocado resta compatto; sushi più basso; altre icone ingrandite */
-function categoryCarouselIconKind(src: string): "avocado" | "sushi" | "expanded" {
+/** Per layout/size CSS: varianti per asset in immagini/categorie */
+function categoryCarouselIconKind(
+  src: string
+):
+  | "toast"
+  | "sushi"
+  | "pasta"
+  | "secondi"
+  | "dolci"
+  | "altripiatti"
+  | "editorial"
+  | "avocado"
+  | "expanded" {
+  if (src.includes("toast.svg")) return "toast";
+  if (src.includes("sushi.svg")) return "sushi";
+  if (src.includes("pasta.svg")) return "pasta";
+  if (src.includes("secondi.svg")) return "secondi";
+  if (src.includes("dolci.svg")) return "dolci";
+  if (src.includes("altripiatti.svg")) return "altripiatti";
+  if (src.includes("/immagini/categorie/") && src.endsWith(".svg")) return "editorial";
   if (src.includes("avocadoToast")) return "avocado";
   if (src.endsWith("/sushi.png") || src.endsWith("sushi.png")) return "sushi";
   return "expanded";
+}
+
+function isSplitEditorialHomeAsset(src: string | null): boolean {
+  return Boolean(
+    src &&
+      src.startsWith("/immagini/categorie/") &&
+      src.endsWith(".svg") &&
+      !src.includes("hero.svg")
+  );
 }
 
 function categoryHomeIcon(name: string): string | null {
@@ -201,13 +231,17 @@ export function CategoryScrollCarouselSection({
             <div className="category-carousel-track" ref={trackRef}>
               {categories.map((c, idx) => {
                 const iconSrc = categoryHomeIcon(c.name);
+                const splitEditorial = isSplitEditorialHomeAsset(iconSrc);
                 const fallbackPhoto = resolveMediaSrc(
                   c.image_url || showcaseImages[idx % showcaseImages.length]
                 );
                 return (
                   <article
                     key={c.id}
-                    className="category-carousel-card"
+                    className={
+                      "category-carousel-card" +
+                      (splitEditorial ? " category-carousel-card--split-editorial" : "")
+                    }
                     role="button"
                     tabIndex={0}
                     onClick={() => onCategoryNavigate(`/menu#${slug(c.name)}`)}
@@ -221,16 +255,22 @@ export function CategoryScrollCarouselSection({
                   >
                     <div
                       className={
-                        iconSrc
+                        (iconSrc
                           ? "category-carousel-card-visual category-carousel-card-visual--icon"
-                          : "category-carousel-card-visual"
+                          : "category-carousel-card-visual") +
+                        (splitEditorial
+                          ? " category-carousel-card-visual--split-editorial"
+                          : "")
                       }
                     >
                       <div
                         className={
-                          iconSrc
+                          (iconSrc
                             ? "category-carousel-card-media category-carousel-card-media--icon"
-                            : "category-carousel-card-media"
+                            : "category-carousel-card-media") +
+                          (splitEditorial
+                            ? " category-carousel-card-media--split-editorial"
+                            : "")
                         }
                         style={
                           iconSrc ? undefined : { backgroundImage: `url(${fallbackPhoto})` }
@@ -259,13 +299,21 @@ export function CategoryScrollCarouselSection({
 
           <div className="featured-categories-scroll-inner">
             <div className="featured-categories-cta-wrap">
-              <button
-                type="button"
-                className="menu-cta featured-categories-view-all-btn"
-                onClick={onViewAll}
-              >
-                {viewAllLabel} →
-              </button>
+            <button
+              type="button"
+              className="menu-cta featured-categories-view-all-btn home-blob-btn"
+              onClick={onViewAll}
+            >
+              <span className="home-blob-btn__label">{viewAllLabel} →</span>
+              <span className="home-blob-btn__inner" aria-hidden="true">
+                <span className="home-blob-btn__blobs">
+                  <span className="home-blob-btn__blob"></span>
+                  <span className="home-blob-btn__blob"></span>
+                  <span className="home-blob-btn__blob"></span>
+                  <span className="home-blob-btn__blob"></span>
+                </span>
+              </span>
+            </button>
             </div>
           </div>
         </div>
