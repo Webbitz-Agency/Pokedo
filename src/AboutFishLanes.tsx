@@ -1,8 +1,4 @@
-import { useLayoutEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(ScrollTrigger);
+import { useEffect, useRef } from "react";
 
 const FISH = `${import.meta.env.BASE_URL}immagini/decorazioni/pesce.svg`;
 const PER_ROW = 14;
@@ -15,7 +11,7 @@ type Props = {
 export function AboutFishLanes({ triggerRef }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const section = triggerRef.current;
     const root = rootRef.current;
     if (!section || !root) return;
@@ -23,39 +19,39 @@ export function AboutFishLanes({ triggerRef }: Props) {
     const tracks = root.querySelectorAll<HTMLElement>(".about-fish-lane-track");
     if (tracks.length !== 4) return;
 
-    /*
-     * Righe pari (1 e 3 visive): partenza piu indietro per evitare che si "svuotino" a meta scroll.
-     * Righe dispari: manteniamo la corsa attuale.
-     */
-    const amp = 20;
-    const tweens = Array.from(tracks).map((track, i) => {
-      const facesRight = i % 2 === 0;
-      return gsap.fromTo(
-        track,
-        { xPercent: facesRight ? -2 * amp : 0 },
-        {
-          xPercent: facesRight ? 0 : -2 * amp,
-          ease: "none",
-          scrollTrigger: {
-            trigger: section,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 2.2,
-            invalidateOnRefresh: true
-          }
-        }
-      );
-    });
+    const amp = 20; // xPercent travel per lane
+    let rafId = 0;
 
-    // Some production/browser combinations need an explicit refresh
-    // after initial layout to attach triggers reliably.
-    requestAnimationFrame(() => ScrollTrigger.refresh());
+    const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
+    const update = () => {
+      rafId = 0;
+      const rect = section.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const total = rect.height + vh;
+      const progressed = (vh - rect.top) / total;
+      const t = clamp01(progressed);
+      tracks.forEach((track, i) => {
+        const facesRight = i % 2 === 0;
+        const start = facesRight ? -2 * amp : 0;
+        const end = facesRight ? 0 : -2 * amp;
+        const x = start + (end - start) * t;
+        track.style.transform = `translate3d(${x}%, 0, 0)`;
+      });
+    };
+
+    const requestTick = () => {
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(update);
+    };
+
+    requestTick();
+    window.addEventListener("scroll", requestTick, { passive: true });
+    window.addEventListener("resize", requestTick);
 
     return () => {
-      tweens.forEach((tw) => {
-        tw.scrollTrigger?.kill();
-        tw.kill();
-      });
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", requestTick);
+      window.removeEventListener("resize", requestTick);
     };
   }, [triggerRef]);
 
