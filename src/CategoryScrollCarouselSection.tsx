@@ -304,7 +304,7 @@ export function CategoryScrollCarouselSection({
               className="menu-cta featured-categories-view-all-btn home-blob-btn"
               onClick={onViewAll}
             >
-              <span className="home-blob-btn__label">{viewAllLabel} →</span>
+              <span className="home-blob-btn__label">{viewAllLabel}</span>
               <span className="home-blob-btn__inner" aria-hidden="true">
                 <span className="home-blob-btn__blobs">
                   <span className="home-blob-btn__blob"></span>

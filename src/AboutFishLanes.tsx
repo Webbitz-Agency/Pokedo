@@ -29,18 +29,17 @@ export function AboutFishLanes({ triggerRef }: Props) {
     if (tracks.length !== 4) return;
 
     /*
-     * Righe pari: -amp → +amp (verso destra con lo scroll).
-     * Righe dispari (specchiate): 0 → -2×amp: partenza senza +xPercent evita il “buco” a sinistra
-     * che si aveva con partenza +amp; stessa corsa totale (2×amp) in valore assoluto.
+     * Righe pari (1 e 3 visive): partenza piu indietro per evitare che si "svuotino" a meta scroll.
+     * Righe dispari: manteniamo la corsa attuale.
      */
     const amp = 20;
     const tweens = Array.from(tracks).map((track, i) => {
       const facesRight = i % 2 === 0;
       return gsap.fromTo(
         track,
-        { xPercent: facesRight ? -amp : 0 },
+        { xPercent: facesRight ? -2 * amp : 0 },
         {
-          xPercent: facesRight ? amp : -2 * amp,
+          xPercent: facesRight ? 0 : -2 * amp,
           ease: "none",
           scrollTrigger: {
             trigger: section,

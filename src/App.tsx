@@ -1,6 +1,7 @@
 import { type CSSProperties, Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import QRCode from "qrcode";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 import {
   adminApi,
   formatCurrency,
@@ -266,7 +267,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     completeOrder: "Completa ordine",
     sendOrder: "Invia ordine",
     heroKicker: "Pokedo",
-    heroTitle: "Pokè fresca a Firenze: crea la tua bowl in sala o da asporto.",
+    heroTitle: "Pokè fresca a San Miniato (PI): crea la tua bowl in sala o da asporto.",
     heroSubtitle:
       "Ingredienti selezionati, combinazioni personalizzabili e ordine digitale veloce: tutta la qualità Pokedo, senza attese.",
     goFullMenu: "Vai al menu completo",
@@ -276,10 +277,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
       "Categorie, allergeni e piatti con prezzi chiari: sfoglia tutto il digitale Pokedo prima di ordinare in sala o da asporto.",
     aboutKicker: "Chi siamo",
     aboutTitle: "La nostra filosofia in ogni bowl",
-    aboutEyebrow: "Pokè bar contemporaneo a Firenze",
+    aboutEyebrow: "Pokè bar contemporaneo a San Miniato",
     aboutHighlight: "Ingredienti veri, gusto pulito, esperienza digitale semplice.",
     aboutBody1:
-      "Pokedo è il poke bar di Firenze dove freschezza, creatività e velocità convivono ogni giorno. Con il nostro percorso digitale scegli la bowl ideale, personalizzi ogni dettaglio e ordini in pochi passaggi chiari.",
+      "Pokedo è il poke bar di San Miniato (PI) dove freschezza, creatività e velocità convivono ogni giorno. Con il nostro percorso digitale scegli la bowl ideale, personalizzi ogni dettaglio e ordini in pochi passaggi chiari.",
     aboutBody2:
       "Dalla pausa pranzo alla cena con amici, componi la tua pokè come vuoi tu e scegli subito se gustarla in sala o ritirarla da asporto, con tempi trasparenti e servizio rapido.",
     callUs: "Chiamaci",
@@ -1150,7 +1151,7 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
     business_phone: "+390571544259",
     personal_name: "Admin",
     personal_phone: "",
-    address: "Via del Centro 12, Firenze"
+    address: "Via del Centro 12, San Miniato (PI)"
   },
   site: {
     poke_phase_labels: {
@@ -1477,6 +1478,7 @@ export default function App() {
   const [orderOpen, setOrderOpen] = useState(false);
   const [orderClosing, setOrderClosing] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [pokeStoryInfoModalOpen, setPokeStoryInfoModalOpen] = useState<number | null>(null);
   const [infoModalItem, setInfoModalItem] = useState<MenuItem | null>(null);
   const [pokeIngredientAllergenModal, setPokeIngredientAllergenModal] = useState<{
     itemId: number;
@@ -1628,6 +1630,15 @@ export default function App() {
     window.addEventListener("app:navigate-start", onNavigateStart as EventListener);
     return () => window.removeEventListener("app:navigate-start", onNavigateStart as EventListener);
   }, []);
+
+  useEffect(() => {
+    if (pokeStoryInfoModalOpen === null) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPokeStoryInfoModalOpen(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [pokeStoryInfoModalOpen]);
 
   useEffect(() => {
     return () => {
@@ -2409,6 +2420,15 @@ export default function App() {
         label.classList.toggle("is-label-visible", visible);
       });
 
+      const mobileCards = section.querySelectorAll<HTMLElement>("[data-mobile-card-label]");
+      mobileCards.forEach((card) => {
+        const idx = Number(card.dataset.mobileCardLabel);
+        const segStart = SEG_PCTS.slice(0, idx).reduce((s, p) => s + p, 0);
+        const threshold = segStart + SEG_PCTS[idx] * 0.4;
+        const visible = progress >= threshold;
+        card.classList.toggle("is-label-visible", visible);
+      });
+
       // Show circle as soon as the section enters/overlaps the viewport
       const circleEl = section.querySelector<HTMLElement>(".poke-story-ring-wrap");
       if (circleEl) {
@@ -2920,7 +2940,71 @@ export default function App() {
     () => orderItemsList.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [orderItemsList]
   );
+  const pokeStorySegments = useMemo(
+    () =>
+      [
+        {
+          idx: 0,
+          color: "#2563eb",
+          pct: "40%",
+          name: "Base",
+          desc: "Scegli la base che piu ti piace",
+          details: "Riso sushi, riso venere, insalata o mix: la struttura principale della tua bowl."
+        },
+        {
+          idx: 1,
+          color: "#f59e0b",
+          pct: "30%",
+          name: "Proteine",
+          desc: "Fonti proteiche di qualita",
+          details: "Salmone, tonno, pollo o alternative veggie: la parte proteica che da equilibrio e gusto."
+        },
+        {
+          idx: 2,
+          color: "#22c55e",
+          pct: "25%",
+          name: "Green",
+          desc: "Verdure fresche di stagione",
+          details: "Verdure e ingredienti freschi per volume, colore e una bowl sempre bilanciata."
+        },
+        {
+          idx: 3,
+          color: "#ef4444",
+          pct: "5%",
+          name: "Crunchy",
+          desc: "Il tocco croccante finale",
+          details: "Semi e topping croccanti: il dettaglio finale che completa consistenza e sapore."
+        }
+      ] as const,
+    []
+  );
+  const pokeStoryLeftSegments = useMemo(() => pokeStorySegments.filter((seg) => seg.idx >= 2), [pokeStorySegments]);
+  const pokeStoryRightSegments = useMemo(() => pokeStorySegments.filter((seg) => seg.idx <= 1), [pokeStorySegments]);
+  const activePokeStorySegment = useMemo(
+    () => pokeStorySegments.find((seg) => seg.idx === pokeStoryInfoModalOpen) ?? null,
+    [pokeStoryInfoModalOpen, pokeStorySegments]
+  );
   const isTableOrderMode = Boolean(tableOrderNumber);
+  useEffect(() => {
+    const shouldLockBodyScroll = (!isTableOrderMode && mobileMenuOpen) || pokeStoryInfoModalOpen !== null;
+    if (!shouldLockBodyScroll) {
+      return;
+    }
+
+    // Lock background scroll without changing layout/scroll position.
+    const preventScroll = (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest(".mobile-nav-sheet, .poke-story-modal-card")) return;
+      event.preventDefault();
+    };
+    window.addEventListener("wheel", preventScroll, { passive: false });
+    window.addEventListener("touchmove", preventScroll, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", preventScroll);
+      window.removeEventListener("touchmove", preventScroll);
+    };
+  }, [isTableOrderMode, mobileMenuOpen, pokeStoryInfoModalOpen]);
   const showTableCoursePlanner = isTableOrderMode && orderItemsList.length >= 2;
   const activeTableCoverRule = useMemo(() => {
     if (!isTableOrderMode) return null;
@@ -5278,8 +5362,16 @@ export default function App() {
               >
                 {t("menu")}
               </button>
-              <button className="cta" onClick={() => goToPokePage()}>
-                {t("createPoke")}
+              <button className="cta home-blob-btn" onClick={() => goToPokePage()}>
+                <span className="home-blob-btn__label">{t("createPoke")}</span>
+                <span className="home-blob-btn__inner" aria-hidden="true">
+                  <span className="home-blob-btn__blobs">
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                  </span>
+                </span>
               </button>
               <button
                 className={`order-icon-btn ${isTableOrderMode ? "table-mobile-cart-btn" : ""}`.trim()}
@@ -5293,10 +5385,11 @@ export default function App() {
                 <button
                   className={`mobile-menu-toggle ${mobileMenuOpen ? "active" : ""}`.trim()}
                   onClick={() => setMobileMenuOpen((old) => !old)}
-                  aria-label="Apri menu mobile"
+                  aria-label={mobileMenuOpen ? "Chiudi menu mobile" : "Apri menu mobile"}
                   aria-expanded={mobileMenuOpen}
+                  aria-controls="mobile-nav-sheet"
                 >
-                  <wa-icon name={mobileMenuOpen ? "xmark" : "bars"} variant="solid" aria-hidden="true"></wa-icon>
+                  <i className={`fa-solid ${mobileMenuOpen ? "fa-xmark" : "fa-bars"}`.trim()} aria-hidden="true"></i>
                   {orderCount > 0 && <span className="order-badge">{orderCount}</span>}
                 </button>
               )}
@@ -5318,17 +5411,14 @@ export default function App() {
 
       {!isTableOrderMode && mobileMenuOpen && (
         <div className="mobile-nav-overlay" onClick={() => setMobileMenuOpen(false)}>
-          <nav className="mobile-nav-sheet" onClick={(e) => e.stopPropagation()}>
-            <div className="mobile-nav-head">
-              <strong>{t("menu")}</strong>
-              <button
-                className="mobile-nav-close"
-                aria-label="Chiudi menu"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
-              </button>
-            </div>
+          <nav
+            id="mobile-nav-sheet"
+            className="mobile-nav-sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu di navigazione mobile"
+            onClick={(e) => e.stopPropagation()}
+          >
             {!isTableOrderMode && (
               <button
                 className={route === "/" ? "active" : ""}
@@ -5337,7 +5427,10 @@ export default function App() {
                   setMobileMenuOpen(false);
                 }}
               >
-                {t("home")}
+                <span className="mobile-nav-item-label">
+                  <i className="fa-solid fa-house" aria-hidden="true"></i>
+                  <span>{t("home")}</span>
+                </span>
               </button>
             )}
             <button
@@ -5347,7 +5440,10 @@ export default function App() {
                 setMobileMenuOpen(false);
               }}
             >
-              {t("menu")}
+              <span className="mobile-nav-item-label">
+                <i className="fa-solid fa-book-open" aria-hidden="true"></i>
+                <span>{t("menu")}</span>
+              </span>
             </button>
             <button
               className={route === "/crea-la-tua-poke" ? "active" : ""}
@@ -5356,7 +5452,10 @@ export default function App() {
                 setMobileMenuOpen(false);
               }}
             >
-              {t("createPoke")}
+              <span className="mobile-nav-item-label">
+                <i className="fa-solid fa-bowl-food" aria-hidden="true"></i>
+                <span>{t("createPoke")}</span>
+              </span>
             </button>
             <button
               className="mobile-order-entry"
@@ -5366,8 +5465,8 @@ export default function App() {
               }}
             >
               <span className="mobile-order-entry-label">
-                <wa-icon name="clipboard" variant="regular" aria-hidden="true"></wa-icon>
-                {t("orderSummary")}
+                <i className="fa-solid fa-receipt" aria-hidden="true"></i>
+                <span>{t("orderSummary")}</span>
               </span>
               {orderCount > 0 && <span className="mobile-order-badge">{orderCount}</span>}
             </button>
@@ -5381,9 +5480,38 @@ export default function App() {
                 goTo("/completa-ordine");
               }}
             >
-              {isTableOrderMode ? t("sendOrder") : t("completeOrder")}
+              <span className="mobile-nav-item-label">
+                <i className="fa-solid fa-circle-check" aria-hidden="true"></i>
+                <span>{isTableOrderMode ? t("sendOrder") : t("completeOrder")}</span>
+              </span>
             </button>
           </nav>
+        </div>
+      )}
+
+      {activePokeStorySegment && (
+        <div className="poke-story-modal-overlay" onClick={() => setPokeStoryInfoModalOpen(null)}>
+          <article
+            className="poke-story-modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Dettaglio ${activePokeStorySegment.name}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="poke-story-modal-close"
+              aria-label="Chiudi dettagli"
+              onClick={() => setPokeStoryInfoModalOpen(null)}
+            >
+              <i className="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+            <p className="poke-story-modal-kicker" style={{ color: activePokeStorySegment.color }}>
+              {activePokeStorySegment.pct} {activePokeStorySegment.name}
+            </p>
+            <h4>{activePokeStorySegment.desc}</h4>
+            <p>{activePokeStorySegment.details}</p>
+          </article>
         </div>
       )}
 
@@ -5487,12 +5615,6 @@ export default function App() {
             </div>
           </article>
         </div>
-      )}
-
-      {route !== "/crea-la-tua-poke" && !isTableOrderMode && (
-        <button className="mobile-floating-create cta" onClick={() => goToPokePage()}>
-          {t("createPoke")}
-        </button>
       )}
 
       <div className={`language-fab ${languageMenuOpen ? "open" : ""}`.trim()}>
@@ -5752,10 +5874,7 @@ export default function App() {
               <div className="poke-story-visual">
                 {/* LEFT: Green + Crunchy */}
                 <div className="poke-story-labels poke-story-labels-left">
-                  {([
-                    { color: "#22c55e", pct: "25%", name: "Green", desc: "Verdure fresche di stagione", idx: 2 },
-                    { color: "#ef4444", pct: "5%",  name: "Crunchy", desc: "Il tocco croccante finale",   idx: 3 },
-                  ] as { color: string; pct: string; name: string; desc: string; idx: number }[]).map((seg) => (
+                  {pokeStoryLeftSegments.map((seg) => (
                     <div
                       key={seg.idx}
                       data-ring-label={seg.idx}
@@ -5771,10 +5890,30 @@ export default function App() {
                 </div>
 
                 {/* CENTER: Circle + SVG ring */}
-                <div
-                  className="poke-story-ring-wrap"
-                  style={{ opacity: 0, transform: "scale(0.85)", transition: "opacity 0.6s ease, transform 0.6s ease" }}
-                >
+                <div className="poke-story-ring-and-mobile-cards">
+                  <div className="poke-story-mobile-cards" aria-label="Composizione poke">
+                    {pokeStorySegments.map((seg) => (
+                      <button
+                        key={`mobile-poke-card-${seg.idx}`}
+                        type="button"
+                        className="poke-story-mobile-card"
+                        data-mobile-card-label={seg.idx}
+                        onClick={() => setPokeStoryInfoModalOpen(seg.idx)}
+                        style={{ ['--mobile-card-accent' as string]: seg.color }}
+                        aria-label={`Apri dettagli ${seg.pct} ${seg.name}`}
+                      >
+                        <span className="poke-story-mobile-card-info" aria-hidden="true">
+                          <i className="fa-solid fa-circle-info"></i>
+                        </span>
+                        <span className="poke-story-mobile-card-pct">{seg.pct}</span>
+                        <span className="poke-story-mobile-card-name">{seg.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div
+                    className="poke-story-ring-wrap"
+                    style={{ opacity: 0, transform: "scale(0.85)", transition: "opacity 0.6s ease, transform 0.6s ease" }}
+                  >
                   <div
                     className="poke-story-circle-hit"
                     role="button"
@@ -5800,7 +5939,7 @@ export default function App() {
                   </div>
                   {/* r=258, cx=cy=280, circ≈1620.93. Ring ~23px outside gray circle (r_gray=235).
                       Each dash is (pct*circ - 32) to create a visible gap between segments. */}
-                  <svg className="poke-story-svg" viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <svg className="poke-story-svg" viewBox="0 0 560 560" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     {/* Base 40% → 0.4×1620.93-16=632.37px — starts at -90° */}
                     <circle data-ring-idx="0" cx="280" cy="280" r="258"
                       fill="none" stroke="#2563eb" strokeWidth="11" strokeLinecap="round"
@@ -5821,15 +5960,14 @@ export default function App() {
                       fill="none" stroke="#ef4444" strokeWidth="11" strokeLinecap="round"
                       strokeDasharray="65.05 1620.93" strokeDashoffset="65.05"
                       transform="rotate(252,280,280)" />
-                  </svg>
+                    </svg>
+                  </div>
+                  <p className="poke-story-mobile-hint">Clicca la bowl per creare la tua poke</p>
                 </div>
 
                 {/* RIGHT: Base + Proteine */}
                 <div className="poke-story-labels poke-story-labels-right">
-                  {([
-                    { color: "#2563eb", pct: "40%", name: "Base", desc: "Scegli la base che più ti piace", idx: 0 },
-                    { color: "#f59e0b", pct: "30%", name: "Proteine", desc: "Fonti proteiche di qualità",   idx: 1 },
-                  ] as { color: string; pct: string; name: string; desc: string; idx: number }[]).map((seg) => (
+                  {pokeStoryRightSegments.map((seg) => (
                     <div
                       key={seg.idx}
                       data-ring-label={seg.idx}
@@ -7422,7 +7560,6 @@ export default function App() {
               <p>{t("aboutHighlight")}</p>
             </div>
             <div>
-            <span aria-hidden="true">☎ </span>
               <h5>{t("callUs")}</h5>
               <p>{businessAddress}</p>
               <a href={`tel:${businessPhone}`}>{businessPhone}</a>
