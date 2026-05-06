@@ -12,7 +12,7 @@ function resolveApiBase(): string {
 
 export const API_BASE = resolveApiBase();
 
-/** Converte path media relativi (/api/...) in URL assoluti quando API_BASE è esterno al frontend. */
+/** Converte path media relativi (/api/...) in URL assoluti quando API_BASE è esterno al frontend... */
 export function resolveMediaSrc(href: string | undefined | null): string {
   const u = String(href ?? "").trim();
   if (!u) return "";
