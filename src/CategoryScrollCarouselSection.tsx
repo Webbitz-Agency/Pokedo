@@ -4,7 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** Slug stabile per associare categorie a file in /public/icone */
+/** Slug stabile per associare categorie a file in /public/icone. */
 function categorySlugForIcon(value: string): string {
   return value
     .normalize("NFD")

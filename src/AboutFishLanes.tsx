@@ -4,7 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const FISH = "/immagini/decorazioni/pesce.svg";
+const FISH = `${import.meta.env.BASE_URL}immagini/decorazioni/pesce.svg`;
 const PER_ROW = 14;
 
 type Props = {
