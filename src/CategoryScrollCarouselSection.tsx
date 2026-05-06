@@ -15,7 +15,7 @@ function categorySlugForIcon(value: string): string {
 }
 
 /**
- * Chiave = slug categoria (categorySlugForIcon).
+ * Chiave = slug categoria (categorySlugForIcon)..
  * Asset illustrativi in `public/immagini/categorie/*.svg` (stesso layout “split” del toast).
  */
 const CATEGORY_HOME_ICONS: Record<string, string> = {
