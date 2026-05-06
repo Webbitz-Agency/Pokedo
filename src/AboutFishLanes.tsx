@@ -20,11 +20,6 @@ export function AboutFishLanes({ triggerRef }: Props) {
     const root = rootRef.current;
     if (!section || !root) return;
 
-    const prefersReduced =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced) return;
-
     const tracks = root.querySelectorAll<HTMLElement>(".about-fish-lane-track");
     if (tracks.length !== 4) return;
 
@@ -51,6 +46,10 @@ export function AboutFishLanes({ triggerRef }: Props) {
         }
       );
     });
+
+    // Some production/browser combinations need an explicit refresh
+    // after initial layout to attach triggers reliably.
+    requestAnimationFrame(() => ScrollTrigger.refresh());
 
     return () => {
       tweens.forEach((tw) => {
