@@ -967,25 +967,11 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   width: fit-content;
   margin-top: 10px;
-  border-radius: 12px;
   padding: 12px 24px;
-  background: #f59e0b;
-  color: #ffffff;
   text-decoration: none;
   font-family: var(--font-subtitle);
-  font-weight: 800;
-  box-shadow: 0 10px 22px rgba(245, 158, 11, 0.35);
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
-}
-
-.about-call-btn:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.04);
-  box-shadow: 0 14px 26px rgba(245, 158, 11, 0.42);
 }
 
 .featured-title h3 {
@@ -1143,22 +1129,9 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
   padding: 12px 24px;
-  background: #f59e0b;
-  color: #ffffff;
   text-decoration: none;
   font-family: var(--font-subtitle);
-  font-weight: 800;
-  box-shadow: 0 10px 22px rgba(245, 158, 11, 0.35);
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
-}
-
-.phone-cta:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.04);
-  box-shadow: 0 14px 26px rgba(245, 158, 11, 0.42);
 }
 
 .site-footer {
@@ -9440,6 +9413,16 @@ table button:hover {
   transform: scaleX(-1);
 }
 
+/* ── Variante densa (mobile, sezione categorie) ─────────────────────────────
+   Stessa dimensione, gap e opacità della sezione About: cambia solo la quantità
+   di file (impostata da `<AboutFishLanes lanes={...}>`) e l'allineamento
+   verticale. `flex-start` "tira" la prima fila al bordo superiore della sezione
+   così i pesci si vedono già dietro la banda titolo, e le file successive
+   restano spaziate uniformemente lungo l'altezza. */
+.about-fish-lanes--dense .about-fish-lane {
+  align-items: flex-start;
+}
+
 .about-strip.about-strip-v2 .container {
   position: relative;
   z-index: 2;
@@ -10677,62 +10660,190 @@ table button:hover {
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────
+   MOBILE (≤768px): la sezione categorie passa da carosello orizzontale
+   pinnato (GSAP) a griglia statica 2 colonne × N righe. Lo sfondo a
+   immagine orizzontale (`categorie1.jpg`) viene sostituito da un gradient
+   coordinato col tono "About" + i banchi di pesci animati riusati da
+   `<AboutFishLanes>` (montato condizionalmente solo in mobile dal JSX).
+   Il pin GSAP è disattivato da JS quando `matchMedia(max-width:768px)`
+   matcha (vedi `CategoryScrollCarouselSection.tsx`).
+   ───────────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  .featured-menu-section-v2 {
+    background-color: #ffffff;
+    background-image: none;
+    background-attachment: scroll;
+    overflow: hidden;
+  }
+
   .featured-categories-heading-chip {
     padding: 19px 14px 18px;
+    /* Stesso effetto vetro usato in `.gallery-strip-v2 .gallery-header-row`
+       e nel chip desktop: il blur prende il colore dei pesci sotto + gradient. */
+    background: rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
   }
+
+  .featured-categories-heading-chip .section-kicker {
+    color: #1d4ed8;
+    text-shadow: none;
+  }
+
+  .featured-categories-heading-title {
+    color: #0f172a;
+    text-shadow: none;
+  }
+
+  /* Niente full-bleed né overflow clipping: la viewport diventa un
+     wrapper normale con padding del container. */
+  .category-carousel-viewport--fullbleed {
+    width: auto;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 18px 16px 8px;
+    overflow: visible;
+  }
+
+  /* Track: griglia 2 colonne. `transform: none !important` per neutralizzare
+     qualsiasi inline transform residuo lasciato da GSAP cambiando viewport. */
   .category-carousel-track {
-    gap: 2.25rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: auto;
+    transform: none !important;
+    will-change: auto;
   }
+
+  /* Card: niente larghezza fissa, riempie la cella di griglia. */
   .category-carousel-card {
-    width: min(328px, 91vw);
+    width: auto;
+    flex: none;
+    border-radius: 16px;
   }
+
+  .category-carousel-card.category-carousel-card--split-editorial {
+    border-radius: 18px;
+  }
+
+  /* Visual: card più piccole, quasi quadrate. */
   .category-carousel-card-visual {
-    min-height: 368px;
+    min-height: 0;
+    aspect-ratio: 1 / 1.05;
   }
-  .category-carousel-card-title {
-    font-size: clamp(1.45rem, 5.2vw, 2rem);
-    padding-top: 12px;
+
+  .category-carousel-card-visual--split-editorial {
+    aspect-ratio: 1 / 1;
+    max-width: none;
   }
-  .category-carousel-card-icon-img[data-carousel-icon="toast"] {
-    max-height: min(276px, 64vmin);
+
+  /* Titolo: rimpicciolito + padding ridotto. */
+  .category-carousel-card-title,
+  .category-carousel-card-visual--icon .category-carousel-card-title,
+  .category-carousel-card--split-editorial .category-carousel-card-title {
+    font-size: clamp(0.92rem, 3.6vw, 1.1rem);
+    padding: 10px 8px 4px;
+    letter-spacing: -0.018em;
+    line-height: 1.1;
+  }
+
+  /* Meta (X piatti) */
+  .category-carousel-card-meta,
+  .category-carousel-card-visual--icon .category-carousel-card-meta,
+  .category-carousel-card--split-editorial .category-carousel-card-meta {
+    font-size: 0.58rem;
+    padding: 6px 8px 9px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Icone categoria: max-height in % della card (non più px assoluti). */
+  .category-carousel-card-icon-img,
+  .category-carousel-card-icon-img[data-carousel-icon="toast"],
+  .category-carousel-card-icon-img[data-carousel-icon="avocado"],
+  .category-carousel-card-icon-img[data-carousel-icon="sushi"],
+  .category-carousel-card-icon-img[data-carousel-icon="expanded"] {
+    --carousel-icon-y: 6px;
+    max-height: 70%;
+    max-width: 86%;
   }
 
   .category-carousel-card.category-carousel-card--split-editorial
-    .category-carousel-card-icon-img {
-    max-height: min(74%, 236px);
-  }
-
+    .category-carousel-card-icon-img,
   .category-carousel-card.category-carousel-card--split-editorial
     .category-carousel-card-icon-img[data-carousel-icon="pasta"],
   .category-carousel-card.category-carousel-card--split-editorial
     .category-carousel-card-icon-img[data-carousel-icon="secondi"],
   .category-carousel-card.category-carousel-card--split-editorial
-    .category-carousel-card-icon-img[data-carousel-icon="dolci"] {
-    max-height: min(82%, 268px);
-  }
-
+    .category-carousel-card-icon-img[data-carousel-icon="dolci"],
   .category-carousel-card.category-carousel-card--split-editorial
     .category-carousel-card-icon-img[data-carousel-icon="altripiatti"] {
-    max-height: min(58%, 188px);
-    --carousel-icon-y: 14px;
+    --carousel-icon-y: 6px;
+    max-height: 60%;
+    max-width: 78%;
   }
 
-  .category-carousel-card-icon-img[data-carousel-icon="avocado"] {
-    max-height: min(268px, 62vmin);
+  /* Niente lift al tap: su mobile non serve il translateY -12. */
+  .category-carousel-card:hover,
+  .category-carousel-card:focus-visible {
+    transform: none;
+    box-shadow:
+      0 8px 22px rgba(15, 23, 42, 0.16),
+      0 0 0 1px rgba(15, 23, 42, 0.06);
   }
 
-  .category-carousel-card-icon-img[data-carousel-icon="sushi"],
-  .category-carousel-card-icon-img[data-carousel-icon="expanded"] {
-    max-height: min(402px, 78vmin);
+  /* ── Slide-in delle card (gestito da scroll listener + rAF in
+     `CategoryScrollCarouselSection.tsx`) ─────────────────────────────────────
+     Stati:
+       - `.is-slide-ready` (applicata in render dal JSX su mobile) → la card
+         parte fuori scena (sinistra/destra in base a `data-mobile-side`)
+       - `.is-slide-ready.is-in-view` (toggleata dal listener)        → la
+         card torna in posizione (translateX 0).
+     Le card della stessa riga condividono Y, quindi entrano "all'unisono".
+     Il toggle è bidirezionale → l'animazione si replay anche scrollando
+     verso l'alto. La sezione ha `overflow: hidden` quindi le card
+     translate fuori dalla viewport restano clippate.
+     Nota implementativa: NON si usa IntersectionObserver perché
+     `translateX(±110%)` sposta il bounding-rect orizzontalmente fuori dal
+     root della observer → in alcuni browser l'intersezione non viene
+     riconosciuta. Lo scroll listener calcola direttamente
+     `getBoundingClientRect().top/bottom` (insensibili a `translateX`) e
+     decide la visibilità verticale via overlap > 18%. */
+  .category-carousel-card.is-slide-ready {
+    opacity: 0;
+    transition:
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.55s ease;
+    will-change: transform, opacity;
   }
 
-  .category-carousel-card-icon-img[data-carousel-icon="sushi"] {
-    --carousel-icon-y: 28px;
+  .category-carousel-card.is-slide-ready[data-mobile-side="left"] {
+    transform: translateX(-110%);
   }
 
-  .category-carousel-card-icon-img[data-carousel-icon="expanded"] {
-    --carousel-icon-y: 14px;
+  .category-carousel-card.is-slide-ready[data-mobile-side="right"] {
+    transform: translateX(110%);
+  }
+
+  .category-carousel-card.is-slide-ready.is-in-view {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  /* Le file di pesci (variante densa, vedi <AboutFishLanes lanes={8}>) stanno
+     sotto le card ma sopra lo sfondo della sezione. Il pin-panel deve restare
+     sopra ai pesci, e i pesci sotto al wrap CTA. */
+  .featured-menu-section-v2--mobile-grid .featured-categories-pin-panel {
+    z-index: 1;
+  }
+
+  /* Spaziatura del CTA "Vedi tutto" */
+  .featured-categories-scroll-inner {
+    padding: 16px 16px 8px;
+    gap: 0.5rem;
   }
 }
 
@@ -11048,12 +11159,27 @@ table button:hover {
 
 
 /* Item singola immagine */
+/* Reset stili default del <button>: l'item è un button per accessibilità
+   (apre il lightbox), ma deve sembrare una card. */
 .gallery-marquee-item {
   flex: 0 0 auto;
   width: 300px;
   height: 210px;
   border-radius: 16px;
   overflow: hidden;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+  font: inherit;
+  color: inherit;
+  display: block;
+}
+
+.gallery-marquee-item:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
 }
 
 .gallery-marquee-item img {
@@ -11064,20 +11190,109 @@ table button:hover {
   transition: transform 0.4s ease;
 }
 
-.gallery-marquee-item:hover img {
+.gallery-marquee-item:hover img,
+.gallery-marquee-item:focus-visible img {
   transform: scale(1.06);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .gallery-marquee-item {
-    width: 220px;
-    height: 160px;
+    width: 150px;
+    height: 110px;
+    border-radius: 12px;
+  }
+
+  .gallery-marquee-wrapper {
+    gap: 10px;
+  }
+
+  .gallery-marquee-inner {
+    gap: 10px;
   }
 
   .gallery-fade-left,
   .gallery-fade-right {
     width: 60px;
   }
+}
+
+/* ── Lightbox galleria home ─────────────────────────────────────────────────
+   Aperto da `setGalleryLightboxSrc(url)` in App.tsx; chiusura via click sul
+   backdrop, ESC (gestito in useEffect) o pulsante X. */
+.gallery-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  background: rgba(2, 6, 23, 0.86);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 48px);
+  animation: fadeIn 0.18s ease;
+  cursor: zoom-out;
+}
+
+/* La figure si "stringe" alla dimensione effettiva dell'immagine
+   (width/height: auto sull'img + max-width/height su entrambi). Con il
+   flex-center sul `.gallery-lightbox` resta centrata orizzontalmente e
+   verticalmente sullo schermo. */
+.gallery-lightbox-figure {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  max-width: min(94vw, 1200px);
+  max-height: min(90vh, 900px);
+  cursor: default;
+}
+
+.gallery-lightbox-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(94vw, 1200px);
+  max-height: min(90vh, 900px);
+  border-radius: 14px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  animation: galleryLightboxIn 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes galleryLightboxIn {
+  from {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.gallery-lightbox-close {
+  position: absolute;
+  top: clamp(12px, 3vw, 24px);
+  right: clamp(12px, 3vw, 24px);
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.05rem;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.gallery-lightbox-close:hover,
+.gallery-lightbox-close:focus-visible {
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(1.05);
+  outline: none;
 }
 
 /* ── Final CTA full-bleed dark ──────────────────────────────────── */
@@ -11997,6 +12212,10 @@ table button:hover {
   pointer-events: none;
 }
 
+/* Bubble button: the BUTTON itself paints the visible border + white background
+   (`::before` / `::after` are kept hidden) so border and fill share the same box
+   and can never visually drift apart. The `__inner` overlay is just a clipped
+   container for the goo blobs. Color variants override `--blob-color`. */
 .home-blob-btn {
   --blob-color: #0505a9;
   --blob-text: #ffffff;
@@ -12007,37 +12226,21 @@ table button:hover {
   text-transform: uppercase;
   color: var(--blob-color) !important;
   font-weight: 800 !important;
-  background: transparent !important;
-  border: none !important;
+  background: #ffffff !important;
+  border: var(--blob-border-w) solid var(--blob-color) !important;
   border-radius: 30px !important;
   box-shadow: none !important;
-  overflow: visible;
+  /* `!important` to beat `.main-nav .cta { overflow: visible }` (higher
+     specificity but no !important) which otherwise lets the goo escape the
+     rounded corners on the header button only. */
+  overflow: hidden !important;
+  isolation: isolate;
   transition: color 0.5s ease;
 }
 
-.home-blob-btn::before {
-  content: "";
-  z-index: 1;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  border: var(--blob-border-w) solid var(--blob-color);
-  border-radius: 30px;
-  pointer-events: none;
-}
-
+.home-blob-btn::before,
 .home-blob-btn::after {
-  content: "";
-  z-index: -2;
-  position: absolute;
-  left: calc(var(--blob-border-w) * 1.5);
-  top: calc(var(--blob-border-w) * 1.5);
-  width: 100%;
-  height: 100%;
-  border-radius: 30px;
-  transition: all 0.3s 0.2s;
+  display: none;
 }
 
 .home-blob-btn:hover,
@@ -12048,28 +12251,22 @@ table button:hover {
   box-shadow: none !important;
 }
 
-.home-blob-btn:hover::after,
-.home-blob-btn:focus-visible::after {
-  left: 0;
-  top: 0;
-  transition: all 0.3s;
-}
-
 .home-blob-btn__label {
   position: relative;
   z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .home-blob-btn__inner {
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 30px;
-  background: #ffffff;
+  inset: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .home-blob-btn__blobs {
@@ -12081,9 +12278,9 @@ table button:hover {
 
 .home-blob-btn__blob {
   position: absolute;
-  top: var(--blob-border-w);
+  top: -15%;
   width: 25%;
-  height: 100%;
+  height: 130%;
   background: var(--blob-color);
   border-radius: 100%;
   transform: translate3d(0, 150%, 0) scale(1.4);
@@ -12116,13 +12313,15 @@ table button:hover {
   --blob-text: #ffffff;
 }
 
+/* Yellow color variant for bubble buttons (e.g. "Chiamaci" CTAs): override the
+   accent color so the border / text / goo fill render in amber instead of blue. */
+.home-blob-btn--yellow {
+  --blob-color: #f59e0b;
+  --blob-text: #ffffff;
+}
+
 @media (max-width: 768px) {
   .home-blob-btn {
     border-radius: 22px !important;
-  }
-  .home-blob-btn::before,
-  .home-blob-btn::after,
-  .home-blob-btn__inner {
-    border-radius: 22px;
   }
 }

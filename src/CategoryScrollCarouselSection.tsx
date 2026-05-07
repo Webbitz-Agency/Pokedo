@@ -1,6 +1,7 @@
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { AboutFishLanes } from "./AboutFishLanes";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -128,15 +129,96 @@ export function CategoryScrollCarouselSection({
   onCategoryNavigate,
   onViewAll
 }: Props) {
+  const sectionRef = useRef<HTMLElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  /* Su mobile la sezione passa a griglia statica 2×N con sfondo a banchi di pesci,
+     niente pinning GSAP. Cambia layout reattivamente al resize. */
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia("(max-width: 768px)");
+    const sync = () => setIsMobile(mql.matches);
+    sync();
+    mql.addEventListener("change", sync);
+    return () => mql.removeEventListener("change", sync);
+  }, []);
 
   /* Solo id + ordine: così il polling loadPublic() (~12s) non ricrea ScrollTrigger se le categorie non cambiano davvero */
   const categoriesPinLayoutKey = categories.map((c) => String(c.id)).join(",");
 
+  /* Slide-in delle card sulla griglia mobile.
+     Le card hanno `translateX(±110%)` come stato "fuori scena": questo
+     spinge il loro bounding-rect orizzontale fuori dalla viewport, cosa che
+     manda in confusione `IntersectionObserver` (in alcuni browser non
+     scatta affatto). Uso quindi uno scroll listener + rAF che valuta solo
+     l'overlap **verticale** del rect con la viewport: `translateX` non
+     altera `rect.top/bottom`, quindi è una metrica robusta.
+     Stato `.is-slide-ready` applicato in render dal JSX (vedi sotto), così
+     niente flash di card in posizione prima dell'aggancio.
+     Toggle bidirezionale: scrollando in giù le card entrano, scrollando
+     all'insù escono e rientrano alla riapparizione → l'animazione si
+     "replay" in entrambe le direzioni. */
+  useEffect(() => {
+    if (!isMobile) return;
+    if (typeof window === "undefined") return;
+    const track = trackRef.current;
+    if (!track) return;
+    const cards = Array.from(
+      track.querySelectorAll<HTMLElement>(".category-carousel-card")
+    );
+    if (cards.length === 0) return;
+
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (prefersReduced) {
+      cards.forEach((c) => c.classList.add("is-in-view"));
+      return;
+    }
+
+    let rafId = 0;
+    const update = () => {
+      rafId = 0;
+      const vh = window.innerHeight || 1;
+      cards.forEach((card) => {
+        const rect = card.getBoundingClientRect();
+        const cardH = rect.height;
+        if (cardH <= 0) return;
+        /* Quanta parte verticale della card è dentro la viewport */
+        const visibleH =
+          Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
+        const ratio = Math.max(0, visibleH) / cardH;
+        if (ratio >= 0.18) {
+          card.classList.add("is-in-view");
+        } else {
+          card.classList.remove("is-in-view");
+        }
+      });
+    };
+
+    const requestTick = () => {
+      if (rafId) return;
+      rafId = window.requestAnimationFrame(update);
+    };
+
+    requestTick();
+    window.addEventListener("scroll", requestTick, { passive: true });
+    window.addEventListener("resize", requestTick);
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener("scroll", requestTick);
+      window.removeEventListener("resize", requestTick);
+      cards.forEach((c) => c.classList.remove("is-in-view"));
+    };
+  }, [isMobile, categoriesPinLayoutKey]);
+
   useLayoutEffect(() => {
     if (categories.length === 0) return;
+    if (isMobile) return;
     const root = rootRef.current;
     const viewport = viewportRef.current;
     const track = trackRef.current;
@@ -206,16 +288,27 @@ export function CategoryScrollCarouselSection({
       tween?.scrollTrigger?.kill();
       tween?.kill();
     };
-  }, [categoriesPinLayoutKey, categories.length]);
+  }, [categoriesPinLayoutKey, categories.length, isMobile]);
 
   if (categories.length === 0) return null;
 
   return (
     <div className="featured-categories-block-wrap">
       <section
-        className="featured-menu-section-v2 section-padding"
+        ref={sectionRef}
+        className={
+          "featured-menu-section-v2 section-padding" +
+          (isMobile ? " featured-menu-section-v2--mobile-grid" : "")
+        }
         aria-label={title}
       >
+        {isMobile && (
+          <AboutFishLanes
+            triggerRef={sectionRef}
+            lanes={8}
+            className="about-fish-lanes--dense"
+          />
+        )}
         <div ref={rootRef} className="featured-categories-pin-panel">
           <header className="featured-categories-heading-band">
             <div className="featured-categories-heading-chip">
@@ -240,10 +333,14 @@ export function CategoryScrollCarouselSection({
                     key={c.id}
                     className={
                       "category-carousel-card" +
-                      (splitEditorial ? " category-carousel-card--split-editorial" : "")
+                      (splitEditorial ? " category-carousel-card--split-editorial" : "") +
+                      (isMobile ? " is-slide-ready" : "")
                     }
                     role="button"
                     tabIndex={0}
+                    /* Su mobile la griglia è 2 colonne: idx pari = colonna sinistra,
+                       idx dispari = colonna destra. L'attributo guida lo slide-in CSS. */
+                    data-mobile-side={idx % 2 === 0 ? "left" : "right"}
                     onClick={() => onCategoryNavigate(`/menu#${slug(c.name)}`)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {

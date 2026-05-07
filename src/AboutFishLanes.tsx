@@ -5,11 +5,16 @@ const PER_ROW = 14;
 
 type Props = {
   triggerRef: React.RefObject<HTMLElement | null>;
+  /** Numero di file orizzontali di pesci. Default 4 (variante usata in About). */
+  lanes?: number;
+  /** Modificatore aggiuntivo applicato al wrapper (per varianti CSS, es. densità). */
+  className?: string;
 };
 
-/** Quattro file orizzontali di pesci: direzioni alternate, moto lineare lungo X legato allo scroll. */
-export function AboutFishLanes({ triggerRef }: Props) {
+/** N file orizzontali di pesci: direzioni alternate, moto lineare lungo X legato allo scroll. */
+export function AboutFishLanes({ triggerRef, lanes = 4, className }: Props) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const laneCount = Math.max(1, Math.floor(lanes));
 
   useEffect(() => {
     const section = triggerRef.current;
@@ -17,7 +22,7 @@ export function AboutFishLanes({ triggerRef }: Props) {
     if (!section || !root) return;
 
     const tracks = root.querySelectorAll<HTMLElement>(".about-fish-lane-track");
-    if (tracks.length !== 4) return;
+    if (tracks.length === 0) return;
 
     const amp = 20; // xPercent travel per lane
     let rafId = 0;
@@ -53,11 +58,15 @@ export function AboutFishLanes({ triggerRef }: Props) {
       window.removeEventListener("scroll", requestTick);
       window.removeEventListener("resize", requestTick);
     };
-  }, [triggerRef]);
+  }, [triggerRef, laneCount]);
+
+  const wrapperClass = className
+    ? `about-fish-lanes ${className}`
+    : "about-fish-lanes";
 
   return (
-    <div ref={rootRef} className="about-fish-lanes" aria-hidden="true">
-      {[0, 1, 2, 3].map((lane) => (
+    <div ref={rootRef} className={wrapperClass} aria-hidden="true">
+      {Array.from({ length: laneCount }, (_, lane) => (
         <div
           key={lane}
           className={`about-fish-lane about-fish-lane--${lane % 2 === 0 ? "right" : "left"}`}

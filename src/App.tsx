@@ -1502,6 +1502,10 @@ export default function App() {
   const [orderClosing, setOrderClosing] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [pokeStoryInfoModalOpen, setPokeStoryInfoModalOpen] = useState<number | null>(null);
+  /* Lightbox per la galleria home: la stringa è l'URL dell'immagine clickata.
+     Null = chiuso. Vedi sezione `.gallery-strip-v2` e il blocco di chiusura
+     nel return del componente (ESC / click backdrop / pulsante chiudi). */
+  const [galleryLightboxSrc, setGalleryLightboxSrc] = useState<string | null>(null);
   const [infoModalItem, setInfoModalItem] = useState<MenuItem | null>(null);
   const [pokeIngredientAllergenModal, setPokeIngredientAllergenModal] = useState<{
     itemId: number;
@@ -1667,6 +1671,22 @@ export default function App() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [pokeStoryInfoModalOpen]);
+
+  /* Gallery lightbox: ESC chiude il modale + scroll-lock sul body finché
+     aperto (impedisce lo scroll della pagina sotto al modale). */
+  useEffect(() => {
+    if (galleryLightboxSrc === null) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setGalleryLightboxSrc(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [galleryLightboxSrc]);
 
   useEffect(() => {
     return () => {
@@ -6018,9 +6038,22 @@ export default function App() {
                   <p>{t("aboutBody2")}</p>
                   <div className="about-meta">
                     <span>{businessAddress}</span>
-                    <a className="about-call-btn" href={`tel:${businessPhone}`}>
-                      <span aria-hidden="true">☎</span>
-                      {t("callUs")}
+                    <a
+                      className="about-call-btn home-blob-btn home-blob-btn--yellow"
+                      href={`tel:${businessPhone}`}
+                    >
+                      <span className="home-blob-btn__label">
+                        <i className="fa-solid fa-phone" aria-hidden="true"></i>
+                        <span>{t("callUs")}</span>
+                      </span>
+                      <span className="home-blob-btn__inner" aria-hidden="true">
+                        <span className="home-blob-btn__blobs">
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                        </span>
+                      </span>
                     </a>
                   </div>
                 </article>
@@ -6176,14 +6209,27 @@ export default function App() {
               <div className="gallery-marquee-track">
                 <div className="gallery-marquee-inner gallery-marquee-ltr">
                   {galleryImages.map((imageUrl, idx) => (
-                    <div key={`g1a-${idx}`} className="gallery-marquee-item">
+                    <button
+                      key={`g1a-${idx}`}
+                      type="button"
+                      className="gallery-marquee-item"
+                      onClick={() => setGalleryLightboxSrc(imageUrl)}
+                      aria-label={`${t("galleryTitle")} ${idx + 1}`}
+                    >
                       <img src={imageUrl} alt={`Galleria ${idx + 1}`} />
-            </div>
+                    </button>
                   ))}
                   {galleryImages.map((imageUrl, idx) => (
-                    <div key={`g1b-${idx}`} className="gallery-marquee-item" aria-hidden="true">
+                    <button
+                      key={`g1b-${idx}`}
+                      type="button"
+                      className="gallery-marquee-item"
+                      onClick={() => setGalleryLightboxSrc(imageUrl)}
+                      aria-hidden="true"
+                      tabIndex={-1}
+                    >
                       <img src={imageUrl} alt="" />
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -6191,14 +6237,27 @@ export default function App() {
               <div className="gallery-marquee-track">
                 <div className="gallery-marquee-inner gallery-marquee-rtl">
                   {galleryImages.map((imageUrl, idx) => (
-                    <div key={`g2a-${idx}`} className="gallery-marquee-item">
+                    <button
+                      key={`g2a-${idx}`}
+                      type="button"
+                      className="gallery-marquee-item"
+                      onClick={() => setGalleryLightboxSrc(imageUrl)}
+                      aria-label={`${t("galleryTitle")} ${idx + 1}`}
+                    >
                       <img src={imageUrl} alt={`Galleria ${idx + 1}`} />
-                    </div>
+                    </button>
                   ))}
                   {galleryImages.map((imageUrl, idx) => (
-                    <div key={`g2b-${idx}`} className="gallery-marquee-item" aria-hidden="true">
+                    <button
+                      key={`g2b-${idx}`}
+                      type="button"
+                      className="gallery-marquee-item"
+                      onClick={() => setGalleryLightboxSrc(imageUrl)}
+                      aria-hidden="true"
+                      tabIndex={-1}
+                    >
                       <img src={imageUrl} alt="" />
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -6230,9 +6289,22 @@ export default function App() {
                 <p className="final-body">{t("visitBody")}</p>
               </div>
               <div className="final-cta-actions">
-              <a className="phone-cta" href={`tel:${businessPhone}`}>
-                  <span aria-hidden="true">☎</span>
-                {t("callUs")}
+              <a
+                className="phone-cta home-blob-btn home-blob-btn--yellow"
+                href={`tel:${businessPhone}`}
+              >
+                <span className="home-blob-btn__label">
+                  <i className="fa-solid fa-phone" aria-hidden="true"></i>
+                  <span>{t("callUs")}</span>
+                </span>
+                <span className="home-blob-btn__inner" aria-hidden="true">
+                  <span className="home-blob-btn__blobs">
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                  </span>
+                </span>
               </a>
                 <button className="menu-cta menu-cta-outline-white home-blob-btn" onClick={goToMenuPage}>
                   <span className="home-blob-btn__label">Vai al menu</span>
@@ -7603,6 +7675,35 @@ export default function App() {
               </button>
             </div>
           </article>
+        </div>
+      )}
+
+      {galleryLightboxSrc && (
+        <div
+          className="gallery-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("galleryTitle")}
+          onClick={() => setGalleryLightboxSrc(null)}
+        >
+          <button
+            type="button"
+            className="gallery-lightbox-close"
+            aria-label="Chiudi"
+            onClick={() => setGalleryLightboxSrc(null)}
+          >
+            <i className="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+          <figure
+            className="gallery-lightbox-figure"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={galleryLightboxSrc}
+              alt={t("galleryTitle")}
+              className="gallery-lightbox-img"
+            />
+          </figure>
         </div>
       )}
 
