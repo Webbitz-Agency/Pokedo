@@ -122,8 +122,8 @@ select {
 .main-nav {
   display: flex;
   align-items: center;
-  column-gap: 18px !important;
-  padding: 5px 20px !important;
+  column-gap: 6px !important;
+  padding: 5px 14px !important;
   background-color:rgba(147, 197, 253, 0.3) !important;
 }
 
@@ -1211,6 +1211,73 @@ select {
 
 .menu-page {
   padding-bottom: 22px;
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+}
+
+/* ── Pesci di sfondo della pagina menù (statici, righe a altezza fissa che si ripetono) ── */
+.menu-fish-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Le righe sono ad altezza fissa: si impilano dall’alto verso il basso e ripetono lungo tutta la pagina */
+}
+
+.menu-fish-bg .menu-fish-lane {
+  height: clamp(96px, 12vw, 130px);
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.menu-fish-bg .menu-fish-track {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4rem);
+  width: max-content;
+  opacity: 0.28;
+  transform: translate3d(-10%, 0, 0);
+}
+
+.menu-fish-bg .menu-fish-img {
+  width: clamp(94px, 16vw, 146px);
+  height: auto;
+  flex-shrink: 0;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.12));
+}
+
+/* Le righe pari (1°, 3°, 5° ecc. partendo da 1) vanno a destra; quelle dispari a sinistra (specchiate) */
+.menu-fish-bg .menu-fish-lane--left .menu-fish-img {
+  transform: scaleX(-1);
+}
+
+/* Sfasiamo orizzontalmente le righe per dare un effetto più naturale */
+.menu-fish-bg .menu-fish-lane:nth-child(2n) .menu-fish-track {
+  transform: translate3d(-22%, 0, 0);
+}
+.menu-fish-bg .menu-fish-lane:nth-child(3n) .menu-fish-track {
+  transform: translate3d(-6%, 0, 0);
+}
+
+@media (max-width: 900px) {
+  .menu-fish-bg .menu-fish-lane {
+    height: clamp(78px, 18vw, 110px);
+  }
+  .menu-fish-bg .menu-fish-img {
+    width: clamp(80px, 22vw, 120px);
+  }
+  .menu-fish-bg .menu-fish-track {
+    opacity: 0.32;
+  }
 }
 
 .poke-builder-page {
@@ -1221,6 +1288,258 @@ select {
   flex-direction: column;
   padding-bottom: 24px;
   background: #fff;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Pesci di sfondo (statici, niente movimento) ispirati alla home “Chi siamo” */
+/* Stessa struttura di .about-fish-lanes, niente JS */
+.poke-builder-fish-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.poke-builder-fish-bg .poke-builder-fish-lane {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.poke-builder-fish-bg .poke-builder-fish-track {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 4rem);
+  width: max-content;
+  opacity: 0.3;
+  transform: translate3d(-10%, 0, 0);
+}
+
+.poke-builder-fish-bg .poke-builder-fish-img {
+  width: clamp(94px, 16vw, 146px);
+  height: auto;
+  flex-shrink: 0;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.12));
+}
+
+/* Le file “left” mostrano i pesci specchiati */
+.poke-builder-fish-bg .poke-builder-fish-lane--left .poke-builder-fish-img {
+  transform: scaleX(-1);
+}
+
+/* Desktop: solo le prime 5 file. Su mobile (≤ 900px) mostriamo tutte e 10 → pesci più ravvicinati */
+@media (min-width: 901px) {
+  .poke-builder-fish-bg .poke-builder-fish-lane:nth-child(n + 6) {
+    display: none;
+  }
+}
+
+/* ── FAB mobile: filtri allergeni + resoconto poke (specchio del language fab) ── */
+.poke-mobile-fab {
+  display: none;
+}
+
+.poke-mobile-fab-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 4px 10px rgba(245, 158, 11, 0.45);
+}
+
+@media (max-width: 900px) {
+  /* Su mobile nascondiamo i tab laterali verticali (override delle regole desktop più sotto) */
+  .allergen-side-tab,
+  .order-summary-side-tab {
+    display: none !important;
+  }
+
+  .poke-mobile-fab {
+    position: fixed;
+    right: 16px;
+    z-index: 72;
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.45);
+    background: rgba(255, 255, 255, 0.98);
+    color: #2563eb;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, color 180ms ease;
+  }
+
+  .poke-mobile-fab wa-icon {
+    font-size: 22px;
+  }
+
+  .poke-mobile-fab:hover,
+  .poke-mobile-fab:active {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 28px rgba(15, 23, 42, 0.24);
+  }
+
+  .poke-mobile-fab--summary {
+    bottom: 16px;
+  }
+
+  .poke-mobile-fab--filter {
+    bottom: 76px;
+  }
+
+  /* Sulla pagina menù il FAB filtra allergeni è da solo: lo portiamo in basso */
+  .poke-mobile-fab--menu {
+    bottom: 16px;
+  }
+
+  /* Resoconto poke “si illumina” quando c’è la prima scelta (size selezionata) */
+  .poke-mobile-fab--summary.is-active {
+    background: var(--poke-brand-gradient);
+    color: #fff;
+    border-color: transparent;
+    box-shadow:
+      0 0 0 6px rgba(37, 99, 235, 0.18),
+      0 14px 28px rgba(37, 99, 235, 0.45);
+    animation: poke-fab-pulse 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes poke-fab-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 6px rgba(37, 99, 235, 0.18),
+      0 14px 28px rgba(37, 99, 235, 0.45);
+  }
+  50% {
+    box-shadow:
+      0 0 0 10px rgba(37, 99, 235, 0.0),
+      0 14px 30px rgba(37, 99, 235, 0.55);
+  }
+}
+
+.poke-extra-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: poke-extra-prompt-fade 180ms ease-out;
+}
+
+.poke-extra-prompt-dialog {
+  width: min(460px, 100%);
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.35);
+  text-align: center;
+  animation: poke-extra-prompt-pop 220ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.poke-extra-prompt-title {
+  margin: 0 0 8px;
+  font-family: var(--font-title, inherit);
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  color: #1f3a8a;
+  text-transform: capitalize;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.poke-extra-prompt-sub {
+  margin: 0 0 22px;
+  font-size: 0.92rem;
+  color: rgba(15, 23, 42, 0.65);
+  line-height: 1.45;
+}
+
+.poke-extra-prompt-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.poke-extra-prompt-btn {
+  flex: 1 1 140px;
+  min-width: 130px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+
+.poke-extra-prompt-btn--no {
+  background: rgba(15, 23, 42, 0.06);
+  color: #1f2937;
+}
+
+.poke-extra-prompt-btn--no:hover {
+  background: rgba(15, 23, 42, 0.1);
+}
+
+.poke-extra-prompt-btn--yes {
+  background: var(--poke-brand-gradient);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.32);
+}
+
+.poke-extra-prompt-btn--yes:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 16px 28px rgba(37, 99, 235, 0.4);
+}
+
+.poke-extra-prompt-btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+
+@keyframes poke-extra-prompt-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes poke-extra-prompt-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .poke-builder-hero {
@@ -1621,12 +1940,75 @@ select {
   flex-wrap: wrap;
 }
 
-.poke-added-actions button {
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  background: #fff;
-  padding: 10px 14px;
+.poke-added-actions .poke-added-btn {
+  border-radius: 999px;
+  padding: 11px 22px;
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease,
+    color 120ms ease, filter 120ms ease;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.poke-added-actions .poke-added-btn--primary {
+  background: var(--poke-brand-gradient) !important;
+  color: #ffffff !important;
+  border-color: transparent;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.32);
+}
+
+.poke-added-actions .poke-added-btn--primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 16px 28px rgba(37, 99, 235, 0.4);
+}
+
+.poke-added-actions .poke-added-btn--ghost {
+  background: #ffffff;
+  color: #1f3a8a;
+  border-color: #1f3a8a;
+}
+
+.poke-added-actions .poke-added-btn--ghost:hover {
+  background: rgba(31, 58, 138, 0.06);
+}
+
+.poke-added-actions .poke-added-btn--neutral {
+  background: #ffffff;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+
+.poke-added-actions .poke-added-btn--neutral:hover {
+  background: #f1f5f9;
+}
+
+.poke-added-actions .poke-added-btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .poke-added-actions {
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding-inline: 0;
+  }
+
+  .poke-added-actions .poke-added-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 6px;
+    font-size: 0.72rem;
+    text-align: center;
+    white-space: normal;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    border-radius: 14px;
+  }
 }
 
 .menu-compose-strip {
@@ -3201,6 +3583,17 @@ select {
   align-items: center;
   /* stessa “sagoma” selezionato / non selezionato (prima il pill tirava più in alto la riga) */
   min-height: 52px;
+  /* font leggermente più piccolo sulle card delle fasi (Base in poi) */
+  font-size: 0.9rem;
+}
+
+.poke-builder-main .option-grid.option-grid--poke-builder .option-chip-label {
+  font-size: 0.9rem;
+  line-height: 1.28;
+}
+
+.poke-builder-main .option-grid--poke-builder em.chip-price-surcharge {
+  font-size: 12px;
 }
 
 .poke-builder-main .option-grid.option-grid--poke-builder {
@@ -7308,7 +7701,6 @@ table button:hover {
   }
 
   .main-nav .nav-link-btn,
-  .main-nav .cta,
   .main-nav .order-icon-btn {
     display: none;
   }
@@ -7317,9 +7709,41 @@ table button:hover {
     display: inline-flex;
   }
 
+  /* Mostriamo sempre il bottone "Crea il tuo poke" anche da mobile, in versione compatta */
+  .main-nav .cta.home-blob-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px !important;
+    font-size: 0.7rem !important;
+    border-radius: 999px !important;
+    line-height: 1;
+    min-height: 36px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    /* Più aria fra il bottone e l'hamburger */
+    margin-right: 14px;
+  }
+
+  .main-nav .cta.home-blob-btn .home-blob-btn__label {
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* Su mobile riduciamo l'animazione blob per mantenere il bottone compatto e leggibile */
+  .main-nav .cta.home-blob-btn .home-blob-btn__inner {
+    display: none;
+  }
+
+  .main-nav .cta.home-blob-btn::before {
+    border-radius: 999px;
+  }
+
   .main-nav {
     min-width: 0;
-    gap: 8px;
+    gap: 6px !important;
+    column-gap: 6px !important;
+    padding: 4px 8px !important;
   }
 
   .mobile-menu-toggle {
@@ -7655,14 +8079,19 @@ table button:hover {
   }
 
   @media (max-width: 520px) {
+    /* Mobile: due colonne quando il testo è corto, una sola se troppo lungo */
     .poke-builder-main .option-grid.option-grid--poke-builder {
-      grid-template-columns: 1fr !important;
-      justify-items: center;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)) !important;
+      justify-items: stretch;
       width: 100%;
+      margin-inline: 0;
+      gap: 8px;
     }
 
     .poke-builder-main .option-grid.option-grid--poke-builder .option-chip {
-      width: min(100%, var(--poke-chip-w, 340px));
+      width: auto;
+      min-width: 0;
+      max-width: 100%;
     }
   }
 
@@ -7902,15 +8331,41 @@ table button:hover {
 
   .menu-dish-item {
     grid-template-columns: 64px 1fr;
+    grid-template-rows: auto;
+    height: auto;
     align-items: center;
     gap: 10px;
     padding: 10px 0;
+    box-shadow: none;
+    border-radius: 0;
   }
 
   .menu-dish-thumb {
+    position: static;
+    grid-row: auto;
+    grid-column: auto;
     width: 64px;
     height: 64px;
     border-radius: 10px;
+  }
+
+  .menu-dish-thumb-img {
+    position: static;
+    border-radius: 10px;
+  }
+
+  .menu-dish-content {
+    grid-row: auto;
+    grid-column: auto;
+    padding: 0;
+    overflow: visible;
+    display: block;
+  }
+
+  .menu-dish-actions {
+    grid-row: auto;
+    grid-column: auto;
+    padding: 0;
   }
 
   .menu-dish-content h5 {
@@ -10560,39 +11015,56 @@ table button:hover {
 }
 
 .menu-dish-item {
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  display: grid;
+  grid-template-rows: 60% 1fr auto;
+  grid-template-columns: 1fr;
+  height: clamp(360px, 32vw, 420px);
   background: #fff;
   border-radius: 18px;
   overflow: hidden;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+  border: 0;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
   transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1),
               box-shadow 0.28s ease;
+  isolation: isolate;
 }
 
 .menu-dish-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.13);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.14);
 }
 
 .menu-dish-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
   width: 100%;
-  height: 180px;
   background: #e2e8f0;
-  border: none;
+  border: 0;
   padding: 0;
+  margin: 0;
   cursor: pointer;
   overflow: hidden;
-  flex-shrink: 0;
   display: block;
+  line-height: 0;
+  font-size: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 0;
+  z-index: 1;
 }
 
 .menu-dish-thumb-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  border-radius: 0;
   transition: transform 0.4s ease;
 }
 
@@ -10613,8 +11085,18 @@ table button:hover {
 }
 
 .menu-dish-content {
-  flex: 1;
-  padding: 16px 18px 8px;
+  grid-row: 2 / 3;
+  grid-column: 1 / 2;
+  padding: 14px 18px 6px;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.menu-dish-title-row {
+  flex-shrink: 0;
 }
 
 .menu-dish-title-row h5 {
@@ -10625,6 +11107,13 @@ table button:hover {
   cursor: pointer;
   line-height: 1.3;
   transition: color 0.2s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
 .menu-dish-title-row h5:hover {
@@ -10638,12 +11127,26 @@ table button:hover {
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
+  word-break: break-word;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Quando il titolo è lungo (probabile 2 righe), riduciamo la descrizione a 1 riga
+   per evitare overflow verso il prezzo/bottone */
+.menu-dish-item--title-long .menu-dish-content p {
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
 }
 
 .menu-dish-actions {
+  grid-row: 3 / 4;
+  grid-column: 1 / 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -10673,6 +11176,70 @@ table button:hover {
 .dish-add-btn:hover {
   background: #1d4ed8;
   transform: scale(1.04);
+}
+
+/* ── Mobile / tablet: card piatti più compatte e content-driven ── */
+@media (max-width: 1024px) {
+  .menu-dish-item {
+    /* L'altezza si adatta al contenuto, niente spazio vuoto inutile */
+    height: auto;
+    min-height: 0;
+    grid-template-rows: auto auto auto;
+    /* Manteniamo il border-radius e l'ombra anche su mobile (le regole vecchie li azzeravano) */
+    border-radius: 18px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+  }
+
+  /* Su mobile la foto rientra nel grid flow (no absolute) e ha un aspect-ratio fisso */
+  .menu-dish-thumb {
+    position: relative;
+    grid-row: 1 / 2;
+    grid-column: 1 / 2;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 11;
+    /* Niente radius locale: ci pensa l'overflow:hidden della card a ritagliare */
+    border-radius: 0;
+  }
+
+  .menu-dish-thumb-img {
+    border-radius: 0;
+  }
+
+  .menu-dish-content {
+    padding: 10px 14px 2px;
+  }
+
+  .menu-dish-title-row h5 {
+    font-size: 0.92rem;
+    line-height: 1.25;
+    margin-bottom: 2px;
+  }
+
+  .menu-dish-content p {
+    font-size: 0.76rem;
+    line-height: 1.35;
+  }
+
+  .menu-dish-actions {
+    padding: 6px 14px 10px;
+  }
+
+  .menu-dish-price {
+    font-size: 0.92rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+
+  .dish-add-btn {
+    padding: 5px 11px;
+    font-size: 0.7rem;
+    border-radius: 999px;
+  }
 }
 
 .dish-qty-controls {
@@ -11061,7 +11628,7 @@ table button:hover {
 
 .nav-link-btn {
   border-radius: 12px !important;
-  padding: 8px 16px !important;
+  padding: 8px 10px !important;
   font-size: 0.97rem;
   font-weight: 700;
   font-family: var(--font-subtitle);
@@ -11077,8 +11644,8 @@ table button:hover {
 .nav-link-btn::after {
   content: "";
   position: absolute;
-  left: 16px;
-  right: 16px;
+  left: 10px;
+  right: 10px;
   bottom: 6px;
   height: 2px;
   border-radius: 999px;

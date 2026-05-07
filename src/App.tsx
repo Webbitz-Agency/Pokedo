@@ -262,6 +262,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     home: "Home",
     menu: "Menu",
     createPoke: "Crea il tuo poke",
+    createNewPoke: "Crea nuovo poke",
     orderSummary: "Resoconto ordine",
     orderSummaryPokeTab: "Resoconto pokè",
     completeOrder: "Completa ordine",
@@ -336,6 +337,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     home: "Home",
     menu: "Menu",
     createPoke: "Build your poke",
+    createNewPoke: "Build a new poke",
     orderSummary: "Order summary",
     orderSummaryPokeTab: "Poke recap",
     completeOrder: "Complete order",
@@ -407,6 +409,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     home: "Startseite",
     menu: "Menü",
     createPoke: "Poké erstellen",
+    createNewPoke: "Neuen Poké erstellen",
     orderSummary: "Bestellübersicht",
     orderSummaryPokeTab: "Poké-Übersicht",
     completeOrder: "Bestellung abschließen",
@@ -478,6 +481,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     home: "Inicio",
     menu: "Menú",
     createPoke: "Crea tu poké",
+    createNewPoke: "Crea un nuevo poké",
     orderSummary: "Resumen del pedido",
     orderSummaryPokeTab: "Resumen poké",
     completeOrder: "Completar pedido",
@@ -549,6 +553,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     home: "Accueil",
     menu: "Menu",
     createPoke: "Crée ton poke",
+    createNewPoke: "Crée un nouveau poke",
     orderSummary: "Résumé de commande",
     orderSummaryPokeTab: "Récap poké",
     completeOrder: "Finaliser commande",
@@ -564,6 +569,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     home: "首页",
     menu: "菜单",
     createPoke: "创建你的 Poke",
+    createNewPoke: "创建新的 Poke",
     orderSummary: "订单摘要",
     orderSummaryPokeTab: "波奇摘要",
     completeOrder: "完成订单",
@@ -578,6 +584,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     home: "ホーム",
     menu: "メニュー",
     createPoke: "ポケを作る",
+    createNewPoke: "新しいポケを作る",
     orderSummary: "注文サマリー",
     orderSummaryPokeTab: "ポケ内容",
     completeOrder: "注文を完了",
@@ -1530,6 +1537,11 @@ export default function App() {
   const [menuAllergenAccordionOpen, setMenuAllergenAccordionOpen] = useState(false);
   const [pokeAllergenAccordionOpen, setPokeAllergenAccordionOpen] = useState(false);
   const [pokeSummaryModalOpen, setPokeSummaryModalOpen] = useState(false);
+  const [pokeExtraPrompt, setPokeExtraPrompt] = useState<{
+    phaseLabel: string;
+    nextStepWithExtra: number;
+    nextStepSkipExtra: number;
+  } | null>(null);
   const [mobilePokeSummarySheetOpen, setMobilePokeSummarySheetOpen] = useState(false);
   const [editingPokeIngredientName, setEditingPokeIngredientName] = useState<{
     phaseKey: string;
@@ -4314,6 +4326,13 @@ export default function App() {
   }
 
   function scrollPokeProgressIntoView() {
+    /* Su mobile lo stepper desktop è display:none, quindi scrollIntoView non porta in cima:
+       come fallback portiamo la finestra in alto. */
+    const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 1024px)").matches;
+    if (isMobile) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     pokeProgressRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -4340,12 +4359,57 @@ export default function App() {
       showPokeActionMessage(`${displayPhaseName(pokeCurrentGroup.name)}: max raggiunto`);
       return;
     }
+    /* Se passando avanti il prossimo gruppo è un “Extra” della stessa fase del gruppo attuale,
+       chiediamo prima conferma con un modal Sì/No. */
+    if (selectedBuilder) {
+      const currentGroupIndex = pokeFlowStep - 1; // selectedGroups index del gruppo corrente
+      const currentGroup = selectedBuilder.groups[currentGroupIndex];
+      const nextGroupIndex = currentGroupIndex + 1;
+      const nextGroup = selectedBuilder.groups[nextGroupIndex];
+      if (
+        currentGroup &&
+        nextGroup &&
+        !isExtraGroup(currentGroup.name) &&
+        isExtraGroup(nextGroup.name) &&
+        phaseKeyFromGroupName(currentGroup.name) === phaseKeyFromGroupName(nextGroup.name)
+      ) {
+        // Trova lo step "salta gli extra di questa fase": primo gruppo successivo non-extra (o non della stessa fase)
+        let skipIndex = nextGroupIndex;
+        const phaseKey = phaseKeyFromGroupName(currentGroup.name);
+        while (
+          skipIndex < selectedBuilder.groups.length &&
+          isExtraGroup(selectedBuilder.groups[skipIndex].name) &&
+          phaseKeyFromGroupName(selectedBuilder.groups[skipIndex].name) === phaseKey
+        ) {
+          skipIndex += 1;
+        }
+        const nextStepWithExtra = Math.min(pokeStepsTotal - 1, pokeFlowStep + 1);
+        // Se non ci sono altri gruppi dopo gli extra, lo step "salta" porta all'ultima posizione valida
+        const nextStepSkipExtra = Math.min(pokeStepsTotal - 1, skipIndex + 1);
+        setPokeExtraPrompt({
+          phaseLabel: displayPhaseName(currentGroup.name),
+          nextStepWithExtra,
+          nextStepSkipExtra
+        });
+        return;
+      }
+    }
     setPokeFlowStep((s) => {
       const next = Math.min(pokeStepsTotal - 1, s + 1);
       setPokeMaxVisitedStep((old) => Math.max(old, next));
       return next;
     });
     setPokeActionMessage("");
+    scrollPokeProgressIntoView();
+  }
+
+  function confirmPokeExtraPrompt(addExtra: boolean) {
+    if (!pokeExtraPrompt) return;
+    const target = addExtra ? pokeExtraPrompt.nextStepWithExtra : pokeExtraPrompt.nextStepSkipExtra;
+    setPokeFlowStep(target);
+    setPokeMaxVisitedStep((old) => Math.max(old, target));
+    setPokeActionMessage("");
+    setPokeExtraPrompt(null);
     scrollPokeProgressIntoView();
   }
 
@@ -5460,18 +5524,6 @@ export default function App() {
               </span>
             </button>
             <button
-              className={route === "/crea-la-tua-poke" ? "active" : ""}
-              onClick={() => {
-                goToPokePage();
-                setMobileMenuOpen(false);
-              }}
-            >
-              <span className="mobile-nav-item-label">
-                <i className="fa-solid fa-bowl-food" aria-hidden="true"></i>
-                <span>{t("createPoke")}</span>
-              </span>
-            </button>
-            <button
               className="mobile-order-entry"
               onClick={() => {
                 setMobileMenuOpen(false);
@@ -6102,6 +6154,26 @@ export default function App() {
 
       {!loading && !error && route === "/menu" && menu && (
         <section className="menu-page">
+          <div className="menu-fish-bg" aria-hidden="true">
+            {Array.from({ length: 60 }).map((_, lane) => (
+              <div
+                key={`menu-fish-lane-${lane}`}
+                className={`menu-fish-lane ${lane % 2 === 0 ? "menu-fish-lane--right" : "menu-fish-lane--left"}`.trim()}
+              >
+                <div className="menu-fish-track">
+                  {Array.from({ length: 14 }).map((__, fishIdx) => (
+                    <img
+                      key={`menu-fish-${lane}-${fishIdx}`}
+                      src={`${import.meta.env.BASE_URL}immagini/decorazioni/pesce.svg`}
+                      alt=""
+                      className="menu-fish-img"
+                      aria-hidden="true"
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
           <div className="menu-hero">
             <img
               src={resolveMediaSrc(appSettings.site.menu_hero_url || DEFAULT_APP_SETTINGS.site.menu_hero_url)}
@@ -6176,61 +6248,6 @@ export default function App() {
           </section>
 
           <div className="container section-padding menu-categories-block">
-            <section className="menu-allergen-filter">
-              <header className="section-title centered menu-category-title">
-                <p className="section-kicker">Allergeni</p>
-                <h3>Filtra i piatti in base agli allergeni</h3>
-                <p>
-                  Se selezioni una o piu icone qui sotto, i piatti che contengono quegli allergeni non saranno visibili.
-                </p>
-                <button
-                  type="button"
-                  className="mobile-allergen-toggle"
-                  onClick={() => setMenuAllergenAccordionOpen((old) => !old)}
-                  aria-expanded={menuAllergenAccordionOpen}
-                >
-                  {menuAllergenAccordionOpen ? "Nascondi filtro" : "Mostra filtro"}
-                </button>
-              </header>
-              <div className={`public-allergen-accordion ${menuAllergenAccordionOpen ? "open" : ""}`.trim()}>
-              <div className="public-allergen-grid">
-                {ALLERGEN_OPTIONS.map((allergen) => {
-                  const selected = menuExcludedAllergens.includes(allergen.id);
-                  return (
-                    <button
-                      key={`public-allergen-${allergen.id}`}
-                      type="button"
-                      className={`public-allergen-option ${selected ? "selected" : ""}`.trim()}
-                      onClick={() =>
-                        setMenuExcludedAllergens((old) =>
-                          old.includes(allergen.id)
-                            ? old.filter((code) => code !== allergen.id)
-                            : [...old, allergen.id].sort((a, b) => a - b)
-                        )
-                      }
-                    >
-                      {allergen.icon_url ? (
-                        <img src={allergen.icon_url} alt={allergen.title} />
-                      ) : (
-                        <span className="allergen-fallback">{allergen.id}</span>
-                      )}
-                      <small>
-                        {allergen.id}. {allergen.title}
-                      </small>
-                    </button>
-                  );
-                })}
-              </div>
-              {menuExcludedAllergens.length > 0 && (
-                <div className="public-allergen-actions">
-                  <button className="plain-link" onClick={() => setMenuExcludedAllergens([])}>
-                    Mostra tutti i piatti
-                  </button>
-                </div>
-              )}
-              </div>
-            </section>
-
             {filteredMenuCategories.map((category) => (
               <section key={category.id} id={slug(category.name)} className="menu-category-section">
                 <header className="section-title centered menu-category-title">
@@ -6239,60 +6256,61 @@ export default function App() {
                   {category.description && <p>{translateDescription(category.description)}</p>}
                 </header>
                 <div className="menu-dishes-grid">
-                  {category.items.map((item) => (
-                    <article key={item.id} className="menu-dish-item">
-                      {(() => {
-                        const parsed = extractAllergenCodesFromName(item.name);
-                        const baseDescription = translateDescription(item.description) || "Descrizione disponibile in sala.";
-                        const finalDescription = parsed.allergens
-                          ? `${baseDescription} Allergeni: ${parsed.allergens}.`
-                          : baseDescription;
-                        return (
-                          <>
-                      <button
-                        className="menu-dish-thumb menu-open-trigger"
-                        onClick={() => setInfoModalItem(item)}
-                        aria-label={`Apri info ${item.name}`}
+                  {category.items.map((item) => {
+                    const parsed = extractAllergenCodesFromName(item.name);
+                    const baseDescription = translateDescription(item.description) || "Descrizione disponibile in sala.";
+                    const finalDescription = parsed.allergens
+                      ? `${baseDescription} Allergeni: ${parsed.allergens}.`
+                      : baseDescription;
+                    /* Se il titolo è lungo (probabile 2 righe da desktop), limitiamo la descrizione a 1 riga */
+                    const isLongTitle = parsed.cleanName.trim().length > 28;
+                    return (
+                      <article
+                        key={item.id}
+                        className={`menu-dish-item ${isLongTitle ? "menu-dish-item--title-long" : ""}`.trim()}
                       >
-                        {item.image_url ? (
-                          <img src={resolveMediaSrc(item.image_url)} alt={item.name} className="menu-dish-thumb-img" />
-                        ) : (
-                          <span>IMG</span>
-                        )}
-                      </button>
-                      <div className="menu-dish-content">
-                        <div className="menu-dish-title-row">
-                          <h5 className="menu-open-trigger" onClick={() => setInfoModalItem(item)}>
-                            {parsed.cleanName}
-                          </h5>
-                        </div>
-                        <p className="menu-open-trigger" onClick={() => setInfoModalItem(item)}>
-                          {finalDescription}
-                        </p>
-                      </div>
-                      <div className="menu-dish-actions">
-                        <strong className="menu-dish-price">{formatCurrency(item.price)}</strong>
-                        {getMenuItemQuantity(item.id) === 0 ? (
-                          <button className="dish-add-btn" onClick={() => addDishToOrder(item)}>
-                            {t("add")}
-                          </button>
-                        ) : (
-                          <div className="dish-qty-controls">
-                            <button className="qty-text-action" onClick={() => updateDishQty(item, -1)} aria-label="Diminuisci quantità">
-                              -
-                            </button>
-                            <span>{getMenuItemQuantity(item.id)}</span>
-                            <button className="qty-text-action" onClick={() => updateDishQty(item, 1)} aria-label="Aumenta quantità">
-                              +
-                            </button>
+                        <button
+                          className="menu-dish-thumb menu-open-trigger"
+                          onClick={() => setInfoModalItem(item)}
+                          aria-label={`Apri info ${item.name}`}
+                        >
+                          {item.image_url ? (
+                            <img src={resolveMediaSrc(item.image_url)} alt={item.name} className="menu-dish-thumb-img" />
+                          ) : (
+                            <span>IMG</span>
+                          )}
+                        </button>
+                        <div className="menu-dish-content">
+                          <div className="menu-dish-title-row">
+                            <h5 className="menu-open-trigger" onClick={() => setInfoModalItem(item)}>
+                              {parsed.cleanName}
+                            </h5>
                           </div>
-                        )}
-                      </div>
-                          </>
-                        );
-                      })()}
-                    </article>
-                  ))}
+                          <p className="menu-open-trigger" onClick={() => setInfoModalItem(item)}>
+                            {finalDescription}
+                          </p>
+                        </div>
+                        <div className="menu-dish-actions">
+                          <strong className="menu-dish-price">{formatCurrency(item.price)}</strong>
+                          {getMenuItemQuantity(item.id) === 0 ? (
+                            <button className="dish-add-btn" onClick={() => addDishToOrder(item)}>
+                              {t("add")}
+                            </button>
+                          ) : (
+                            <div className="dish-qty-controls">
+                              <button className="qty-text-action" onClick={() => updateDishQty(item, -1)} aria-label="Diminuisci quantità">
+                                -
+                              </button>
+                              <span>{getMenuItemQuantity(item.id)}</span>
+                              <button className="qty-text-action" onClick={() => updateDishQty(item, 1)} aria-label="Aumenta quantità">
+                                +
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
               </section>
             ))}
@@ -6300,11 +6318,123 @@ export default function App() {
               <p className="state">Nessun piatto disponibile con i filtri allergeni selezionati.</p>
             )}
           </div>
+
+          {/* ── Allergen side tab (desktop, left) ── */}
+          <button
+            type="button"
+            className="allergen-side-tab allergen-side-tab--menu"
+            onClick={() => setMenuAllergenAccordionOpen(true)}
+            aria-label="Filtra allergeni"
+          >
+            <span className="allergen-side-tab-label">Filtra allergeni</span>
+            {menuExcludedAllergens.length > 0 && (
+              <span className="allergen-side-tab-badge">{menuExcludedAllergens.length}</span>
+            )}
+          </button>
+
+          {/* ── Allergen filter modal (menu) ── */}
+          {menuAllergenAccordionOpen && (
+            <div
+              className="allergen-modal-overlay"
+              onClick={(e) => { if (e.target === e.currentTarget) setMenuAllergenAccordionOpen(false); }}
+            >
+              <div className="allergen-modal" role="dialog" aria-modal="true" aria-label="Filtra allergeni">
+                <div className="allergen-modal-header">
+                  <div>
+                    <p className="section-kicker">Allergeni</p>
+                    <h3>Filtra i piatti in base agli allergeni</h3>
+                    <p className="allergen-modal-sub">
+                      Se selezioni una o più icone, i piatti con quegli allergeni non saranno visibili.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="allergen-modal-close"
+                    onClick={() => setMenuAllergenAccordionOpen(false)}
+                    aria-label="Chiudi"
+                  >
+                    <wa-icon name="xmark" variant="solid" aria-hidden="true" />
+                  </button>
+                </div>
+                <div className="public-allergen-grid">
+                  {ALLERGEN_OPTIONS.map((allergen) => {
+                    const selected = menuExcludedAllergens.includes(allergen.id);
+                    return (
+                      <button
+                        key={`public-menu-allergen-${allergen.id}`}
+                        type="button"
+                        className={`public-allergen-option ${selected ? "selected" : ""}`.trim()}
+                        onClick={() =>
+                          setMenuExcludedAllergens((old) =>
+                            old.includes(allergen.id)
+                              ? old.filter((code) => code !== allergen.id)
+                              : [...old, allergen.id].sort((a, b) => a - b)
+                          )
+                        }
+                      >
+                        {allergen.icon_url ? (
+                          <img src={allergen.icon_url} alt={allergen.title} />
+                        ) : (
+                          <span className="allergen-fallback">{allergen.id}</span>
+                        )}
+                        <small>{allergen.id}. {allergen.title}</small>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="allergen-modal-footer">
+                  {menuExcludedAllergens.length > 0 && (
+                    <button className="plain-link" onClick={() => setMenuExcludedAllergens([])}>
+                      Mostra tutti i piatti
+                    </button>
+                  )}
+                  <button
+                    className="menu-cta menu-cta-blue"
+                    onClick={() => setMenuAllergenAccordionOpen(false)}
+                  >
+                    Applica filtro
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Mobile FAB (bottom-right): filtra allergeni ── */}
+          <button
+            type="button"
+            className="poke-mobile-fab poke-mobile-fab--filter poke-mobile-fab--menu"
+            onClick={() => setMenuAllergenAccordionOpen(true)}
+            aria-label="Filtra allergeni"
+          >
+            <wa-icon name="filter" variant="solid" aria-hidden="true"></wa-icon>
+            {menuExcludedAllergens.length > 0 && (
+              <span className="poke-mobile-fab-badge">{menuExcludedAllergens.length}</span>
+            )}
+          </button>
         </section>
       )}
 
       {!loading && !error && route === "/crea-la-tua-poke" && menu && (
         <section className="poke-builder-page">
+          <div className="poke-builder-fish-bg" aria-hidden="true">
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((lane) => (
+              <div
+                key={lane}
+                className={`poke-builder-fish-lane poke-builder-fish-lane--${lane % 2 === 0 ? "right" : "left"}`}
+              >
+                <div className="poke-builder-fish-track">
+                  {Array.from({ length: 14 }).map((_, j) => (
+                    <img
+                      key={j}
+                      src={`${import.meta.env.BASE_URL}immagini/decorazioni/pesce.svg`}
+                      alt=""
+                      className="poke-builder-fish-img"
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
           <section className="poke-phase-strip">
             <div className="container">
               <div className="poke-step-progress-row">
@@ -6477,6 +6607,28 @@ export default function App() {
           >
             <span className="order-summary-side-tab-label">{t("orderSummaryPokeTab")}</span>
             {orderCount > 0 && <span className="order-summary-side-tab-badge">{orderCount}</span>}
+          </button>
+
+          {/* ── Mobile FABs (bottom-right): filtri + resoconto poké ── */}
+          <button
+            type="button"
+            className="poke-mobile-fab poke-mobile-fab--filter"
+            onClick={() => setPokeAllergenAccordionOpen(true)}
+            aria-label="Filtra allergeni"
+          >
+            <wa-icon name="filter" variant="solid" aria-hidden="true"></wa-icon>
+            {pokeExcludedAllergens.length > 0 && (
+              <span className="poke-mobile-fab-badge">{pokeExcludedAllergens.length}</span>
+            )}
+          </button>
+          <button
+            type="button"
+            className={`poke-mobile-fab poke-mobile-fab--summary ${selectedBuilderId ? "is-active" : ""}`.trim()}
+            onClick={() => setPokeSummaryModalOpen(true)}
+            aria-label={t("orderSummaryPokeTab")}
+          >
+            <wa-icon name="bowl-rice" variant="solid" aria-hidden="true"></wa-icon>
+            {orderCount > 0 && <span className="poke-mobile-fab-badge">{orderCount}</span>}
           </button>
 
           {pokeSummaryModalOpen && (
@@ -6818,11 +6970,24 @@ export default function App() {
                 <h3>{t("addToOrder")}</h3>
                 <p>La tua poke e stata aggiunta correttamente. Cosa vuoi fare adesso?</p>
                 <div className="poke-added-actions">
-                  <button className="cta" onClick={startAnotherPoke}>
-                    {t("createPoke")}
+                  <button
+                    className="cta poke-added-btn poke-added-btn--primary"
+                    onClick={goToCheckout}
+                  >
+                    {isTableOrderMode ? t("sendOrder") : t("completeOrder")}
                   </button>
-                  <button onClick={goToMenuPage}>{t("menu")}</button>
-                  <button onClick={goToCheckout}>{isTableOrderMode ? t("sendOrder") : t("completeOrder")}</button>
+                  <button
+                    className="poke-added-btn poke-added-btn--ghost"
+                    onClick={startAnotherPoke}
+                  >
+                    {t("createNewPoke")}
+                  </button>
+                  <button
+                    className="poke-added-btn poke-added-btn--neutral"
+                    onClick={goToMenuPage}
+                  >
+                    {t("menu")}
+                  </button>
                 </div>
               </section>
             )}
@@ -6864,6 +7029,46 @@ export default function App() {
                   </button>
                 </div>
               )}
+            </div>
+          )}
+
+          {pokeExtraPrompt && (
+            <div
+              className="poke-extra-prompt-overlay"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) setPokeExtraPrompt(null);
+              }}
+            >
+              <div
+                className="poke-extra-prompt-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="poke-extra-prompt-title"
+              >
+                <h3 id="poke-extra-prompt-title" className="poke-extra-prompt-title">
+                  Vuoi aggiungere {pokeExtraPrompt.phaseLabel.toLowerCase()} extra?
+                </h3>
+                <p className="poke-extra-prompt-sub">
+                  Puoi sempre aggiungerli dal riepilogo del tuo poké.
+                </p>
+                <div className="poke-extra-prompt-actions">
+                  <button
+                    type="button"
+                    className="poke-extra-prompt-btn poke-extra-prompt-btn--no"
+                    onClick={() => confirmPokeExtraPrompt(false)}
+                  >
+                    No, grazie
+                  </button>
+                  <button
+                    type="button"
+                    className="poke-extra-prompt-btn poke-extra-prompt-btn--yes"
+                    onClick={() => confirmPokeExtraPrompt(true)}
+                    autoFocus
+                  >
+                    Sì, aggiungi
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </section>
