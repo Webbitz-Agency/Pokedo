@@ -217,6 +217,10 @@ type AppSettings = {
       start_time: string;
       end_time: string;
     };
+    orders_blocked: {
+      enabled: boolean;
+      reason: string;
+    };
   };
 };
 
@@ -1185,6 +1189,10 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
     pickup_time_rule: {
       start_time: "12:00",
       end_time: "14:00"
+    },
+    orders_blocked: {
+      enabled: false,
+      reason: ""
     }
   }
 };
@@ -1201,6 +1209,9 @@ function normalizeAppSettings(value: unknown): AppSettings {
   const coverRulesRaw = Array.isArray(site.table_cover_rules) ? site.table_cover_rules : [];
   const tagRulesRaw = Array.isArray(site.tag_rules) ? site.tag_rules : [];
   const pickupRuleRaw = (site.pickup_time_rule ?? {}) as Partial<AppSettings["site"]["pickup_time_rule"]>;
+  const ordersBlockedRaw = ((site as { orders_blocked?: unknown }).orders_blocked ?? {}) as Partial<
+    AppSettings["site"]["orders_blocked"]
+  >;
   const table_cover_rules = coverRulesRaw.map((entry, idx) => {
     const source = (entry ?? {}) as Record<string, unknown>;
     const start_time = String(source.start_time ?? "00:00").trim();
@@ -1259,6 +1270,10 @@ function normalizeAppSettings(value: unknown): AppSettings {
         end_time: /^\d{2}:\d{2}$/.test(String(pickupRuleRaw.end_time ?? "").trim())
           ? String(pickupRuleRaw.end_time).trim()
           : DEFAULT_APP_SETTINGS.site.pickup_time_rule.end_time
+      },
+      orders_blocked: {
+        enabled: Boolean(ordersBlockedRaw.enabled),
+        reason: String(ordersBlockedRaw.reason ?? "").trim().slice(0, 300)
       }
     }
   };
@@ -1376,6 +1391,7 @@ export default function App() {
   const [pokeRules, setPokeRules] = useState<{ builder_items: BuilderItem[] } | null>(null);
   const [savedPokeRules, setSavedPokeRules] = useState<{ builder_items: BuilderItem[] } | null>(null);
   const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
+  const [ordersBlockedModalOpen, setOrdersBlockedModalOpen] = useState(false);
   const [settingsForm, setSettingsForm] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
   const [settingsAccordion, setSettingsAccordion] = useState<{ activity: boolean; site: boolean; cover: boolean }>({
     activity: false,
@@ -3186,6 +3202,10 @@ export default function App() {
   }
 
   function goToPokePage(sizeId?: number) {
+    if (appSettings.site.orders_blocked.enabled) {
+      setOrdersBlockedModalOpen(true);
+      return;
+    }
     if (tableOrderNumber) {
       const codeStorageKey = `pokedo_table_code_${tableOrderNumber}`;
       let code = "";
@@ -3204,6 +3224,13 @@ export default function App() {
     const search = sizeId !== undefined ? `?size=${encodeURIComponent(String(sizeId))}` : "";
     goTo(`/crea-la-tua-poke${search}`);
   }
+
+  useEffect(() => {
+    if (!appSettings.site.orders_blocked.enabled) return;
+    if (route !== "/crea-la-tua-poke" && route !== "/completa-ordine") return;
+    setOrdersBlockedModalOpen(true);
+    goTo(isTableOrderMode && tableOrderNumber ? `/tavolo/${encodeURIComponent(tableOrderNumber)}` : "/");
+  }, [appSettings.site.orders_blocked.enabled, route, isTableOrderMode, tableOrderNumber]);
 
   useEffect(() => {
     if (!isTableOrderMode || route !== "/completa-ordine") return;
@@ -3686,6 +3713,74 @@ export default function App() {
     }, 0);
   }
 
+  /**
+   * Migra le quantità scelte da un builder all'altro quando si cambia "dimensione".
+   * Match dei gruppi per nome di fase + indice ordinale (gestisce gruppi extra),
+   * match delle opzioni per nome (case-insensitive trim).
+   * Le quantità vengono cappate al nuovo `force_max` del gruppo.
+   */
+  function migratePokeSelectionsToBuilder(
+    oldBuilder: BuilderItem,
+    oldSelections: Record<number, Record<number, number>>,
+    newBuilder: BuilderItem
+  ): Record<number, Record<number, number>> {
+    const groupOrdinalIndex = (builder: BuilderItem, groupId: number) => {
+      const group = builder.groups.find((entry) => entry.id === groupId);
+      if (!group) return -1;
+      const baseName = displayPhaseName(group.name);
+      const sameNameGroups = builder.groups.filter((entry) => displayPhaseName(entry.name) === baseName);
+      return sameNameGroups.findIndex((entry) => entry.id === groupId);
+    };
+    const next: Record<number, Record<number, number>> = {};
+    for (const newGroup of newBuilder.groups) {
+      const newPhaseName = displayPhaseName(newGroup.name);
+      const sameNameNew = newBuilder.groups.filter((entry) => displayPhaseName(entry.name) === newPhaseName);
+      const newIndex = sameNameNew.findIndex((entry) => entry.id === newGroup.id);
+      const oldGroup = oldBuilder.groups.find((entry) => {
+        if (displayPhaseName(entry.name) !== newPhaseName) return false;
+        return groupOrdinalIndex(oldBuilder, entry.id) === newIndex;
+      });
+      if (!oldGroup) continue;
+      const oldGroupSelections = oldSelections[oldGroup.id] ?? {};
+      const migratedGroup: Record<number, number> = {};
+      let runningTotal = 0;
+      const maxQty = Math.max(0, Number(newGroup.force_max || 0));
+      for (const [optionIdRaw, qty] of Object.entries(oldGroupSelections)) {
+        if (qty <= 0) continue;
+        const oldOption = oldGroup.options.find((entry) => entry.id === Number(optionIdRaw));
+        if (!oldOption) continue;
+        const targetName = oldOption.name.trim().toLowerCase();
+        const newOption = newGroup.options.find((entry) => entry.name.trim().toLowerCase() === targetName);
+        if (!newOption || newOption.is_out_of_stock) continue;
+        const remaining = Math.max(0, maxQty - runningTotal);
+        if (remaining <= 0) break;
+        const cappedQty = Math.min(qty, remaining);
+        if (cappedQty <= 0) continue;
+        migratedGroup[newOption.id] = (migratedGroup[newOption.id] ?? 0) + cappedQty;
+        runningTotal += cappedQty;
+      }
+      if (Object.keys(migratedGroup).length > 0) {
+        next[newGroup.id] = migratedGroup;
+      }
+    }
+    return next;
+  }
+
+  function changeOrderEditPokeBuilder(nextBuilderId: number) {
+    setOrderItemEditModal((old) => {
+      if (!old || old.mode !== "poke" || !old.pokeBuilder || !old.selectedByGroup) return old;
+      if (old.pokeBuilder.id === nextBuilderId) return old;
+      const nextBuilder = pokeBuilderItemsPublic.find((entry) => entry.id === nextBuilderId);
+      if (!nextBuilder) return old;
+      const migrated = migratePokeSelectionsToBuilder(old.pokeBuilder, old.selectedByGroup, nextBuilder);
+      return {
+        ...old,
+        pokeBuilder: nextBuilder,
+        selectedByGroup: migrated
+      };
+    });
+  }
+
   function getOrderEditPhaseLabel(builder: BuilderItem, groupId: number) {
     const group = builder.groups.find((entry) => entry.id === groupId);
     if (!group) return "fase";
@@ -3909,6 +4004,10 @@ export default function App() {
   }
 
   function addDishToOrder(item: MenuItem) {
+    if (appSettings.site.orders_blocked.enabled) {
+      setOrdersBlockedModalOpen(true);
+      return;
+    }
     const variants = getMenuItemVariants(item);
     if (variants.length > 0) {
       openMenuItemVariantModal(item);
@@ -5985,11 +6084,11 @@ export default function App() {
                   role="button"
                   tabIndex={0}
                     aria-label="Componi il tuo pokè"
-                    onClick={() => goTo("/crea-la-tua-poke")}
+                    onClick={() => goToPokePage()}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                        goTo("/crea-la-tua-poke");
+                        goToPokePage();
                       }
                     }}
                   >
@@ -6108,7 +6207,7 @@ export default function App() {
               <button
                 type="button"
                 className="gallery-create-poke-btn home-blob-btn"
-                onClick={() => goTo("/crea-la-tua-poke")}
+                onClick={() => goToPokePage()}
               >
                 <span className="home-blob-btn__label gallery-create-poke-btn-label">{t("createPoke")}</span>
                 <span className="home-blob-btn__inner" aria-hidden="true">
@@ -7472,6 +7571,41 @@ export default function App() {
         </section>
       )}
 
+      {ordersBlockedModalOpen && (
+        <div
+          className="overlay modal-center orders-blocked-overlay"
+          onClick={() => setOrdersBlockedModalOpen(false)}
+        >
+          <article
+            className="info-modal orders-blocked-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="orders-blocked-icon" aria-hidden="true">
+              <wa-icon name="ban" variant="solid"></wa-icon>
+            </div>
+            <h4 className="orders-blocked-title">Ordinazioni Bloccate</h4>
+            {appSettings.site.orders_blocked.reason.trim() ? (
+              <p className="orders-blocked-reason">
+                {appSettings.site.orders_blocked.reason.trim()}
+              </p>
+            ) : (
+              <p className="orders-blocked-reason muted">
+                Al momento non è possibile effettuare nuovi ordini dal sito.
+              </p>
+            )}
+            <div className="orders-blocked-actions">
+              <button
+                type="button"
+                className="cta orders-blocked-close-btn"
+                onClick={() => setOrdersBlockedModalOpen(false)}
+              >
+                Ho capito
+              </button>
+            </div>
+          </article>
+        </div>
+      )}
+
       {infoModalItem && (
         <div className="overlay" onClick={() => setInfoModalItem(null)}>
           <div className="info-modal" onClick={(e) => e.stopPropagation()}>
@@ -7675,9 +7809,33 @@ export default function App() {
             )}
             {orderItemEditModal.mode === "poke" && orderItemEditModal.pokeBuilder && orderItemEditModal.selectedByGroup && (
               <>
-                <p className="muted">
-                  <strong>{orderItemEditModal.pokeBuilder.name}</strong>
-                </p>
+                {pokeBuilderItemsPublic.length > 1 ? (
+                  <div className="order-edit-poke-size-row">
+                    <span className="order-edit-poke-size-label">Dimensione</span>
+                    <div className="order-edit-poke-size-options">
+                      {[...pokeBuilderItemsPublic]
+                        .sort((a, b) => a.price - b.price || a.id - b.id)
+                        .map((sizeBuilder) => {
+                          const selected = sizeBuilder.id === orderItemEditModal.pokeBuilder!.id;
+                          return (
+                            <button
+                              key={`order-edit-size-${sizeBuilder.id}`}
+                              type="button"
+                              className={`order-edit-poke-size-btn ${selected ? "selected" : ""}`.trim()}
+                              onClick={() => changeOrderEditPokeBuilder(sizeBuilder.id)}
+                            >
+                              <span className="order-edit-poke-size-name">{sizeBuilder.name}</span>
+                              <span className="order-edit-poke-size-price">{formatCurrency(Number(sizeBuilder.price || 0))}</span>
+                            </button>
+                          );
+                        })}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="muted">
+                    <strong>{orderItemEditModal.pokeBuilder.name}</strong>
+                  </p>
+                )}
                 <div className="order-edit-poke-groups">
                   {orderItemEditModal.pokeBuilder.groups.map((group) => (
                     <section key={`edit-poke-group-${group.id}`} className="order-edit-poke-group">
