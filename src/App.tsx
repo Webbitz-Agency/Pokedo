@@ -2654,6 +2654,20 @@ export default function App() {
     () => pokeBuilderItems.filter((item) => item.active !== false),
     [pokeBuilderItems]
   );
+  /** Tier visivo per card dimensione: prezzo crescente → small / medium / large (Large resta scala 1). */
+  const pokeBuilderSizeTierClass = useMemo(() => {
+    const sorted = [...pokeBuilderItemsPublic].sort((a, b) => a.price - b.price || a.id - b.id);
+    const map = new Map<number, string>();
+    const n = sorted.length;
+    sorted.forEach((item, i) => {
+      let tier: "small" | "medium" | "large";
+      if (n <= 1) tier = "large";
+      else if (n === 2) tier = i === 0 ? "small" : "large";
+      else tier = i === 0 ? "small" : i === n - 1 ? "large" : "medium";
+      map.set(item.id, `size-card-tier--${tier}`);
+    });
+    return map;
+  }, [pokeBuilderItemsPublic]);
   const selectedBuilder = useMemo(
     () => pokeBuilderItems.find((item) => item.id === selectedBuilderId) ?? null,
     [pokeBuilderItems, selectedBuilderId]
@@ -5338,30 +5352,30 @@ export default function App() {
     >
       <header className="topbar">
         <div className="container topbar-content">
-          <>
-            <button className="brand plain" onClick={() => (isTableOrderMode ? goToMenuPage() : goTo("/"))}>
-              {isPokeManagerMarketingPortal && isDefaultTenantLogo ? (
-                <span className="brand-wordmark brand-wordmark--manager">{publicBrandLabel}</span>
-              ) : (
-                <img src={resolvedLogoUrl} alt={publicBrandLabel} className="brand-logo" />
-              )}
-            </button>
-            {tableTopbarMessage && <p className="table-topbar-message">{tableTopbarMessage}</p>}
-            <nav className="main-nav">
-              {!isTableOrderMode && (
-                <button
-                  className={`nav-link-btn ${route === "/" ? "active" : ""}`.trim()}
-                  onClick={() => goTo("/")}
-                >
-                  {t("home")}
-                </button>
-              )}
-              <button
-                className={`nav-link-btn ${route === "/menu" ? "active" : ""}`.trim()}
-                onClick={goToMenuPage}
-              >
-                {t("menu")}
+            <>
+              <button className="brand plain" onClick={() => (isTableOrderMode ? goToMenuPage() : goTo("/"))}>
+                {isPokeManagerMarketingPortal && isDefaultTenantLogo ? (
+                  <span className="brand-wordmark brand-wordmark--manager">{publicBrandLabel}</span>
+                ) : (
+                  <img src={resolvedLogoUrl} alt={publicBrandLabel} className="brand-logo" />
+                )}
               </button>
+              {tableTopbarMessage && <p className="table-topbar-message">{tableTopbarMessage}</p>}
+              <nav className="main-nav">
+                {!isTableOrderMode && (
+                  <button
+                    className={`nav-link-btn ${route === "/" ? "active" : ""}`.trim()}
+                    onClick={() => goTo("/")}
+                  >
+                    {t("home")}
+                  </button>
+                )}
+                <button
+                  className={`nav-link-btn ${route === "/menu" ? "active" : ""}`.trim()}
+                  onClick={goToMenuPage}
+                >
+                  {t("menu")}
+                </button>
               <button className="cta home-blob-btn" onClick={() => goToPokePage()}>
                 <span className="home-blob-btn__label">{t("createPoke")}</span>
                 <span className="home-blob-btn__inner" aria-hidden="true">
@@ -5372,29 +5386,29 @@ export default function App() {
                     <span className="home-blob-btn__blob"></span>
                   </span>
                 </span>
-              </button>
-              <button
-                className={`order-icon-btn ${isTableOrderMode ? "table-mobile-cart-btn" : ""}`.trim()}
-                onClick={() => (orderOpen ? closeOrderDrawer() : openOrderDrawer())}
-                aria-label="Apri ordine"
-              >
-                <wa-icon name="clipboard" variant="regular" aria-hidden="true"></wa-icon>
-                {orderCount > 0 && <span className="order-badge">{orderCount}</span>}
-              </button>
-              {!isTableOrderMode && (
+                </button>
                 <button
-                  className={`mobile-menu-toggle ${mobileMenuOpen ? "active" : ""}`.trim()}
-                  onClick={() => setMobileMenuOpen((old) => !old)}
-                  aria-label={mobileMenuOpen ? "Chiudi menu mobile" : "Apri menu mobile"}
-                  aria-expanded={mobileMenuOpen}
-                  aria-controls="mobile-nav-sheet"
+                  className={`order-icon-btn ${isTableOrderMode ? "table-mobile-cart-btn" : ""}`.trim()}
+                  onClick={() => (orderOpen ? closeOrderDrawer() : openOrderDrawer())}
+                  aria-label="Apri ordine"
                 >
-                  <i className={`fa-solid ${mobileMenuOpen ? "fa-xmark" : "fa-bars"}`.trim()} aria-hidden="true"></i>
+                  <wa-icon name="clipboard" variant="regular" aria-hidden="true"></wa-icon>
                   {orderCount > 0 && <span className="order-badge">{orderCount}</span>}
                 </button>
-              )}
-            </nav>
-          </>
+                {!isTableOrderMode && (
+                  <button
+                    className={`mobile-menu-toggle ${mobileMenuOpen ? "active" : ""}`.trim()}
+                    onClick={() => setMobileMenuOpen((old) => !old)}
+                  aria-label={mobileMenuOpen ? "Chiudi menu mobile" : "Apri menu mobile"}
+                    aria-expanded={mobileMenuOpen}
+                  aria-controls="mobile-nav-sheet"
+                  >
+                  <i className={`fa-solid ${mobileMenuOpen ? "fa-xmark" : "fa-bars"}`.trim()} aria-hidden="true"></i>
+                    {orderCount > 0 && <span className="order-badge">{orderCount}</span>}
+                  </button>
+                )}
+              </nav>
+            </>
         </div>
       </header>
 
@@ -5617,7 +5631,7 @@ export default function App() {
         </div>
       )}
 
-      <div className={`language-fab ${languageMenuOpen ? "open" : ""}`.trim()}>
+        <div className={`language-fab ${languageMenuOpen ? "open" : ""}`.trim()}>
           <button
             className="language-fab-main"
             onClick={() => setLanguageMenuOpen((prev) => !prev)}
@@ -5762,7 +5776,7 @@ export default function App() {
                           <span className="home-blob-btn__blob"></span>
                         </span>
                       </span>
-                    </button>
+              </button>
                   </div>
                 </div>
                 <div
@@ -5843,22 +5857,22 @@ export default function App() {
               <div className="about-image about-shadow-right about-reveal-left">
                 <img
                   src={resolveMediaSrc(appSettings.site.about_image_url || DEFAULT_APP_SETTINGS.site.about_image_url)}
-                  alt="Pokè signature"
-                />
-              </div>
-              <article className="about-text about-reveal-right">
-                <p className="eyebrow">{t("aboutEyebrow")}</p>
-                <h4>{t("aboutHighlight")}</h4>
-                <p>{t("aboutBody1")}</p>
-                <p>{t("aboutBody2")}</p>
-                <div className="about-meta">
-                  <span>{businessAddress}</span>
-                  <a className="about-call-btn" href={`tel:${businessPhone}`}>
-                    <span aria-hidden="true">☎</span>
-                    {t("callUs")}
-                  </a>
+                    alt="Pokè signature"
+                  />
                 </div>
-              </article>
+              <article className="about-text about-reveal-right">
+                  <p className="eyebrow">{t("aboutEyebrow")}</p>
+                  <h4>{t("aboutHighlight")}</h4>
+                  <p>{t("aboutBody1")}</p>
+                  <p>{t("aboutBody2")}</p>
+                  <div className="about-meta">
+                    <span>{businessAddress}</span>
+                    <a className="about-call-btn" href={`tel:${businessPhone}`}>
+                      <span aria-hidden="true">☎</span>
+                      {t("callUs")}
+                    </a>
+                  </div>
+                </article>
             </div>
           </section>
 
@@ -5869,7 +5883,7 @@ export default function App() {
               <div className="poke-story-text-block">
                 <p className="poke-story-eyebrow">La nostra filosofia</p>
                 <h2 className="poke-story-headline">La pokè come vuoi te.</h2>
-              </div>
+            </div>
               {/* 3-column layout: left labels | circle | right labels */}
               <div className="poke-story-visual">
                 {/* LEFT: Green + Crunchy */}
@@ -5916,13 +5930,13 @@ export default function App() {
                   >
                   <div
                     className="poke-story-circle-hit"
-                    role="button"
-                    tabIndex={0}
+                  role="button"
+                  tabIndex={0}
                     aria-label="Componi il tuo pokè"
                     onClick={() => goTo("/crea-la-tua-poke")}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
                         goTo("/crea-la-tua-poke");
                       }
                     }}
@@ -5979,8 +5993,8 @@ export default function App() {
                         <span>{seg.desc}</span>
                       </div>
                     </div>
-                  ))}
-                </div>
+              ))}
+            </div>
               </div>
             </div>
           </section>
@@ -6013,7 +6027,7 @@ export default function App() {
                   {galleryImages.map((imageUrl, idx) => (
                     <div key={`g1a-${idx}`} className="gallery-marquee-item">
                       <img src={imageUrl} alt={`Galleria ${idx + 1}`} />
-                    </div>
+            </div>
                   ))}
                   {galleryImages.map((imageUrl, idx) => (
                     <div key={`g1b-${idx}`} className="gallery-marquee-item" aria-hidden="true">
@@ -6065,10 +6079,10 @@ export default function App() {
                 <p className="final-body">{t("visitBody")}</p>
               </div>
               <div className="final-cta-actions">
-                <a className="phone-cta" href={`tel:${businessPhone}`}>
+              <a className="phone-cta" href={`tel:${businessPhone}`}>
                   <span aria-hidden="true">☎</span>
-                  {t("callUs")}
-                </a>
+                {t("callUs")}
+              </a>
                 <button className="menu-cta menu-cta-outline-white home-blob-btn" onClick={goToMenuPage}>
                   <span className="home-blob-btn__label">Vai al menu</span>
                   <span className="home-blob-btn__inner" aria-hidden="true">
@@ -6111,10 +6125,11 @@ export default function App() {
                 {pokeBuilderItemsPublic.map((item) => {
                   const sizeImgSrc = resolveMediaSrc(item.image_url);
                   const sizeCardLabel = `${item.name}. ${formatCurrency(item.price)}. ${t("size_pick_cta")}.`;
+                  const tierClass = pokeBuilderSizeTierClass.get(item.id) ?? "";
                   return (
                     <div
                       key={item.id}
-                      className="size-card-wrap size-card-wrap--interactive"
+                      className={`size-card-wrap size-card-wrap--interactive ${tierClass}`.trim()}
                       role="button"
                       tabIndex={0}
                       aria-label={sizeCardLabel}
@@ -6127,48 +6142,31 @@ export default function App() {
                       }}
                     >
                       <div className="size-card-move">
-                        <div className="size-card-price-pin">{formatCurrency(item.price)}</div>
                         <article className="size-card">
                           <div className="size-card-surface">
-                          <div className="size-card-head">
-                            <h4 className="size-card-title">{item.name}</h4>
+                            <div className="size-card-photo-wrap">
+                              {sizeImgSrc ? (
+                                <img src={sizeImgSrc} alt="" className="size-card-photo-img" />
+                              ) : (
+                                <div className="size-card-photo-placeholder" aria-hidden />
+                              )}
+                            </div>
+                            <div className="size-card-content">
+                              <div className="size-card-head">
+                                <h4 className="size-card-title">{item.name}</h4>
+                              </div>
+                              <p className="size-card-ingredients-text">
+                                {getBuilderGroupLimit(item, "base")} {t("phase_base")} - {item.included_proteins} {t("phase_proteins")} -{" "}
+                                {getBuilderGroupLimit(item, "green")} {t("phase_green")} - {getBuilderGroupLimit(item, "sals")}{" "}
+                                {t("phase_sauces")} - {getBuilderGroupLimit(item, "crunch")} {t("phase_crunchy")}
+                              </p>
+                              <p className="size-card-price">{formatCurrency(item.price)}</p>
+                              <span className="menu-cta size-pick-btn" aria-hidden="true">
+                                {t("size_pick_cta")}
+                              </span>
+                            </div>
                           </div>
-                          <div className="size-card-photo-wrap">
-                            {sizeImgSrc ? (
-                              <img src={sizeImgSrc} alt="" className="size-card-photo-img" />
-                            ) : (
-                              <div className="size-card-photo-placeholder" aria-hidden />
-                            )}
-                          </div>
-                          <div className="size-card-footer-meta">
-                            <ul className="size-card-specs">
-                              <li>
-                                <strong>{getBuilderGroupLimit(item, "base")}</strong>
-                                <span>{t("phase_base")}</span>
-                              </li>
-                              <li>
-                                <strong>{item.included_proteins}</strong>
-                                <span>{t("phase_proteins")}</span>
-                              </li>
-                              <li>
-                                <strong>{getBuilderGroupLimit(item, "green")}</strong>
-                                <span>{t("phase_green")}</span>
-                              </li>
-                              <li>
-                                <strong>{getBuilderGroupLimit(item, "sals")}</strong>
-                                <span>{t("phase_sauces")}</span>
-                              </li>
-                              <li>
-                                <strong>{getBuilderGroupLimit(item, "crunch")}</strong>
-                                <span>{t("phase_crunchy")}</span>
-                              </li>
-                            </ul>
-                            <span className="menu-cta size-pick-btn" aria-hidden="true">
-                              {t("size_pick_cta")}
-                            </span>
-                          </div>
-                        </div>
-                      </article>
+                        </article>
                       </div>
                     </div>
                   );
@@ -6371,7 +6369,12 @@ export default function App() {
                 </button>
                 <div className="poke-step-mobile-current">
                   <small>{t("currentPhase")}</small>
-                  <strong>{pokePhases[activePhaseIndex]?.label ?? t("phase_size")}</strong>
+                  <strong
+                    className="poke-step-mobile-fraction"
+                    aria-label={`${pokePhases[activePhaseIndex]?.label ?? t("phase_size")}: ${pokeFlowStep + 1}/${pokeStepsTotal}`}
+                  >
+                    {pokeFlowStep + 1}/{pokeStepsTotal}
+                  </strong>
                 </div>
                 <button
                   className="poke-step-mobile-arrow"
@@ -6407,51 +6410,51 @@ export default function App() {
               <div className="allergen-modal" role="dialog" aria-modal="true" aria-label="Filtra allergeni">
                 <div className="allergen-modal-header">
                   <div>
-                    <p className="section-kicker">Allergeni</p>
-                    <h3>Filtra gli ingredienti in base agli allergeni</h3>
+                <p className="section-kicker">Allergeni</p>
+                <h3>Filtra gli ingredienti in base agli allergeni</h3>
                     <p className="allergen-modal-sub">
                       Se selezioni una o più icone, gli ingredienti con quegli allergeni non saranno visibili.
-                    </p>
+                </p>
                   </div>
-                  <button
-                    type="button"
+                <button
+                  type="button"
                     className="allergen-modal-close"
                     onClick={() => setPokeAllergenAccordionOpen(false)}
                     aria-label="Chiudi"
                   >
                     <wa-icon name="xmark" variant="solid" aria-hidden="true" />
-                  </button>
+                </button>
                 </div>
-                <div className="public-allergen-grid">
-                  {ALLERGEN_OPTIONS.map((allergen) => {
-                    const selected = pokeExcludedAllergens.includes(allergen.id);
-                    return (
-                      <button
-                        key={`public-poke-allergen-${allergen.id}`}
-                        type="button"
-                        className={`public-allergen-option ${selected ? "selected" : ""}`.trim()}
-                        onClick={() =>
-                          setPokeExcludedAllergens((old) =>
-                            old.includes(allergen.id)
-                              ? old.filter((code) => code !== allergen.id)
-                              : [...old, allergen.id].sort((a, b) => a - b)
-                          )
-                        }
-                      >
-                        {allergen.icon_url ? (
-                          <img src={allergen.icon_url} alt={allergen.title} />
-                        ) : (
-                          <span className="allergen-fallback">{allergen.id}</span>
-                        )}
+              <div className="public-allergen-grid">
+                {ALLERGEN_OPTIONS.map((allergen) => {
+                  const selected = pokeExcludedAllergens.includes(allergen.id);
+                  return (
+                    <button
+                      key={`public-poke-allergen-${allergen.id}`}
+                      type="button"
+                      className={`public-allergen-option ${selected ? "selected" : ""}`.trim()}
+                      onClick={() =>
+                        setPokeExcludedAllergens((old) =>
+                          old.includes(allergen.id)
+                            ? old.filter((code) => code !== allergen.id)
+                            : [...old, allergen.id].sort((a, b) => a - b)
+                        )
+                      }
+                    >
+                      {allergen.icon_url ? (
+                        <img src={allergen.icon_url} alt={allergen.title} />
+                      ) : (
+                        <span className="allergen-fallback">{allergen.id}</span>
+                      )}
                         <small>{allergen.id}. {allergen.title}</small>
-                      </button>
-                    );
-                  })}
-                </div>
+                    </button>
+                  );
+                })}
+              </div>
                 <div className="allergen-modal-footer">
-                  {pokeExcludedAllergens.length > 0 && (
-                    <button className="plain-link" onClick={() => setPokeExcludedAllergens([])}>
-                      Mostra tutti gli ingredienti
+              {pokeExcludedAllergens.length > 0 && (
+                  <button className="plain-link" onClick={() => setPokeExcludedAllergens([])}>
+                    Mostra tutti gli ingredienti
                     </button>
                   )}
                   <button
@@ -6462,8 +6465,8 @@ export default function App() {
                   </button>
                 </div>
               </div>
-            </div>
-          )}
+                </div>
+              )}
 
           {/* ── Order summary side tab (right) ── */}
           <button
@@ -6492,7 +6495,7 @@ export default function App() {
                 <div className="allergen-modal-header">
                   <div>
                     <h3>{t("orderSummary")}</h3>
-                  </div>
+              </div>
                   <button
                     type="button"
                     className="allergen-modal-close"
@@ -6501,7 +6504,7 @@ export default function App() {
                   >
                     <wa-icon name="xmark" variant="solid" aria-hidden="true" />
                   </button>
-                </div>
+            </div>
                 <ul className="poke-summary-modal-ul">
                   <li>
                     <span className="poke-summary-phase-label">{t("phase_size")}</span>
@@ -6527,7 +6530,7 @@ export default function App() {
           )}
 
           <div
-            className={`container section-padding poke-builder-layout${pokeAddedMessage ? " poke-builder-layout--poke-added-success" : ""}`.trim()}
+            className={`container section-padding poke-builder-layout${pokeAddedMessage ? " poke-builder-layout--poke-added-success" : ""}${!pokeAddedMessage && pokeFlowStep === 0 ? " poke-builder-layout--size-step" : ""}`.trim()}
           >
             {!pokeAddedMessage ? (
               <>
@@ -6540,10 +6543,11 @@ export default function App() {
                       const sizeImgSrc = resolveMediaSrc(item.image_url);
                       const isSel = selectedBuilderId === item.id;
                       const sizeCardLabel = `${item.name}. ${formatCurrency(item.price)}. ${t("size_pick_cta")}.`;
+                      const tierClass = pokeBuilderSizeTierClass.get(item.id) ?? "";
                       return (
                         <div
-                          key={item.id}
-                          className="size-card-wrap size-card-wrap--interactive"
+                        key={item.id}
+                          className={`size-card-wrap size-card-wrap--interactive ${tierClass}`.trim()}
                           role="button"
                           tabIndex={0}
                           aria-label={sizeCardLabel}
@@ -6556,48 +6560,31 @@ export default function App() {
                           }}
                         >
                           <div className="size-card-move">
-                            <div className="size-card-price-pin">{formatCurrency(item.price)}</div>
                             <article className={`size-card ${isSel ? "selected" : ""}`}>
-                            <div className="size-card-surface">
-                              <div className="size-card-head">
-                                <h4 className="size-card-title">{item.name}</h4>
+                              <div className="size-card-surface">
+                                <div className="size-card-photo-wrap">
+                                  {sizeImgSrc ? (
+                                    <img src={sizeImgSrc} alt="" className="size-card-photo-img" />
+                                  ) : (
+                                    <div className="size-card-photo-placeholder" aria-hidden />
+                                  )}
+                                </div>
+                                <div className="size-card-content">
+                                  <div className="size-card-head">
+                                    <h4 className="size-card-title">{item.name}</h4>
+                                  </div>
+                                  <p className="size-card-ingredients-text">
+                                    {getBuilderGroupLimit(item, "base")} {t("phase_base")} - {item.included_proteins} {t("phase_proteins")} -{" "}
+                                    {getBuilderGroupLimit(item, "green")} {t("phase_green")} - {getBuilderGroupLimit(item, "sals")}{" "}
+                                    {t("phase_sauces")} - {getBuilderGroupLimit(item, "crunch")} {t("phase_crunchy")}
+                                  </p>
+                                  <p className="size-card-price">{formatCurrency(item.price)}</p>
+                                  <span className="menu-cta size-pick-btn" aria-hidden="true">
+                                    {t("size_pick_cta")}
+                                  </span>
+                                </div>
                               </div>
-                              <div className="size-card-photo-wrap">
-                                {sizeImgSrc ? (
-                                  <img src={sizeImgSrc} alt="" className="size-card-photo-img" />
-                                ) : (
-                                  <div className="size-card-photo-placeholder" aria-hidden />
-                                )}
-                              </div>
-                              <div className="size-card-footer-meta">
-                                <ul className="size-card-specs">
-                                  <li>
-                                    <strong>{getBuilderGroupLimit(item, "base")}</strong>
-                                    <span>{t("phase_base")}</span>
-                                  </li>
-                                  <li>
-                                    <strong>{item.included_proteins}</strong>
-                                    <span>{t("phase_proteins")}</span>
-                                  </li>
-                                  <li>
-                                    <strong>{getBuilderGroupLimit(item, "green")}</strong>
-                                    <span>{t("phase_green")}</span>
-                                  </li>
-                                  <li>
-                                    <strong>{getBuilderGroupLimit(item, "sals")}</strong>
-                                    <span>{t("phase_sauces")}</span>
-                                  </li>
-                                  <li>
-                                    <strong>{getBuilderGroupLimit(item, "crunch")}</strong>
-                                    <span>{t("phase_crunchy")}</span>
-                                  </li>
-                                </ul>
-                                <span className="menu-cta size-pick-btn" aria-hidden="true">
-                                  {t("size_pick_cta")}
-                                </span>
-                              </div>
-                            </div>
-                          </article>
+                            </article>
                           </div>
                         </div>
                       );
@@ -6619,12 +6606,12 @@ export default function App() {
                     return (
                       <>
                   <div className="poke-phase-intro">
-                    <h3>{getOrderEditPhaseLabel(selectedBuilder, pokeCurrentGroup.id)}</h3>
-                    {pokeCurrentGroup.description && (
+                  <h3>{getOrderEditPhaseLabel(selectedBuilder, pokeCurrentGroup.id)}</h3>
+                  {pokeCurrentGroup.description && (
                       <p className="muted poke-phase-description">
                         {translateDescription(pokeCurrentGroup.description)}
                       </p>
-                    )}
+                  )}
                   </div>
                   <p className="muted poke-phase-selection">
                     {t("selectedMax", {
@@ -6675,35 +6662,35 @@ export default function App() {
                                         e.stopPropagation();
                                       }}
                                     >
-                                      <button
+                                    <button
                                         type="button"
                                         className="chip-qty-pill-btn"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          decrementOption(pokeCurrentGroup.id, option.id);
-                                        }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        decrementOption(pokeCurrentGroup.id, option.id);
+                                      }}
                                         aria-label="Diminuisci quantità"
-                                      >
+                                    >
                                         −
-                                      </button>
+                                    </button>
                                       <span className="chip-qty-pill-num">{optionQty}</span>
-                                      <button
+                                    <button
                                         type="button"
                                         className="chip-qty-pill-btn"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          incrementOption(pokeCurrentGroup, option);
-                                        }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        incrementOption(pokeCurrentGroup, option);
+                                      }}
                                         aria-label="Aumenta quantità"
-                                      >
-                                        +
-                                      </button>
-                                    </span>
+                                    >
+                                      +
+                                    </button>
+                                  </span>
                                   ) : (
                                     <em className={option.price > 0 ? "chip-price-surcharge" : undefined}>
                                       {option.price > 0 ? `+ ${formatCurrency(option.price)}` : ""}
                                     </em>
-                                  )}
+                                )}
                                 </div>
                               </div>
                             );
@@ -6751,33 +6738,33 @@ export default function App() {
                                         e.stopPropagation();
                                       }}
                                     >
-                                      <button
+                                    <button
                                         type="button"
                                         className="chip-qty-pill-btn"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          decrementOption(pokeCurrentGroup.id, option.id);
-                                        }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        decrementOption(pokeCurrentGroup.id, option.id);
+                                      }}
                                         aria-label="Diminuisci quantità"
-                                      >
+                                    >
                                         −
-                                      </button>
+                                    </button>
                                       <span className="chip-qty-pill-num">{optionQty}</span>
-                                      <button
+                                    <button
                                         type="button"
                                         className="chip-qty-pill-btn"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          incrementOption(pokeCurrentGroup, option);
-                                        }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        incrementOption(pokeCurrentGroup, option);
+                                      }}
                                         aria-label="Aumenta quantità"
-                                      >
-                                        +
-                                      </button>
-                                    </span>
+                                    >
+                                      +
+                                    </button>
+                                  </span>
                                   ) : (
                                     <em className="chip-price-surcharge">+ {formatCurrency(option.price)}</em>
-                                  )}
+                                )}
                                 </div>
                               </div>
                             );

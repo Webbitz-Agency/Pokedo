@@ -16,6 +16,8 @@
   --admin-accent-shadow-lg: 0 12px 26px rgba(255, 95, 102, 0.28);
   /* Blu hero / grafica (testi su sfondo chiaro) */
   --hero-graphic-blue: #1e3a8a;
+  /* Palette poke-builder cliente: blu coerente con brand */
+  --poke-brand-gradient: linear-gradient(120deg, #1f3a8a 0%, #1d4ed8 52%, #2563eb 100%);
 }
 
 .app-root p {
@@ -1242,6 +1244,20 @@ select {
   align-items: start;
 }
 
+/* Indietro / Avanti: più aria sotto le card, verso metà striscia prima del footer */
+.poke-builder-layout .builder-actions {
+  margin-top: clamp(48px, 9vh, 120px);
+}
+
+/* Step Dimensione: spazio sotto stepper / titolo (bowl in fuoriuscita) */
+.poke-builder-layout--size-step {
+  padding-top: clamp(40px, 7vh, 100px);
+}
+
+.poke-builder-layout--size-step .builder-size-cards {
+  margin-top: clamp(16px, 2.5vh, 40px);
+}
+
 /* Schermata “poke aggiunta”: centra il blocco nell’area sotto allo stepper */
 .poke-builder-layout.poke-builder-layout--poke-added-success {
   flex: 1 1 auto;
@@ -1268,6 +1284,11 @@ select {
   border: none;
   box-shadow: none;
   padding: 0;
+}
+
+.poke-builder-main--flush > h3 {
+  margin: 0 0 8px;
+  text-align: center;
 }
 
 .poke-builder-main--flush .poke-phase-intro {
@@ -1730,7 +1751,7 @@ select {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(120deg, #2563eb, #0ea5e9);
+  background: var(--poke-brand-gradient);
   transition: width 0.25s ease;
 }
 
@@ -2052,7 +2073,7 @@ select {
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(120deg, #2563eb, #0ea5e9);
+  background: var(--poke-brand-gradient);
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -3127,7 +3148,7 @@ select {
   gap: 2px;
   padding: 4px 8px;
   border-radius: 999px;
-  background: linear-gradient(120deg, #2563eb, #0ea5e9);
+  background: var(--poke-brand-gradient);
   color: #fff;
   font-weight: 700;
   font-size: 15px;
@@ -3219,6 +3240,21 @@ select {
 .builder-actions button:active {
   transform: translateY(0);
   box-shadow: 0 4px 8px rgba(15, 23, 42, 0.12);
+}
+
+.builder-actions .cta {
+  border-color: #1d4ed8;
+  background: var(--poke-brand-gradient) !important;
+  color: #fff !important;
+  box-shadow:
+    0 10px 22px rgba(37, 99, 235, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+.builder-actions .cta:hover {
+  box-shadow:
+    0 12px 26px rgba(37, 99, 235, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
 .checkout-card {
@@ -7582,7 +7618,8 @@ table button:hover {
   }
 
   .builder-size-cards {
-    gap: clamp(10px, 2vw, 18px);
+    column-gap: 24px;
+    row-gap: 26px;
   }
 
   .size-card {
@@ -7828,9 +7865,12 @@ table button:hover {
     font-weight: 700;
   }
 
-  .poke-step-mobile-current strong {
+  .poke-step-mobile-current strong,
+  .poke-step-mobile-current .poke-step-mobile-fraction {
     color: #0f172a;
-    font-size: 16px;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
   }
 
   .poke-step-mobile-arrow {
@@ -7919,10 +7959,6 @@ table button:hover {
   .order-drawer {
     width: 76vw;
     min-width: 0;
-  }
-
-  .builder-size-cards {
-    grid-template-columns: 1fr;
   }
 
   .menu-categories-block {
@@ -10674,18 +10710,43 @@ table button:hover {
 
 /* ── Dimensione poke — portrait cards, prezzo sopra il bordo ─── */
 .builder-size-cards {
+  /* max-content = una sola riga, gap uguale tra le card (no wrap 2+1) */
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(16px, 3vw, 28px);
+  grid-template-columns: repeat(3, max-content);
+  justify-content: center;
+  align-items: end;
+  column-gap: 50px;
+  row-gap: 28px;
   margin-top: 4px;
-  max-width: 1240px;
+  width: auto;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
+  box-sizing: border-box;
+  padding-inline: clamp(12px, 3vw, 20px);
 }
 
 .size-card-wrap {
   position: relative;
   padding-top: 30px;
+  max-width: 100%;
+  justify-self: center;
+}
+
+/* Tier: larghezze fisse (evita che width:100% + fit-content schiatti small/medium) */
+.size-card-tier--small .size-card {
+  width: min(100%, 226px);
+  max-width: 226px;
+}
+
+.size-card-tier--medium .size-card {
+  width: min(100%, 261px);
+  max-width: 261px;
+}
+
+.size-card-tier--large .size-card {
+  width: min(100%, 290px);
+  max-width: 290px;
 }
 
 .size-card-move {
@@ -10721,66 +10782,45 @@ table button:hover {
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
 }
 
+.size-card-wrap--interactive:hover .size-card.selected .size-card-surface {
+  border-color: rgba(255, 255, 255, 1);
+}
+
 .size-card-wrap--interactive:hover .size-card.selected {
-  border-color: #1e40af;
   box-shadow:
     0 0 0 4px rgba(147, 197, 253, 0.9),
     0 0 0 11px rgba(37, 99, 235, 0.12),
     0 18px 44px rgba(37, 99, 235, 0.35);
 }
 
-.size-card-price-pin {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  z-index: 5;
-  transform: translate(-50%, -50%);
-  min-width: 74px;
-  padding: 9px 15px;
-  background: linear-gradient(120deg, #2563eb, #0ea5e9);
-  border: 2px solid rgba(255, 255, 255, 0.55);
-  border-radius: 12px;
-  font-size: clamp(1.02rem, 2.65vw, 1.26rem);
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: -0.02em;
-  text-align: center;
-  white-space: nowrap;
-  line-height: 1.18;
-  box-shadow:
-    0 4px 16px rgba(37, 99, 235, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
-}
-
 .size-card {
   position: relative;
-  border-radius: 20px;
-  padding: 0;
-  overflow: hidden;
+  /* Fascia blu esterna, poi cornice bianca sul surface interno */
+  border-radius: 22px;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  aspect-ratio: 17 / 25;
-  max-width: 400px;
+  aspect-ratio: 4 / 4.35;
+  max-width: 290px;
   margin: 0 auto;
   width: 100%;
-  background: #fff;
-  border: 2px solid #f59e0b;
-  box-shadow: 0 6px 22px rgba(15, 23, 42, 0.1);
+  background: var(--poke-brand-gradient);
+  border: none;
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.24);
   transition:
-    border-color 0.2s ease,
-    border-width 0.2s ease,
+    transform 0.2s ease,
     box-shadow 0.22s ease;
   pointer-events: none;
 }
 
 .size-card.selected {
-  border-width: 3px;
-  border-color: #1d4ed8;
   box-shadow:
-    0 0 0 5px rgba(191, 219, 254, 0.55),
-    0 0 0 13px rgba(37, 99, 235, 0.1),
-    0 14px 40px rgba(37, 99, 235, 0.3);
+    0 0 0 4px rgba(255, 255, 255, 0.82),
+    0 0 0 12px rgba(37, 99, 235, 0.16),
+    0 20px 46px rgba(37, 99, 235, 0.34);
 }
 
 .size-card-surface {
@@ -10788,104 +10828,213 @@ table button:hover {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
   min-height: 0;
-  background: #fff;
+  height: 100%;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  background: var(--poke-brand-gradient);
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.size-card.selected .size-card-surface {
+  border-color: rgba(255, 255, 255, 1);
 }
 
 .size-card-head {
-  padding: 18px 16px 8px;
+  padding: 0;
   flex-shrink: 0;
 }
 
 .size-card-head .size-card-title {
   margin: 0;
-  font-size: clamp(1.06rem, 2.65vw, 1.42rem);
+  font-size: clamp(1.02rem, 2.45vw, 1.3rem);
   font-weight: 900;
-  color: #0f172a;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
+  color: #fff;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
   text-align: center;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 999px;
+  padding: 8px 14px;
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 2px 8px rgba(15, 23, 42, 0.28);
 }
 
 .size-card-photo-wrap {
-  flex: 1;
-  min-height: 120px;
+  position: absolute;
+  /* Centro verticale dell’immagine sul bordo superiore della card (metà sopra, metà sotto) */
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 96%;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 14px;
+  padding: 0;
   pointer-events: none;
-  background: #fff;
+  z-index: 3;
 }
 
 .size-card-photo-img {
   width: auto;
   max-width: 100%;
   height: auto;
-  max-height: min(240px, 40vh);
+  max-height: min(320px, 43vh);
   object-fit: contain;
-  filter: drop-shadow(0 10px 22px rgba(15, 23, 42, 0.14));
+  filter: drop-shadow(0 12px 20px rgba(15, 23, 42, 0.3));
 }
 
 .size-card-photo-placeholder {
-  width: 58%;
-  max-width: 200px;
+  width: 100%;
+  max-width: 300px;
   aspect-ratio: 1;
   border-radius: 50%;
-  margin: auto;
-  opacity: 0.52;
-  background:
-    radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.45), transparent 60%),
-    linear-gradient(150deg, #e2e8f0, #cbd5e1);
-}
-
-.size-card-footer-meta {
-  flex-shrink: 0;
-  margin-top: auto;
-  padding: 14px 14px 16px;
-  background: linear-gradient(100deg, #1d4ed8 0%, #2563eb 52%, #0ea5e9 100%);
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-}
-
-.size-card-specs {
-  list-style: none;
   margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  align-self: stretch;
-  width: 100%;
-  font-size: clamp(0.8rem, 1.95vw, 0.93rem);
-  color: rgba(255, 255, 255, 0.92);
-  text-align: center;
-  line-height: 1.35;
+  opacity: 0.46;
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.65), transparent 60%),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.35));
 }
 
-.size-card-specs li strong {
+.size-card-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  gap: 10px;
+  /* Solo contenuto più in basso: foto / cornice invariati */
+  padding-top: max(96px, calc(min(320px, 43vh) / 2 + 32px));
+  padding-inline: 14px;
+  padding-bottom: max(28px, calc(min(320px, 43vh) / 2 - 48px));
+  align-items: center;
+  min-height: 0;
+}
+
+.size-card-ingredients-text {
+  margin: 0;
+  font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.93);
+  text-wrap: balance;
+}
+
+.size-card-price {
+  margin: 0;
   color: #fff;
-  font-weight: 800;
-  margin-right: 6px;
+  font-weight: 900;
+  font-size: clamp(1.22rem, 2.8vw, 1.56rem);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  font-family: var(--font-title);
+  text-shadow: 0 2px 8px rgba(15, 23, 42, 0.24);
 }
 
 .size-card .size-pick-btn {
-  margin-top: 2px;
+  margin-top: 0;
   border-radius: 999px !important;
   font-weight: 800 !important;
   padding: 9px 20px !important;
+  font-size: 0.92rem !important;
   width: auto;
   align-self: center;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.2);
+}
+
+/* Tipografia proporzionata al tier così tutto resta dentro la card */
+/* Small/Medium: come Large (mezza immagine + offset sopra, mezza − offset sotto), con +32/−48 scalati sul rapporto cap immagine vs Large */
+.size-card-tier--small .size-card-content {
+  gap: 6px;
+  padding-inline: 10px;
+  padding-top: max(
+    80px,
+    calc(min(210px, 30vh) / 2 + 32px * min(210px, 30vh) / min(320px, 43vh) + 14px)
+  );
+  padding-bottom: max(
+    28px,
+    calc(min(210px, 30vh) / 2 - 48px * min(210px, 30vh) / min(320px, 43vh))
+  );
+}
+
+.size-card-tier--small .size-card-head .size-card-title {
+  font-size: clamp(0.72rem, 2.2vw, 0.88rem);
+  padding: 5px 10px;
+}
+
+.size-card-tier--small .size-card-ingredients-text {
+  font-size: clamp(0.62rem, 1.5vw, 0.74rem);
+  line-height: 1.28;
+}
+
+.size-card-tier--small .size-card-price {
+  font-size: clamp(0.86rem, 2.2vw, 1.05rem);
+}
+
+.size-card-tier--small .size-card-photo-img {
+  max-height: min(210px, 30vh);
+}
+
+.size-card-tier--small .size-card .size-pick-btn {
+  padding: 6px 13px !important;
+  font-size: 0.78rem !important;
+}
+
+.size-card-tier--medium .size-card-content {
+  gap: 8px;
+  padding-inline: 12px;
+  padding-top: max(
+    104px,
+    calc(min(265px, 36vh) / 2 + 32px * min(265px, 36vh) / min(320px, 43vh) + 12px)
+  );
+  padding-bottom: max(
+    28px,
+    calc(min(265px, 36vh) / 2 - 48px * min(265px, 36vh) / min(320px, 43vh))
+  );
+}
+
+.size-card-tier--medium .size-card-head .size-card-title {
+  font-size: clamp(0.88rem, 2.25vw, 1.06rem);
+  padding: 6px 12px;
+}
+
+.size-card-tier--medium .size-card-ingredients-text {
+  font-size: clamp(0.72rem, 1.62vw, 0.82rem);
+  line-height: 1.32;
+}
+
+.size-card-tier--medium .size-card-price {
+  font-size: clamp(1.04rem, 2.45vw, 1.3rem);
+}
+
+.size-card-tier--medium .size-card-photo-img {
+  max-height: min(265px, 36vh);
+}
+
+.size-card-tier--medium .size-card .size-pick-btn {
+  padding: 8px 16px !important;
+  font-size: 0.86rem !important;
 }
 
 .size-pick-btn {
   border-radius: 999px !important;
   font-weight: 800 !important;
+}
+
+@media (max-width: 900px) {
+  .builder-size-cards {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    row-gap: 48px;
+  }
 }
 
 /* ── Topbar v2 — pill nav ───────────────────────────────────────── */
