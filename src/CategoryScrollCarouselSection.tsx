@@ -89,7 +89,7 @@ function categoryHomeIcon(name: string): string | null {
   return null;
 }
 
-/** Larghezza “utile” del viewport carosello (escluso il padding): serve per allineare ultima card al margine destro come la prima a sinistra */
+/** Larghezza “utile” del viewport carosello (escluso il padding): serve per allineare ultima card al margine destro come la prima a sinistra. */
 function carouselViewportInnerWidth(el: HTMLElement): number {
   const s = window.getComputedStyle(el);
   const pl = Number.parseFloat(s.paddingLeft) || 0;
