@@ -9038,29 +9038,58 @@ table button:hover {
    `.poke-label-pct` (sezione "La nostra filosofia"): font-title 900 con
    letter-spacing -0.03em e colore = colore della fase. Niente pill, niente
    bordo: solo testo grosso colorato. */
+/* Le etichette di fase sono pill "glass": sfondo bianco semi-trasparente +
+   backdrop-blur, bordo hairline + leggera ombra. Il colore distintivo della
+   fase (--phase-color) NON è più sul testo (per evitare l'effetto "scritte
+   colorate volanti" sul pattern azzurro): viene riusato come pallino accento
+   in `::before`. La scritta resta in un dark unico così il blocco si legge
+   come parte del design. */
 .hero-poke-phase-label {
   position: absolute;
   z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px 7px 11px;
   white-space: nowrap;
   font-family: var(--font-title);
-  font-weight: 900;
-  /* "size un pò più piccolo" rispetto al .poke-label-pct originale
-     (clamp(2.2rem, 3.5vw, 3.8rem)) — qui scendiamo a ~1/2 della scala */
-  font-size: clamp(1.05rem, 1.55vw, 1.6rem);
+  font-weight: 800;
+  font-size: clamp(0.86rem, 1.18vw, 1.08rem);
   line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--phase-color, #1e3a8a);
-  /* Leggero "alone" bianco per garantire leggibilità sopra il watermark a
-     squame anche quando l'etichetta passa davanti al pattern blu */
-  text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.85),
-    0 0 14px rgba(255, 255, 255, 0.65);
+  letter-spacing: -0.012em;
+  color: #0f172a;
+  text-shadow: none;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  box-shadow:
+    0 8px 22px rgba(15, 23, 42, 0.10),
+    0 1px 0 rgba(255, 255, 255, 0.6) inset;
 
   opacity: 0;
   transform: translateX(-14px);
   transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
               transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
+}
+
+/* Pallino colorato che richiama la fase: piccolo `::before` rotondo con il
+   colore della fase + alone bianco per stacco contro il pattern. */
+.hero-poke-phase-label::before {
+  content: "";
+  flex-shrink: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--phase-color, #1e3a8a);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.85),
+    0 0 0 3px var(--phase-color, transparent);
+  /* Il bordo esterno con --phase-color "raddoppia" l'accento: un punto colorato
+     con anello bianco e ulteriore micro-bordo del colore stesso, così resta
+     distinguibile anche da molto piccolo. */
 }
 
 .hero-poke-phase-label.is-revealed {
@@ -9119,6 +9148,61 @@ table button:hover {
 .hero-poke-phase-label--green   { --phase-color: #22c55e; }
 .hero-poke-phase-label--salse   { --phase-color: #ec4899; }
 .hero-poke-phase-label--crunchy { --phase-color: #ef4444; }
+
+/* ── Trail curvo che collega i pallini delle label ──────────────────────────
+   SVG inline in `.hero-poke-showcase` con UN SOLO `<path>` continuo: un
+   unico arco di circonferenza (comando SVG `A`) che passa quasi
+   esattamente attraverso i 5 dot. L'arco è una curva singola → niente
+   tangent break tra segmenti come avveniva con le 4 Q concatenate, e
+   visivamente la linea appare come un pezzo continuo di "semicirconferenza"
+   (con `preserveAspectRatio="none"` viene leggermente stirata in ellisse
+   per mappare le stesse % delle label). Lo stroke è in tinta unita con il
+   blu istituzionale del titolo della hero (`--hero-graphic-blue` =
+   #1e3a8a), per integrarsi naturalmente con la grafica intorno.
+
+   Animazione di tracciamento: `stroke-dasharray` e `stroke-dashoffset`
+   sono settati da JS in `App.tsx` (vedi `heroTrailLength`,
+   `heroTrailProgress`). La transizione CSS lineare di `stroke-dashoffset`
+   interpola fra valori contigui, dando il "disegno fluido" come nella
+   sezione poke-story, ma qui senza scroll: è guidato dal timer interno
+   `heroPhaseRevealStep`. */
+.hero-poke-trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* z-index 2: sotto le label glass (3) e sopra la bowl (1). */
+  z-index: 2;
+  overflow: visible;
+}
+
+.hero-poke-trail-path {
+  fill: none;
+  /* Tinta unita = blu istituzionale del titolo (--hero-graphic-blue,
+     #1e3a8a). Cosi la linea si integra con la grafica del kicker
+     "Pokedo" e del lead "Pokè fresca a San Miniato..." senza
+     appesantire la composizione con altri colori. */
+  stroke: var(--hero-graphic-blue, #1e3a8a);
+  /* Stroke più spesso del solito: con preserveAspectRatio="none" lo
+     stroke viene stretchato col container (non usiamo
+     `vector-effect: non-scaling-stroke` perché creava discrepanza fra
+     dasharray in screen-pixel e getTotalLength() in user-unit, e
+     spezzava la linea in segmenti ripetuti). 3.5 user-units → al
+     rendering effettivo ~10-14px di tratto, ben visibile. */
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* `stroke-dasharray` e `stroke-dashoffset` sono settati inline da JS:
+     dasharray = lunghezza esatta del path, dashoffset varia da `length`
+     (linea invisibile) a 0 (linea piena) seguendo `heroTrailProgress`.
+     NIENTE transition CSS: il valore viene aggiornato ad ogni frame
+     da `requestAnimationFrame` (~60Hz) e una transition aggiungerebbe
+     un lag che scollerebbe la testa della linea dal trigger di reveal
+     delle label. Il jump istantaneo a fine ciclo (cycle wrap) crea un
+     reset percepibile ma desiderato (la linea "scompare" e ricomincia
+     dal pallino base). */
+}
 
 @media (prefers-reduced-motion: reduce) {
   /* Niente animazioni: tutte le etichette appaiono immediatamente */

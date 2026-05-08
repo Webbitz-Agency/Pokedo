@@ -245,6 +245,42 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
 };
 const TABLE_COURSES = [1, 2, 3] as const;
 
+/* Lunghezza dell'arco di linea che collega i 5 pallini delle label di
+   fase nella hero. Calcolata analiticamente: arco di raggio 53.75
+   user-units (viewBox 100x100) che copre 106.26° (≈ 1.855 rad), quindi
+   length = 53.75 × 1.855 ≈ 99.71. La definiamo come costante per evitare
+   di dipendere da `SVGPathElement.getTotalLength()` (fragile in alcuni
+   browser su path con comando `A`, e richiederebbe re-render dopo mount
+   con flicker della linea). */
+const HERO_TRAIL_LENGTH = 99.71;
+
+/* Soglie di "progress" dell'animazione (0..1) a cui ciascuna label
+   delle fasi del poke deve apparire: corrispondono al frazione di arco
+   tracciato quando la testa della linea attraversa la y del pallino di
+   quella label.
+
+   Geometria: arco di raggio 53.75 attorno a centro (57.25, 50). I 5
+   pallini formano angoli (math) rispetto al centro:
+     base     (25, 7) → 233.13°
+     proteine (9, 27) → 205.51°
+     green    (3.5,50) → 180.00°
+     salse    (9, 73) → 154.49°
+     crunchy  (25,93) → 126.87°
+   Lo span totale dell'arco è 106.26°. La progress di un pallino è la
+   sua distanza angolare dal punto di partenza (base) divisa per lo
+   span. */
+const HERO_PHASE_PROGRESS_THRESHOLDS = [0, 0.26, 0.5, 0.74, 1] as const;
+
+/* Durate in ms dell'animazione di tracciamento della linea. La
+   draw-phase è circa il 30% più veloce della prima versione (4500 ms →
+   3450 ms): la sync linea/label si conserva automaticamente perché le
+   soglie in HERO_PHASE_PROGRESS_THRESHOLDS sono espresse come frazioni
+   di `progress` (= cyclePos / HERO_TRAIL_DRAW_MS), quindi indipendenti
+   dal valore assoluto della durata. */
+const HERO_TRAIL_DRAW_MS = 3450;
+const HERO_TRAIL_HOLD_MS = 4500;
+const HERO_TRAIL_CYCLE_MS = HERO_TRAIL_DRAW_MS + HERO_TRAIL_HOLD_MS;
+
 function clampCourse(value: unknown): 1 | 2 | 3 {
   const num = Number(value);
   if (num === 2 || num === 3) return num;
@@ -3279,25 +3315,52 @@ export default function App() {
     return () => window.clearInterval(id);
   }, [route, loading]);
 
-  /* Hero slide 1 — animazione "fasi del poke" che compaiono una dopo l'altra
-     intorno all'SVG della bowl. Il valore phaseRevealStep avanza ogni
-     secondo: 0..5 mostra una fase in più ad ogni step (cumulativo), 6..9
-     tiene tutte le fasi visibili (~3-4s di hold), poi torna a 0 e ricomincia. */
-  const [heroPhaseRevealStep, setHeroPhaseRevealStep] = useState(0);
+  /* Hero slide 1 — animazione "fasi del poke": una linea curva si traccia
+     progressivamente da `base` (in alto) fino a `crunchy` (in basso)
+     passando per gli altri 3 pallini, e ciascuna label appare ESATTAMENTE
+     quando la testa della linea raggiunge la y del proprio pallino
+     (sync 1:1 fra avanzamento del tratto e reveal dell'etichetta).
+
+     `heroTrailProgress` ∈ [0, 1]:
+       - 0       → linea invisibile (dasharray totalmente offset)
+       - x       → frazione di arco tracciata
+       - 1       → linea completa, tutte le label rivelate
+     Avanzamento guidato da `requestAnimationFrame` per avere un valore
+     continuo (non a step), così le soglie di reveal delle label
+     (HERO_PHASE_PROGRESS_THRESHOLDS) corrispondono geometricamente al
+     punto di toccamento del pallino. Ciclo:
+       0..HERO_TRAIL_DRAW_MS              → progress 0 → 1 (linear)
+       HERO_TRAIL_DRAW_MS..CYCLE_MS       → hold a 1
+       wrap                               → reset a 0 e riparte */
+  const [heroTrailProgress, setHeroTrailProgress] = useState(0);
   useEffect(() => {
     if (route !== "/") {
-      setHeroPhaseRevealStep(0);
+      setHeroTrailProgress(0);
       return;
     }
     if (loading) return;
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setHeroPhaseRevealStep(5);
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setHeroTrailProgress(1);
       return;
     }
-    const id = window.setInterval(() => {
-      setHeroPhaseRevealStep((s) => (s >= 9 ? 0 : s + 1));
-    }, 1000);
-    return () => window.clearInterval(id);
+    let frameId = 0;
+    let startTime = 0;
+    const tick = (now: number) => {
+      if (!startTime) startTime = now;
+      const cyclePos = (now - startTime) % HERO_TRAIL_CYCLE_MS;
+      const next =
+        cyclePos < HERO_TRAIL_DRAW_MS ? cyclePos / HERO_TRAIL_DRAW_MS : 1;
+      // Update senza filtro epsilon: serve che `progress` raggiunga
+      // ESATTAMENTE 1 alla fine della draw phase, altrimenti la soglia
+      // di reveal di `crunchy` (HERO_PHASE_PROGRESS_THRESHOLDS[4] === 1)
+      // non viene mai soddisfatta e l'ultima label resta nascosta. React
+      // bailout interno gestisce comunque i no-op se prev === next.
+      setHeroTrailProgress(next);
+      frameId = window.requestAnimationFrame(tick);
+    };
+    frameId = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frameId);
   }, [route, loading]);
 
   useEffect(() => {
@@ -5955,24 +6018,84 @@ export default function App() {
                         src={`${import.meta.env.BASE_URL}immagini/categorie/poke.svg`}
                         alt=""
                       />
+                      {/* Linea che collega i 5 pallini delle label di fase: un
+                          singolo `<path>` con un unico arco di
+                          circonferenza (comando SVG `A`) — stessa tecnica
+                          dasharray/dashoffset usata in ".poke-story-svg",
+                          ma su un path aperto invece che su un cerchio
+                          intero, per controllare con precisione il punto
+                          di partenza (base) e di arrivo (crunchy)
+                          dell'animazione.
+
+                          Geometria: arco con rx=ry=53.75 da (25, 7) a
+                          (25, 93), sweep-flag=0 → passa per il lato
+                          sinistro toccando i 5 pallini. Lunghezza ≈
+                          99.71 user units (`HERO_TRAIL_LENGTH` —
+                          costante calcolata analiticamente).
+
+                          Animazione tracciamento:
+                            stroke-dasharray = HERO_TRAIL_LENGTH
+                            stroke-dashoffset interpola da length → 0
+                          guidato da `heroTrailProgress` (RAF a 60Hz)
+                          → singola curva continua disegnata
+                          progressivamente.
+
+                          IMPORTANTE: il path NON usa `vector-effect:
+                          non-scaling-stroke`. Con preserveAspectRatio=
+                          "none" + non-scaling-stroke, dasharray viene
+                          interpretato in screen pixels mentre
+                          getTotalLength() ritorna user units →
+                          discrepanza che spezzava la linea in segmenti
+                          ripetuti. Senza quel vector-effect, dasharray e
+                          length sono entrambi in user units e
+                          combaciano.
+
+                          Stroke in tinta unita: stesso blu del titolo
+                          della hero (`--hero-graphic-blue` = #1e3a8a),
+                          definito direttamente nel CSS. */}
+                      <svg
+                        className="hero-poke-trail"
+                        viewBox="0 0 100 100"
+                        preserveAspectRatio="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          className="hero-poke-trail-path"
+                          d="M 25 7 A 53.75 53.75 0 0 0 25 93"
+                          style={{
+                            strokeDasharray: HERO_TRAIL_LENGTH,
+                            strokeDashoffset:
+                              HERO_TRAIL_LENGTH * (1 - heroTrailProgress)
+                          }}
+                        />
+                      </svg>
                       {[
                         { key: "base", text: "Scegli la tua base" },
                         { key: "proteine", text: "Scegli le tue proteine" },
                         { key: "green", text: "Scegli i tuoi green" },
                         { key: "salse", text: "Scegli le tue salse" },
                         { key: "crunchy", text: "Scegli i tuoi crunchy" }
-                      ].map((phase, idx) => (
-                        <span
-                          key={phase.key}
-                          className={
-                            "hero-poke-phase-label" +
-                            ` hero-poke-phase-label--${phase.key}` +
-                            (heroPhaseRevealStep > idx ? " is-revealed" : "")
-                          }
-                        >
-                          {phase.text}
-                        </span>
-                      ))}
+                      ].map((phase, idx) => {
+                        // Una label si rivela quando la testa della linea
+                        // ha attraversato (in termini di arco) la y del
+                        // suo pallino. Vedi HERO_PHASE_PROGRESS_THRESHOLDS
+                        // per le soglie geometriche.
+                        const revealed =
+                          heroTrailProgress >=
+                          HERO_PHASE_PROGRESS_THRESHOLDS[idx];
+                        return (
+                          <span
+                            key={phase.key}
+                            className={
+                              "hero-poke-phase-label" +
+                              ` hero-poke-phase-label--${phase.key}` +
+                              (revealed ? " is-revealed" : "")
+                            }
+                          >
+                            {phase.text}
+                          </span>
+                        );
+                      })}
                     </div>
                   </div>
                   <div className="hero-slide-copy hero-slide-copy--split">
