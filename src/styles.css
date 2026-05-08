@@ -1989,6 +1989,48 @@ select {
   background: linear-gradient(180deg, #ebf4ff 0%, #e5f0ff 100%);
   border-top: 1px solid #d6e7ff;
   border-bottom: 1px solid #d6e7ff;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* ── Pattern hero.svg di sfondo (sezione "Dimensione" della pagina menù).
+   Stessa idea della hero della home (.hero-slide-watermark + .hero-slide-visual)
+   ma colore bianco: usiamo "filter: brightness(0) invert(1)" per forzare a
+   bianco il fill blu originale dell'SVG. ── */
+.menu-size-pattern {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.menu-size-pattern__img {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  width: min(56vw, 980px);
+  object-fit: cover;
+  filter: brightness(0) invert(1);
+  opacity: 0.55;
+}
+
+.menu-size-pattern__img--left {
+  left: 0;
+  object-position: left center;
+  transform: scaleX(-1);
+}
+
+.menu-size-pattern__img--right {
+  right: 0;
+  object-position: right center;
+}
+
+/* Tieni il contenuto sopra il pattern */
+.menu-compose-strip > .container {
+  position: relative;
+  z-index: 1;
 }
 
 .menu-hero {

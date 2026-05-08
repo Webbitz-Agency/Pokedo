@@ -6481,7 +6481,7 @@ export default function App() {
       {!loading && !error && route === "/menu" && menu && (
         <section className="menu-page">
           <div className="menu-fish-bg" aria-hidden="true">
-            {Array.from({ length: 60 }).map((_, lane) => (
+            {Array.from({ length: 200 }).map((_, lane) => (
               <div
                 key={`menu-fish-lane-${lane}`}
                 className={`menu-fish-lane ${lane % 2 === 0 ? "menu-fish-lane--right" : "menu-fish-lane--left"}`.trim()}
@@ -6500,20 +6500,19 @@ export default function App() {
               </div>
             ))}
           </div>
-          <div className="menu-hero">
-            <img
-              src={resolveMediaSrc(appSettings.site.menu_hero_url || DEFAULT_APP_SETTINGS.site.menu_hero_url)}
-              alt="Menu Pokedo"
-            />
-            <div className="menu-hero-overlay" />
-            <div className="container menu-hero-content">
-              <p className="section-kicker">{t("menu")}</p>
-              <h2>{t("heroTitle")}</h2>
-              <p>{t("heroSubtitle")}</p>
-            </div>
-          </div>
-
           <section id="compose-poke-section" className="menu-compose-strip section-padding">
+            <div className="menu-size-pattern" aria-hidden="true">
+              <img
+                className="menu-size-pattern__img menu-size-pattern__img--left"
+                src={`${import.meta.env.BASE_URL}immagini/decorazioni/hero.svg`}
+                alt=""
+              />
+              <img
+                className="menu-size-pattern__img menu-size-pattern__img--right"
+                src={`${import.meta.env.BASE_URL}immagini/decorazioni/hero.svg`}
+                alt=""
+              />
+            </div>
             <div className="container">
               <div className="section-title centered">
                 <p className="section-kicker">{t("createPoke")}</p>
