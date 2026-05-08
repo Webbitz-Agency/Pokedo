@@ -3275,7 +3275,28 @@ export default function App() {
     }
     const id = window.setInterval(() => {
       setHomeHeroSlide((s) => (s + 1) % 2);
-    }, 7000);
+    }, 12000);
+    return () => window.clearInterval(id);
+  }, [route, loading]);
+
+  /* Hero slide 1 — animazione "fasi del poke" che compaiono una dopo l'altra
+     intorno all'SVG della bowl. Il valore phaseRevealStep avanza ogni
+     secondo: 0..5 mostra una fase in più ad ogni step (cumulativo), 6..9
+     tiene tutte le fasi visibili (~3-4s di hold), poi torna a 0 e ricomincia. */
+  const [heroPhaseRevealStep, setHeroPhaseRevealStep] = useState(0);
+  useEffect(() => {
+    if (route !== "/") {
+      setHeroPhaseRevealStep(0);
+      return;
+    }
+    if (loading) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setHeroPhaseRevealStep(5);
+      return;
+    }
+    const id = window.setInterval(() => {
+      setHeroPhaseRevealStep((s) => (s >= 9 ? 0 : s + 1));
+    }, 1000);
     return () => window.clearInterval(id);
   }, [route, loading]);
 
@@ -5928,7 +5949,31 @@ export default function App() {
                     <img src="/immagini/decorazioni/hero.svg" alt="" />
                   </div>
                   <div className="hero-slide-center-photo" aria-hidden="true">
-                    <img src="/immagini/fotoHero.png" alt="" />
+                    <div className="hero-poke-showcase">
+                      <img
+                        className="hero-poke-svg"
+                        src={`${import.meta.env.BASE_URL}immagini/categorie/poke.svg`}
+                        alt=""
+                      />
+                      {[
+                        { key: "base", text: "Scegli la tua base" },
+                        { key: "proteine", text: "Scegli le tue proteine" },
+                        { key: "green", text: "Scegli i tuoi green" },
+                        { key: "salse", text: "Scegli le tue salse" },
+                        { key: "crunchy", text: "Scegli i tuoi crunchy" }
+                      ].map((phase, idx) => (
+                        <span
+                          key={phase.key}
+                          className={
+                            "hero-poke-phase-label" +
+                            ` hero-poke-phase-label--${phase.key}` +
+                            (heroPhaseRevealStep > idx ? " is-revealed" : "")
+                          }
+                        >
+                          {phase.text}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   <div className="hero-slide-copy hero-slide-copy--split">
                     <p className="hero-carousel-lead fade-up">{t("homeHeroSlide1Lead")}</p>
@@ -5958,7 +6003,11 @@ export default function App() {
                   aria-label="2 / 2"
                   aria-hidden={homeHeroSlide !== 1}
                 >
-                  <img className="hero-carousel-bleed-img" src="/immagini/categorie/categorie2.jpg" alt="" />
+                  <img
+                    className="hero-carousel-bleed-img"
+                    src={resolveMediaSrc(appSettings.site.home_hero_url || DEFAULT_APP_SETTINGS.site.home_hero_url)}
+                    alt=""
+                  />
                   <div className="hero-carousel-bleed-scrim" aria-hidden="true" />
                   <div className="hero-carousel-bleed-inner hero-carousel-bleed-inner--mirror">
                     <p className="hero-carousel-slide2-lead fade-up">{t("homeHeroSlide2Title")}</p>
@@ -6261,23 +6310,6 @@ export default function App() {
                   ))}
                 </div>
               </div>
-            </div>
-            <div className="gallery-strip-cta-wrap">
-              <button
-                type="button"
-                className="gallery-create-poke-btn home-blob-btn"
-                onClick={() => goToPokePage()}
-              >
-                <span className="home-blob-btn__label gallery-create-poke-btn-label">{t("createPoke")}</span>
-                <span className="home-blob-btn__inner" aria-hidden="true">
-                  <span className="home-blob-btn__blobs">
-                    <span className="home-blob-btn__blob"></span>
-                    <span className="home-blob-btn__blob"></span>
-                    <span className="home-blob-btn__blob"></span>
-                    <span className="home-blob-btn__blob"></span>
-                  </span>
-                </span>
-              </button>
             </div>
           </section>
 

@@ -253,7 +253,10 @@ export function CategoryScrollCarouselSection({
         ease: "none",
         scrollTrigger: {
           trigger: root,
-          start: "center center",
+          /* Pin appena il top del pannello raggiunge il bordo inferiore della
+             navbar sticky (alta 70px), così l'header glass resta perfettamente
+             incollato sotto la navbar — coerente con .poke-story-sticky. */
+          start: "top 70px",
           end: () => `+=${Math.max(getTravel(), 480)}`,
           pin: true,
           /* transform (default) può lasciare un fessura tra layer durante il pin */

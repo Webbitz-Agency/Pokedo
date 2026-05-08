@@ -8950,12 +8950,12 @@ table button:hover {
   position: absolute;
   z-index: 0;
   left: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
   width: min(56vw, 980px);
   min-width: 46vw;
-  height: min(82vh, 860px);
-  max-height: 96%;
+  height: 100%;
+  max-height: none;
   pointer-events: none;
   opacity: 0.08;
 }
@@ -8969,25 +8969,162 @@ table button:hover {
   transform: scaleX(-1);
 }
 
-/* Foto centrale hero (sopra watermark, sotto testo/grafica principale) */
+/* Wrapper "showcase" della pokè nella hero — slide 1 (desktop).
+   Posizionato a destra della hero, vincolato verticalmente nella stessa
+   "fascia di contenuto" del testo (top = padding-top di
+   .hero-slide-copy--split, bottom = padding-bottom che compensa stats-strip
+   e dots), così la bowl resta centrata verticalmente sull'asse del titolo a
+   sinistra. È più largo dell'SVG per ospitare un arco di etichette di fase
+   sul lato sinistro della bowl. */
 .hero-slide-center-photo {
   position: absolute;
   z-index: 2;
-  left: 55%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: clamp(200px, 34vw, 460px);
-  max-width: min(460px, 88vw);
-  pointer-events: none;
-  border-radius: clamp(14px, 2.2vw, 24px);
-  overflow: hidden;
+  right: clamp(1rem, 3vw, 2.5rem);
+  top: clamp(1.25rem, 4vw, 3rem);
+  bottom: calc(110px + clamp(0.75rem, 2vw, 1.25rem));
+  display: block;
+  /* Showcase ben più ampio: in questo modo le etichette possono stare
+     nettamente sulla sinistra dell'SVG, senza coprirlo. */
+  width: clamp(460px, 48vw, 700px);
+  max-width: min(700px, 88vw);
+  pointer-events: none; /* puramente decorativo, niente click */
 }
 
-.hero-slide-center-photo img {
-  display: block;
+.hero-poke-showcase {
+  position: relative;
   width: 100%;
-  height: auto;
-  vertical-align: middle;
+  height: 100%;
+}
+
+/* Specificità deliberatamente alta + !important sulle dimensioni: in passato
+   altre regole più generiche (es. selettori img discendenti, dimensioni
+   intrinseche del file SVG) hanno spinto questa bowl molto più grande del
+   previsto. Forziamo qui la grandezza definitiva, in modo che a parità di
+   viewport l'icona sia sempre piccola come deciso (≈40-60 px). */
+.hero-slide-center-photo .hero-poke-showcase img.hero-poke-svg,
+.hero-poke-svg {
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  /* Bowl molto piccola: serve più come "icona evocativa" accanto alle
+     scritte di fase che come visual principale (il visual è la grafica
+     hero.svg già presente sul lato destro, .hero-slide-visual). */
+  width: clamp(260px, 26vw, 420px) !important;
+  max-width: 420px !important;
+  height: auto !important;
+  max-height: none !important;
+  min-width: 0 !important;
+  user-select: none;
+  -webkit-user-drag: none;
+  /* "Sfondo bianco di contorno" alla bowl: drop-shadow filter multipli con
+     blur 0 e piccoli offset in 8 direzioni → bordo bianco solido e netto
+     che segue il canale alpha dell'immagine (niente alone luminoso). */
+  filter:
+    drop-shadow(4px 0 0 #fff)
+    drop-shadow(-4px 0 0 #fff)
+    drop-shadow(0 4px 0 #fff)
+    drop-shadow(0 -4px 0 #fff)
+    drop-shadow(3px 3px 0 #fff)
+    drop-shadow(-3px 3px 0 #fff)
+    drop-shadow(3px -3px 0 #fff)
+    drop-shadow(-3px -3px 0 #fff);
+}
+
+/* Etichette delle fasi del poke disposte ad arco SUL LATO SINISTRO della
+   bowl (constellation half-circle). Lo stile è identico a
+   `.poke-label-pct` (sezione "La nostra filosofia"): font-title 900 con
+   letter-spacing -0.03em e colore = colore della fase. Niente pill, niente
+   bordo: solo testo grosso colorato. */
+.hero-poke-phase-label {
+  position: absolute;
+  z-index: 3;
+  white-space: nowrap;
+  font-family: var(--font-title);
+  font-weight: 900;
+  /* "size un pò più piccolo" rispetto al .poke-label-pct originale
+     (clamp(2.2rem, 3.5vw, 3.8rem)) — qui scendiamo a ~1/2 della scala */
+  font-size: clamp(1.05rem, 1.55vw, 1.6rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--phase-color, #1e3a8a);
+  /* Leggero "alone" bianco per garantire leggibilità sopra il watermark a
+     squame anche quando l'etichetta passa davanti al pattern blu */
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.85),
+    0 0 14px rgba(255, 255, 255, 0.65);
+
+  opacity: 0;
+  transform: translateX(-14px);
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.hero-poke-phase-label.is-revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Posizionamento ad arco sul lato sinistro della bowl.
+   Ancoriamo le etichette dal bordo SINISTRO del showcase (`left:`) così
+   restano sempre nettamente lontane dalla bowl che è ancorata a destra
+   (`right: 0`). L'arco bulges verso sinistra (concavo verso la bowl):
+   - top/bottom (base, crunchy) sono più centrali (left ~22%)
+   - mid-up/mid-down (proteine, salse) più a sinistra (left ~6%)
+   - centro (green) all'estremità sinistra (left 0). */
+.hero-poke-phase-label--base {
+  /* alto (≈ ore 11) */
+  top: 4%;
+  left: 22%;
+}
+
+.hero-poke-phase-label--proteine {
+  /* alto-sinistra (≈ ore 10) */
+  top: 24%;
+  left: 6%;
+}
+
+.hero-poke-phase-label--green {
+  /* a sinistra, asse Y della bowl (≈ ore 9) — estremo sinistro dell'arco */
+  top: 50%;
+  left: 0;
+  transform: translate(-14px, -50%);
+}
+
+.hero-poke-phase-label--green.is-revealed {
+  transform: translate(0, -50%);
+}
+
+.hero-poke-phase-label--salse {
+  /* basso-sinistra (≈ ore 8) */
+  top: 70%;
+  left: 6%;
+}
+
+.hero-poke-phase-label--crunchy {
+  /* basso (≈ ore 7) */
+  bottom: 4%;
+  left: 22%;
+}
+
+/* Palette coerente con .poke-story-label / pokeStorySegments della sezione
+   "La nostra filosofia": Base (blu), Proteine (arancio), Green (verde),
+   Crunchy (rosso). Per la fase "Salse" — assente in poke-story — uso un
+   rosa che si differenzia dal rosso del Crunchy. */
+.hero-poke-phase-label--base    { --phase-color: #2563eb; }
+.hero-poke-phase-label--proteine{ --phase-color: #f59e0b; }
+.hero-poke-phase-label--green   { --phase-color: #22c55e; }
+.hero-poke-phase-label--salse   { --phase-color: #ec4899; }
+.hero-poke-phase-label--crunchy { --phase-color: #ef4444; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* Niente animazioni: tutte le etichette appaiono immediatamente */
+  .hero-poke-phase-label {
+    transition: none !important;
+  }
 }
 
 .hero-slide-copy--split {
@@ -8997,7 +9134,13 @@ table button:hover {
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding: clamp(1.25rem, 4vw, 3rem) clamp(1.25rem, 3vw, 2.75rem);
+  padding-top: clamp(1.25rem, 4vw, 3rem);
+  /* Compensiamo l'altezza della stats-strip in basso (~110px) e dei dots
+     per avere il blocco testo+CTA realmente al centro visivo della hero,
+     coerentemente con .hero-carousel-bleed-inner--mirror della slide 2. */
+  padding-bottom: calc(110px + clamp(0.75rem, 2vw, 1.25rem));
+  padding-left: clamp(1.25rem, 3vw, 2.75rem);
+  padding-right: clamp(1.25rem, 3vw, 2.75rem);
   position: relative;
   z-index: 3;
   background: transparent;
@@ -9037,6 +9180,10 @@ table button:hover {
   align-self: stretch;
   overflow: hidden;
   background: transparent;
+  /* Stesso "peso visivo" del watermark a sinistra (.hero-slide-watermark
+     è 0.08): così il pattern a squame sul lato destro non sovrasta più la
+     bowl + le scritte di fase. */
+  
 }
 
 .hero-slide-visual img {
@@ -9221,8 +9368,12 @@ table button:hover {
     grid-row: 1;
     align-items: center;
     text-align: center;
-    padding: clamp(1.25rem, 4vw, 3rem) clamp(1.25rem, 3vw, 2.75rem);
-    padding-bottom: 0.75rem;
+    /* Stesso inset verticale di .hero-carousel-bleed-inner--mirror (slide 2)
+       così su mobile entrambe le slide hanno il blocco testo alla stessa altezza. */
+    padding-top: clamp(1.25rem, 4vw, 3rem);
+    padding-bottom: calc(110px + clamp(0.75rem, 2vw, 1.25rem));
+    padding-left: clamp(1.25rem, 3vw, 2.75rem);
+    padding-right: clamp(1.25rem, 3vw, 2.75rem);
   }
 
   .hero-slide-visual {
