@@ -6436,45 +6436,6 @@ export default function App() {
             </div>
           </section>
 
-          <section className="final-cta-fullbleed">
-            <div className="container final-cta-inner">
-              <div className="final-cta-text">
-                <p className="section-kicker final-kicker">{t("visitKicker")}</p>
-                <h2 className="final-headline">{t("visitTitle")}</h2>
-                <p className="final-body">{t("visitBody")}</p>
-              </div>
-              <div className="final-cta-actions">
-              <a
-                className="phone-cta home-blob-btn home-blob-btn--yellow"
-                href={`tel:${businessPhone}`}
-              >
-                <span className="home-blob-btn__label">
-                  <i className="fa-solid fa-phone" aria-hidden="true"></i>
-                  <span>{t("callUs")}</span>
-                </span>
-                <span className="home-blob-btn__inner" aria-hidden="true">
-                  <span className="home-blob-btn__blobs">
-                    <span className="home-blob-btn__blob"></span>
-                    <span className="home-blob-btn__blob"></span>
-                    <span className="home-blob-btn__blob"></span>
-                    <span className="home-blob-btn__blob"></span>
-                  </span>
-                </span>
-              </a>
-                <button className="menu-cta menu-cta-outline-white home-blob-btn" onClick={goToMenuPage}>
-                  <span className="home-blob-btn__label">Vai al menu</span>
-                  <span className="home-blob-btn__inner" aria-hidden="true">
-                    <span className="home-blob-btn__blobs">
-                      <span className="home-blob-btn__blob"></span>
-                      <span className="home-blob-btn__blob"></span>
-                      <span className="home-blob-btn__blob"></span>
-                      <span className="home-blob-btn__blob"></span>
-                    </span>
-                  </span>
-                </button>
-              </div>
-            </div>
-          </section>
         </>
       )}
 
@@ -8154,6 +8115,48 @@ export default function App() {
 
 
       {!isTableOrderMode && (
+        <section className="final-cta-fullbleed">
+          <div className="container final-cta-inner">
+            <div className="final-cta-text">
+              <p className="section-kicker final-kicker">{t("visitKicker")}</p>
+              <h2 className="final-headline">{t("visitTitle")}</h2>
+              <p className="final-body">{t("visitBody")}</p>
+            </div>
+            <div className="final-cta-actions">
+              <a
+                className="phone-cta home-blob-btn home-blob-btn--yellow"
+                href={`tel:${businessPhone}`}
+              >
+                <span className="home-blob-btn__label">
+                  <i className="fa-solid fa-phone" aria-hidden="true"></i>
+                  <span>{t("callUs")}</span>
+                </span>
+                <span className="home-blob-btn__inner" aria-hidden="true">
+                  <span className="home-blob-btn__blobs">
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                  </span>
+                </span>
+              </a>
+              <button className="menu-cta menu-cta-outline-white home-blob-btn" onClick={goToMenuPage}>
+                <span className="home-blob-btn__label">Vai al menu</span>
+                <span className="home-blob-btn__inner" aria-hidden="true">
+                  <span className="home-blob-btn__blobs">
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                    <span className="home-blob-btn__blob"></span>
+                  </span>
+                </span>
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {!isTableOrderMode && (
         <footer className="site-footer">
           <div className="container footer-grid">
             <div>
@@ -8177,19 +8180,6 @@ export default function App() {
               <button className="plain-link" onClick={goToMenuPage}>
                 {t("menu")}
               </button>
-              {!isTableOrderMode && (
-                <button
-                  className="plain-link"
-                  onClick={() => {
-                    const base =
-                      (import.meta.env.VITE_POKEMANAGER_ORIGIN as string | undefined)?.trim().replace(/\/$/, "") ||
-                      "http://127.0.0.1:5174";
-                    window.open(`${base}/login`, "_blank", "noopener,noreferrer");
-                  }}
-                >
-                  Amministrazione
-                </button>
-              )}
             </div>
           </div>
         </footer>
