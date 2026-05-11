@@ -3789,6 +3789,26 @@ table select,
   background: linear-gradient(180deg, #ffffff, #f8fbff);
 }
 
+.form-grid .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.form-grid .form-field input.is-invalid {
+  border-color: #f87171;
+  background: linear-gradient(180deg, #ffffff, #fff5f5);
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+}
+
+.form-grid .form-field-error {
+  color: #dc2626;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  margin-left: 4px;
+}
+
 textarea {
   min-height: 94px;
   resize: vertical;
@@ -6691,10 +6711,140 @@ textarea {
   margin: 0;
 }
 
+.admin-item-variant-public-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-item-variant-public-limits {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.admin-item-variant-public-group.is-multi {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #f8fafc;
+}
+
+.admin-item-variant-public-group.is-multi.is-missing {
+  border-color: #fcd34d;
+  background: #fffbeb;
+}
+
+.admin-item-variant-public-group.is-multi.is-overflow {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.admin-item-variant-public-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: start;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.admin-item-variant-public-status.is-missing {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.admin-item-variant-public-status wa-icon {
+  font-size: 0.82rem;
+}
+
 .admin-item-variant-public-options {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.admin-item-variant-public-group.is-multi .admin-item-variant-public-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.public-variant-multi-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+  transition: all 0.15s ease;
+}
+
+.public-variant-multi-option.selected {
+  border-color: #60a5fa;
+  background: linear-gradient(180deg, #eff6ff, #ffffff);
+}
+
+.public-variant-multi-option-label {
+  color: #0f172a;
+  font-weight: 600;
+  min-width: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.public-variant-multi-option-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.public-variant-multi-option-actions small {
+  min-width: 14px;
+  text-align: center;
+  color: #334155;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.public-variant-multi-option-actions .qty-text-action {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  font-weight: 700;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.public-variant-multi-option-actions .qty-text-action:hover:not(:disabled) {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #93c5fd;
+}
+
+.public-variant-multi-option-actions .qty-text-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .admin-item-variant-public-group.is-multi .admin-item-variant-public-options {
+    grid-template-columns: 1fr;
+  }
 }
 
 .public-variant-option {
@@ -6740,6 +6890,79 @@ textarea {
   font-weight: 800;
   color: #0f172a;
   font-size: 16px;
+}
+
+/* ============================================================
+   Riepilogo allergeni nel modal varianti (storefront)
+   ============================================================ */
+.public-variant-allergens {
+  margin: 14px 0 10px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #f8fbff, #ffffff);
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+}
+
+.public-variant-allergens__title {
+  margin: 0 0 10px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1F3A8A;
+  letter-spacing: 0.01em;
+}
+
+.public-variant-allergens__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.public-variant-allergen-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  min-height: 32px;
+  line-height: 1.1;
+}
+
+.public-variant-allergen-chip img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+}
+
+.public-variant-allergen-chip__fallback {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.public-variant-allergen-chip small {
+  font-size: 0.78rem;
+  color: #475569;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .public-variant-allergens {
+    padding: 10px 12px;
+  }
+  .public-variant-allergen-chip small {
+    font-size: 0.74rem;
+  }
 }
 
 .order-edit-poke-size-row {
@@ -6897,6 +7120,255 @@ textarea {
 
 .order-edit-modal-actions .public-variant-cancel-btn {
   margin-top: 0;
+}
+
+.order-edit-modal-actions .cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.2);
+}
+
+.order-edit-poke-alert {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.order-edit-poke-alert wa-icon {
+  font-size: 1.2rem;
+  color: #ea580c;
+  margin-top: 2px;
+}
+
+.order-edit-poke-alert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.order-edit-poke-alert-body strong {
+  color: #9a3412;
+  font-size: 0.92rem;
+}
+
+.order-edit-poke-alert-body ul {
+  list-style: disc;
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.order-edit-poke-alert-phase {
+  font-weight: 700;
+  color: #7c2d12;
+}
+
+.order-edit-poke-group.is-missing,
+.order-edit-poke-group.is-overflow {
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.order-edit-poke-group.is-missing {
+  border-color: #fcd34d;
+  background: #fffbeb;
+}
+
+.order-edit-poke-group.is-overflow {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.order-edit-poke-group-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: start;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.order-edit-poke-group-status wa-icon {
+  font-size: 0.82rem;
+}
+
+.order-edit-poke-group-status.is-missing {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.order-edit-poke-group-status.is-overflow {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.poke-size-change-overlay {
+  z-index: 9999;
+}
+
+.poke-size-change-modal {
+  max-width: 560px;
+  width: min(560px, calc(100vw - 24px));
+}
+
+.poke-size-change-hint {
+  margin: 6px 0 14px;
+  color: #475569;
+}
+
+.poke-size-change-hint strong {
+  color: #1e3a8a;
+}
+
+.poke-size-change-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.poke-size-change-group {
+  border: 1px solid #fecdd3;
+  background: #fff7f7;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.poke-size-change-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.poke-size-change-group-head h5 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.poke-size-change-counts {
+  font-size: 0.78rem;
+  color: #475569;
+  font-weight: 600;
+}
+
+.poke-size-change-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.poke-size-change-badge wa-icon {
+  font-size: 0.85rem;
+}
+
+.poke-size-change-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.poke-size-change-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+}
+
+.poke-size-change-option-name {
+  color: #0f172a;
+  font-weight: 600;
+  min-width: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.poke-size-change-option-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.poke-size-change-option-actions small {
+  min-width: 14px;
+  text-align: center;
+  color: #334155;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.poke-size-change-option-actions .qty-text-action {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  font-weight: 700;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.poke-size-change-option-actions .qty-text-action:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+.poke-size-change-actions {
+  position: sticky;
+  bottom: -24px;
+  z-index: 3;
+  background: #fff;
+  padding: 12px 0 2px;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 16px;
+}
+
+.poke-size-change-actions .cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .poke-size-change-options {
+    grid-template-columns: 1fr;
+  }
 }
 
 .modal-close-btn {
@@ -12600,5 +13072,676 @@ table button:hover {
 @media (max-width: 768px) {
   .home-blob-btn {
     border-radius: 22px !important;
+  }
+}
+
+/* ============================================================
+   Order drawer: bottoni azione (Completa ordine + Aggiungi bevande)
+   ============================================================ */
+.order-drawer-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  margin-top: 12px;
+  align-items: stretch;
+}
+
+.order-drawer-actions > .cta.big {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 12px 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.92rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Override misure del bottone "Aggiungi bevande" (stile home-blob-btn) dentro
+   il drawer ordine: stessa altezza del bottone "Completa ordine" gemello */
+.order-drawer-add-drinks.cta.home-blob-btn {
+  border-radius: 12px !important;
+  text-transform: none;
+}
+
+.order-drawer-add-drinks .home-blob-btn__label {
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 380px) {
+  .order-drawer-actions > .cta.big {
+    font-size: 0.85rem;
+    padding: 11px 8px;
+  }
+  .order-drawer-add-drinks .home-blob-btn__label {
+    font-size: 0.85rem;
+  }
+}
+
+/* ============================================================
+   Modal bevande
+   ============================================================ */
+.drinks-modal-overlay {
+  /* sopra al drawer ordini (.overlay = z-index 90, drawer dentro) */
+  z-index: 9999 !important;
+}
+
+.drinks-modal {
+  width: min(560px, 94vw);
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 24px 56px rgba(2, 6, 23, 0.22);
+}
+
+.drinks-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.drinks-modal-header h4 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.drinks-modal-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.drinks-modal-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.05);
+}
+
+.drinks-modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px 20px 8px;
+}
+
+.drinks-modal-empty {
+  text-align: center;
+  color: #64748b;
+  margin: 24px 0;
+}
+
+/* ============================================================
+   Separatori tag tra gli ingredienti delle fasi del poke builder
+   ============================================================ */
+.poke-builder-main .option-grid--poke-builder .poke-phase-tag-separator {
+  --tag-color: #cbd5e1;
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  position: relative;
+  padding: 22px 0 14px;
+  margin-top: 8px;
+}
+
+/* Il primo separatore (in cima alla lista) ha meno spazio sopra */
+.poke-builder-main .option-grid--poke-builder .poke-phase-tag-separator:first-child {
+  padding-top: 4px;
+  margin-top: 0;
+}
+
+.poke-builder-main .option-grid--poke-builder .poke-phase-tag-separator::before,
+.poke-builder-main .option-grid--poke-builder .poke-phase-tag-separator::after {
+  content: "";
+  flex: 1 1 0;
+  height: 1px;
+  background-color: var(--tag-color);
+  opacity: 0.85;
+}
+
+.poke-builder-main .option-grid--poke-builder .poke-phase-tag-separator__pill {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  height: 26px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1.2px solid var(--tag-color);
+  background: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin: 0 12px;
+  line-height: 1;
+}
+
+.poke-builder-main .option-grid--poke-builder .poke-phase-tag-separator__pill.is-empty {
+  min-width: 80px;
+  height: 18px;
+  padding: 0;
+  background: #ffffff;
+}
+
+.poke-builder-main .option-grid--poke-builder .poke-phase-tag-separator.is-untagged {
+  --tag-color: #cbd5e1;
+}
+
+@media (max-width: 640px) {
+  .poke-builder-main .option-grid--poke-builder .poke-phase-tag-separator {
+    padding: 16px 0 10px;
+    margin-top: 4px;
+  }
+  .poke-builder-main .option-grid--poke-builder .poke-phase-tag-separator:first-child {
+    padding-top: 2px;
+    margin-top: 0;
+  }
+  .poke-builder-main .option-grid--poke-builder .poke-phase-tag-separator__pill {
+    font-size: 0.7rem;
+    padding: 0 12px;
+    min-width: 60px;
+    height: 22px;
+  }
+  .poke-builder-main .option-grid--poke-builder .poke-phase-tag-separator__pill.is-empty {
+    min-width: 60px;
+    height: 14px;
+  }
+}
+
+/* Griglia option-chip dentro al modal: usa lo stesso layout della fase
+   bevande del poke builder, ma adattata alla larghezza ridotta del modal. */
+.drinks-modal-grid {
+  --poke-chip-w: 36ch;
+}
+
+.drinks-modal .option-grid--poke-builder {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 720px) {
+  .drinks-modal .option-grid--poke-builder {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Replica degli stili "oro" della fase bevande del poke builder, scoped al modal */
+.drinks-modal .option-chip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.drinks-modal .option-chip-crown {
+  flex-shrink: 0;
+  color: #d97706;
+  filter: drop-shadow(0 0 0.5px rgba(180, 83, 9, 0.22));
+}
+
+.drinks-modal .option-chip.selected .option-chip-crown {
+  color: #b45309;
+  filter: drop-shadow(0 0 0.5px rgba(251, 191, 36, 0.28));
+}
+
+.drinks-modal em.chip-price-surcharge {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 12px;
+  color: #92400e;
+  background: rgba(251, 191, 36, 0.32);
+  border: 1px solid rgba(217, 119, 6, 0.38);
+  border-radius: 999px;
+  padding: 4px 10px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.drinks-modal .option-chip.option-chip--surcharge {
+  border-width: 2px;
+  border-style: solid;
+  border-color: #ca8a04;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.drinks-modal .option-chip.option-chip--surcharge.selected {
+  border-color: #eab308;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 1px 3px rgba(15, 23, 42, 0.07);
+}
+
+.drinks-modal .option-chip-trailing {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.drinks-modal .chip-qty-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--poke-brand-gradient);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  font-variant-numeric: tabular-nums;
+}
+
+.drinks-modal .chip-qty-pill-num {
+  min-width: 1.35ch;
+  text-align: center;
+  padding: 0 1px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drinks-modal .chip-qty-pill-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0 5px;
+  flex-shrink: 0;
+  border-radius: 0;
+  transition: opacity 0.15s ease, transform 0.12s ease;
+}
+
+.drinks-modal .chip-qty-pill-btn:hover {
+  opacity: 0.88;
+}
+
+.drinks-modal .chip-qty-pill-btn:active {
+  transform: scale(0.94);
+}
+
+.drinks-modal .option-grid.option-grid--poke-builder .option-chip {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 52px;
+  font-size: 0.9rem;
+}
+
+.drinks-modal .option-grid.option-grid--poke-builder .option-chip-label {
+  font-size: 0.9rem;
+  line-height: 1.28;
+}
+
+.drinks-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  flex-wrap: wrap;
+}
+
+.drinks-modal-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.drinks-modal-summary strong {
+  color: #1f3a8a;
+  font-size: 1rem;
+}
+
+.drinks-modal-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drinks-modal-btn {
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.drinks-modal-btn--ghost {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.drinks-modal-btn--ghost:hover {
+  background: rgba(239, 68, 68, 0.18);
+}
+
+.drinks-modal-btn--primary {
+  background: linear-gradient(135deg, #1f3a8a, #2563eb);
+  color: #ffffff;
+}
+
+.drinks-modal-btn--primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(31, 58, 138, 0.25);
+}
+
+.drinks-modal-btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .drinks-modal {
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .drinks-modal-footer {
+    padding: 12px 16px;
+  }
+
+  .drinks-modal-summary {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .drinks-modal-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .drinks-modal-btn {
+    flex: 1 1 0;
+    text-align: center;
+  }
+}
+
+/* =====================================================================
+   Public Variant Modal - Stile "Poke Page" (option-chip bianche, divise per variante)
+   Usato in: menuItemVariantModal e orderItemEditModal (menu_variant)
+   ===================================================================== */
+
+.public-variant-poke-style {
+  display: grid;
+  gap: 18px;
+}
+
+.public-variant-poke-style .admin-item-variant-public-group {
+  display: grid;
+  gap: 10px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+.public-variant-poke-style .admin-item-variant-public-group.is-missing {
+  background: transparent;
+  border: 0;
+}
+
+.public-variant-poke-style .admin-item-variant-public-group.is-overflow {
+  background: transparent;
+  border: 0;
+}
+
+.public-variant-poke-style .admin-item-variant-public-head h5 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.public-variant-poke-style .option-grid--poke-builder {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 8px;
+}
+
+@media (min-width: 720px) {
+  .public-variant-poke-style .option-grid--poke-builder {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  }
+}
+
+.public-variant-poke-style .option-chip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  min-height: 44px;
+  border-radius: 14px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.public-variant-poke-style .option-chip:hover:not(.disabled) {
+  border-color: #93c5fd;
+  background: #f8fafc;
+}
+
+.public-variant-poke-style .option-chip.selected {
+  border-color: #2563eb;
+  background: linear-gradient(180deg, #eff6ff, #ffffff);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
+}
+
+.public-variant-poke-style .option-chip.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.public-variant-poke-style .option-chip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 0.9rem;
+  line-height: 1.28;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.public-variant-poke-style .option-chip-trailing {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.public-variant-poke-style .option-chip-crown {
+  flex-shrink: 0;
+  color: #d97706;
+  filter: drop-shadow(0 0 0.5px rgba(180, 83, 9, 0.22));
+}
+
+.public-variant-poke-style .option-chip.selected .option-chip-crown {
+  color: #b45309;
+  filter: drop-shadow(0 0 0.5px rgba(251, 191, 36, 0.28));
+}
+
+.public-variant-poke-style em.chip-price-surcharge {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 12px;
+  color: #92400e;
+  background: rgba(251, 191, 36, 0.32);
+  border: 1px solid rgba(217, 119, 6, 0.38);
+  border-radius: 999px;
+  padding: 4px 10px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.public-variant-poke-style .option-chip.option-chip--surcharge {
+  border-width: 2px;
+  border-color: #ca8a04;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.public-variant-poke-style .option-chip.option-chip--surcharge.selected {
+  border-color: #eab308;
+  background: linear-gradient(180deg, #fffbeb, #ffffff);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 0 0 2px rgba(234, 179, 8, 0.2);
+}
+
+.public-variant-poke-style .chip-qty-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1f3a8a, #2563eb);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  font-variant-numeric: tabular-nums;
+}
+
+.public-variant-poke-style .chip-qty-pill-num {
+  min-width: 1.35ch;
+  text-align: center;
+  padding: 0 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.public-variant-poke-style .chip-qty-pill-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0 5px;
+  flex-shrink: 0;
+  border-radius: 0;
+  transition: opacity 0.15s ease, transform 0.12s ease;
+}
+
+.public-variant-poke-style .chip-qty-pill-btn:hover {
+  opacity: 0.88;
+}
+
+.public-variant-poke-style .chip-qty-pill-btn:active {
+  transform: scale(0.94);
+}
+
+.public-variant-poke-style .chip-qty-pill-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.public-variant-poke-style .admin-item-variant-public-status {
+  justify-self: start;
+}
+
+@media (max-width: 600px) {
+  .public-variant-poke-style .option-grid--poke-builder {
+    grid-template-columns: 1fr 1fr;
+  }
+  /* Layout verticale: label sopra a tutta larghezza, prezzo/pill sotto a destra */
+  .public-variant-poke-style .option-chip {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    align-items: stretch;
+    padding: 9px 10px;
+    min-height: 56px;
+    font-size: 0.82rem;
+    gap: 6px;
+  }
+  .public-variant-poke-style .option-chip-label {
+    font-size: 0.82rem;
+    line-height: 1.22;
+    align-items: flex-start;
+  }
+  .public-variant-poke-style .option-chip-trailing {
+    justify-self: end;
+    align-self: end;
+  }
+  .public-variant-poke-style em.chip-price-surcharge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+  }
+  .public-variant-poke-style .chip-qty-pill {
+    font-size: 13px;
+    padding: 3px 6px;
   }
 }

@@ -47,16 +47,21 @@ type MenuItem = {
   variants?: {
     id: number;
     name: string;
-    choices: { id: number; name: string; included: boolean; extra_price: number }[];
+    choices: { id: number; name: string; included: boolean; extra_price: number; allergen_codes?: number[] }[];
+    force_min?: number;
+    force_max?: number;
+    linked_poke_builder_id?: number;
+    linked_poke_group_id?: number;
   }[];
   groups: MenuGroup[];
 };
-type MenuCategory = { id: number; name: string; description?: string; image_url?: string; active?: boolean; items: MenuItem[] };
+type MenuCategory = { id: number; name: string; description?: string; image_url?: string; active?: boolean; is_beverage?: boolean; items: MenuItem[] };
 type CartItem = {
   id: number;
   source_item_id?: number;
   variant_signature?: string;
-  variant_selected_by_variant_id?: Record<number, number>;
+  /** Mappa variantId → { choiceId: quantity }. Per varianti force_max=1 contiene una sola chiave con qty=1. */
+  variant_selected_by_variant_id?: Record<number, Record<number, number>>;
   variant_note?: string;
   poke_builder_id?: number;
   poke_selected_by_group?: Record<number, Record<number, number>>;
@@ -216,7 +221,7 @@ type AppSettings = {
     pickup_time_rule: {
       start_time: string;
       end_time: string;
-    };
+    }[];
     orders_blocked: {
       enabled: boolean;
       reason: string;
@@ -307,6 +312,12 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     orderSummaryPokeTab: "Resoconto pokè",
     completeOrder: "Completa ordine",
     sendOrder: "Invia ordine",
+    addDrinks: "Aggiungi bevande",
+    noDrinksAvailable: "Nessuna bevanda disponibile",
+    noDrinksSelected: "Nessuna bevanda selezionata",
+    drinkSelectedOne: "bevanda selezionata",
+    drinkSelectedMany: "bevande selezionate",
+    cancel: "Annulla",
     heroKicker: "Pokedo",
     heroTitle: "Pokè fresca a San Miniato (PI): crea la tua bowl in sala o da asporto.",
     heroSubtitle:
@@ -363,6 +374,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     selectHour: "Seleziona ora",
     selectMinutes: "Seleziona minuti",
     customerData: "Dati cliente",
+    phoneInvalid: "Inserisci un numero di telefono di 10 cifre",
+    emailInvalid: "Inserisci un'email valida (es. nome@dominio.it)",
     finalSummary: "Riepilogo finale",
     servicePickup: "Servizio: Asporto (Ritiro {pickup})",
     phase_size: "Dimensione",
@@ -382,6 +395,11 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     orderSummaryPokeTab: "Poke recap",
     completeOrder: "Complete order",
     sendOrder: "Send order",
+    addDrinks: "Add drinks",
+    noDrinksAvailable: "No drinks available",
+    noDrinksSelected: "No drinks selected",
+    drinkSelectedOne: "drink selected",
+    drinkSelectedMany: "drinks selected",
     heroKicker: "Pokedo Experience",
     heroTitle: "A new way to order poke, dine-in or takeaway.",
     heroSubtitle: "Clean interface, guided ingredient choice, and always clear information.",
@@ -435,6 +453,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     selectHour: "Select hour",
     selectMinutes: "Select minutes",
     customerData: "Customer details",
+    phoneInvalid: "Enter a 10-digit phone number",
+    emailInvalid: "Enter a valid email (e.g. name@domain.com)",
     finalSummary: "Final summary",
     servicePickup: "Service: Takeaway (Pickup {pickup})",
     phase_size: "Size",
@@ -454,6 +474,11 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     orderSummaryPokeTab: "Poké-Übersicht",
     completeOrder: "Bestellung abschließen",
     sendOrder: "Bestellung senden",
+    addDrinks: "Getränke hinzufügen",
+    noDrinksAvailable: "Keine Getränke verfügbar",
+    noDrinksSelected: "Keine Getränke ausgewählt",
+    drinkSelectedOne: "Getränk ausgewählt",
+    drinkSelectedMany: "Getränke ausgewählt",
     heroKicker: "Pokedo Experience",
     heroTitle: "Die neue Art, Poké zu bestellen – im Restaurant oder zum Mitnehmen.",
     heroSubtitle: "Klare Oberfläche, geführte Auswahl und jederzeit verständliche Informationen.",
@@ -507,6 +532,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     selectHour: "Stunde wählen",
     selectMinutes: "Minuten wählen",
     customerData: "Kundendaten",
+    phoneInvalid: "Gib eine 10-stellige Telefonnummer ein",
+    emailInvalid: "Gib eine gültige E-Mail ein (z. B. name@domain.de)",
     finalSummary: "Endübersicht",
     servicePickup: "Service: Abholung ({pickup})",
     phase_size: "Größe",
@@ -526,6 +553,11 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     orderSummaryPokeTab: "Resumen poké",
     completeOrder: "Completar pedido",
     sendOrder: "Enviar pedido",
+    addDrinks: "Añadir bebidas",
+    noDrinksAvailable: "No hay bebidas disponibles",
+    noDrinksSelected: "Ninguna bebida seleccionada",
+    drinkSelectedOne: "bebida seleccionada",
+    drinkSelectedMany: "bebidas seleccionadas",
     heroKicker: "Pokedo Experience",
     heroTitle: "La nueva forma de pedir poké, en sala o para llevar.",
     heroSubtitle: "Interfaz limpia, selección guiada y toda la información clara.",
@@ -579,6 +611,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     selectHour: "Selecciona hora",
     selectMinutes: "Selecciona minutos",
     customerData: "Datos del cliente",
+    phoneInvalid: "Introduce un número de teléfono de 10 dígitos",
+    emailInvalid: "Introduce un email válido (ej. nombre@dominio.com)",
     finalSummary: "Resumen final",
     servicePickup: "Servicio: Para llevar (Recogida {pickup})",
     phase_size: "Tamaño",
@@ -598,6 +632,11 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     orderSummaryPokeTab: "Récap poké",
     completeOrder: "Finaliser commande",
     sendOrder: "Envoyer commande",
+    addDrinks: "Ajouter des boissons",
+    noDrinksAvailable: "Aucune boisson disponible",
+    noDrinksSelected: "Aucune boisson sélectionnée",
+    drinkSelectedOne: "boisson sélectionnée",
+    drinkSelectedMany: "boissons sélectionnées",
     callUs: "Appelle-nous",
     homeHeroSlide1Lead: "Compose ton bowl sur place ou à emporter.",
     homeHeroSlide2Title: "Le menu complet, numérique et toujours à jour.",
@@ -614,6 +653,11 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     orderSummaryPokeTab: "波奇摘要",
     completeOrder: "完成订单",
     sendOrder: "发送订单",
+    addDrinks: "添加饮品",
+    noDrinksAvailable: "暂无饮品",
+    noDrinksSelected: "未选择饮品",
+    drinkSelectedOne: "份饮品已选",
+    drinkSelectedMany: "份饮品已选",
     callUs: "联系我们",
     homeHeroSlide1Lead: "在店享用或外带，随心搭配你的碗。",
     homeHeroSlide2Title: "完整电子菜单，实时更新。",
@@ -629,6 +673,11 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     orderSummaryPokeTab: "ポケ内容",
     completeOrder: "注文を完了",
     sendOrder: "注文を送信",
+    addDrinks: "ドリンクを追加",
+    noDrinksAvailable: "ドリンクがありません",
+    noDrinksSelected: "ドリンク未選択",
+    drinkSelectedOne: "ドリンクを選択",
+    drinkSelectedMany: "ドリンクを選択",
     callUs: "電話する",
     homeHeroSlide1Lead: "店内でもテイクアウトでも、自分好みのボウルを。",
     homeHeroSlide2Title: "フルメニューをデジタルで、いつでも最新に。",
@@ -800,6 +849,21 @@ function getTodayIsoDate() {
   return `${year}-${month}-${day}`;
 }
 
+function getTomorrowIsoDate() {
+  const now = new Date();
+  now.setDate(now.getDate() + 1);
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getMinutesOfDayFromDate(date: Date): number {
+  return date.getHours() * 60 + date.getMinutes();
+}
+
+const PICKUP_PREP_BUFFER_MINUTES = 10;
+
 function pokeOptionGridWidthCh(options: readonly { name: string; price?: number }[]): string {
   if (options.length === 0) return "26";
   const crownPad = options.some((o) => (o.price ?? 0) > 0) ? 3 : 0;
@@ -918,14 +982,31 @@ function readOrderItemsFromStorage(storageKey: string): Record<number, CartItem>
           variant_selected_by_variant_id:
             (value as CartItem).variant_selected_by_variant_id &&
             typeof (value as CartItem).variant_selected_by_variant_id === "object"
-              ? Object.entries((value as CartItem).variant_selected_by_variant_id || {}).reduce((acc, [variantIdRaw, choiceIdRaw]) => {
+              ? Object.entries((value as CartItem).variant_selected_by_variant_id || {}).reduce((acc, [variantIdRaw, rawSelection]) => {
                   const variantId = Number(variantIdRaw);
-                  const choiceId = Number(choiceIdRaw);
-                  if (Number.isFinite(variantId) && Number.isFinite(choiceId) && choiceId > 0) {
-                    acc[variantId] = choiceId;
+                  if (!Number.isFinite(variantId)) return acc;
+                  // Nuovo formato: { choiceId: qty }
+                  if (rawSelection && typeof rawSelection === "object") {
+                    const choiceMap: Record<number, number> = {};
+                    for (const [cIdRaw, qtyRaw] of Object.entries(rawSelection as Record<string, unknown>)) {
+                      const cId = Number(cIdRaw);
+                      const qty = Number(qtyRaw);
+                      if (Number.isFinite(cId) && cId > 0 && Number.isFinite(qty) && qty > 0) {
+                        choiceMap[cId] = qty;
+                      }
+                    }
+                    if (Object.keys(choiceMap).length > 0) {
+                      acc[variantId] = choiceMap;
+                    }
+                  } else {
+                    // Retrocompatibilità: vecchio formato `variantId -> choiceId`
+                    const choiceId = Number(rawSelection);
+                    if (Number.isFinite(choiceId) && choiceId > 0) {
+                      acc[variantId] = { [choiceId]: 1 };
+                    }
                   }
                   return acc;
-                }, {} as Record<number, number>)
+                }, {} as Record<number, Record<number, number>>)
               : undefined,
           variant_note: String((value as CartItem).variant_note || "").trim() || undefined,
           poke_builder_id: Number((value as CartItem).poke_builder_id || 0) || undefined,
@@ -1222,10 +1303,12 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
     ],
     table_cover_rules: [],
     tag_rules: [],
-    pickup_time_rule: {
+    pickup_time_rule: [
+      {
       start_time: "12:00",
       end_time: "14:00"
-    },
+      }
+    ],
     orders_blocked: {
       enabled: false,
       reason: ""
@@ -1244,7 +1327,27 @@ function normalizeAppSettings(value: unknown): AppSettings {
     .filter(Boolean);
   const coverRulesRaw = Array.isArray(site.table_cover_rules) ? site.table_cover_rules : [];
   const tagRulesRaw = Array.isArray(site.tag_rules) ? site.tag_rules : [];
-  const pickupRuleRaw = (site.pickup_time_rule ?? {}) as Partial<AppSettings["site"]["pickup_time_rule"]>;
+  const pickupRuleRawSource = (site as { pickup_time_rule?: unknown }).pickup_time_rule;
+  const pickupRuleRawList: unknown[] = Array.isArray(pickupRuleRawSource)
+    ? pickupRuleRawSource
+    : pickupRuleRawSource && typeof pickupRuleRawSource === "object"
+    ? [pickupRuleRawSource]
+    : [];
+  const defaultPickupWindow = DEFAULT_APP_SETTINGS.site.pickup_time_rule[0];
+  const pickup_time_rule_normalized = (() => {
+    const cleaned = pickupRuleRawList
+      .map((entry) => {
+        const source = (entry ?? {}) as Record<string, unknown>;
+        const start_time = String(source.start_time ?? "").trim();
+        const end_time = String(source.end_time ?? "").trim();
+        return {
+          start_time: /^\d{2}:\d{2}$/.test(start_time) ? start_time : defaultPickupWindow.start_time,
+          end_time: /^\d{2}:\d{2}$/.test(end_time) ? end_time : defaultPickupWindow.end_time
+        };
+      })
+      .slice(0, 6);
+    return cleaned.length > 0 ? cleaned : [{ ...defaultPickupWindow }];
+  })();
   const ordersBlockedRaw = ((site as { orders_blocked?: unknown }).orders_blocked ?? {}) as Partial<
     AppSettings["site"]["orders_blocked"]
   >;
@@ -1299,14 +1402,7 @@ function normalizeAppSettings(value: unknown): AppSettings {
       gallery_images: gallery_images.length > 0 ? gallery_images : [...DEFAULT_APP_SETTINGS.site.gallery_images],
       table_cover_rules,
       tag_rules,
-      pickup_time_rule: {
-        start_time: /^\d{2}:\d{2}$/.test(String(pickupRuleRaw.start_time ?? "").trim())
-          ? String(pickupRuleRaw.start_time).trim()
-          : DEFAULT_APP_SETTINGS.site.pickup_time_rule.start_time,
-        end_time: /^\d{2}:\d{2}$/.test(String(pickupRuleRaw.end_time ?? "").trim())
-          ? String(pickupRuleRaw.end_time).trim()
-          : DEFAULT_APP_SETTINGS.site.pickup_time_rule.end_time
-      },
+      pickup_time_rule: pickup_time_rule_normalized,
       orders_blocked: {
         enabled: Boolean(ordersBlockedRaw.enabled),
         reason: String(ordersBlockedRaw.reason ?? "").trim().slice(0, 300)
@@ -1369,7 +1465,7 @@ export default function App() {
     variants: [] as {
       id: number;
       name: string;
-      choices: { id: number; name: string; included: boolean; extra_price: number }[];
+      choices: { id: number; name: string; included: boolean; extra_price: number; allergen_codes?: number[] }[];
     }[]
   });
   const [route, setRoute] = useState<Route>(detectRoute(`${window.location.pathname}${window.location.search}`));
@@ -1505,17 +1601,21 @@ export default function App() {
   const [itemVariantCollapsed, setItemVariantCollapsed] = useState<Record<number, boolean>>({});
   const [menuItemVariantModal, setMenuItemVariantModal] = useState<{
     item: MenuItem;
-    selectedByVariantId: Record<number, number>;
+    selectedByVariantId: Record<number, Record<number, number>>;
     note: string;
   } | null>(null);
   const [orderItemEditModal, setOrderItemEditModal] = useState<{
     cartItemId: number;
     mode: "menu_variant" | "poke";
     menuItem?: MenuItem;
-    selectedByVariantId?: Record<number, number>;
+    selectedByVariantId?: Record<number, Record<number, number>>;
     note?: string;
     pokeBuilder?: BuilderItem;
     selectedByGroup?: Record<number, Record<number, number>>;
+  } | null>(null);
+  const [pokeSizeChangeModal, setPokeSizeChangeModal] = useState<{
+    nextBuilder: BuilderItem;
+    draftSelectedByGroup: Record<number, Record<number, number>>;
   } | null>(null);
   const [menuExcludedAllergens, setMenuExcludedAllergens] = useState<number[]>([]);
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
@@ -1536,6 +1636,8 @@ export default function App() {
   const [orderStorageKey, setOrderStorageKey] = useState(ORDER_STORAGE_PUBLIC_KEY);
   const [orderOpen, setOrderOpen] = useState(false);
   const [orderClosing, setOrderClosing] = useState(false);
+  const [drinksModalOpen, setDrinksModalOpen] = useState(false);
+  const [drinksModalSelections, setDrinksModalSelections] = useState<Record<number, number>>({});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [pokeStoryInfoModalOpen, setPokeStoryInfoModalOpen] = useState<number | null>(null);
   /* Lightbox per la galleria home: la stringa è l'URL dell'immagine clickata.
@@ -1573,6 +1675,8 @@ export default function App() {
   const [menuCheckoutStep, setMenuCheckoutStep] = useState(1);
   const [menuCheckoutMessage, setMenuCheckoutMessage] = useState("");
   const [menuCheckoutCompleted, setMenuCheckoutCompleted] = useState(false);
+  const [pickupNowTick, setPickupNowTick] = useState<Date>(() => new Date());
+  const [customerTouched, setCustomerTouched] = useState({ phone: false, email: false });
   const [tableOrderSuccessOpen, setTableOrderSuccessOpen] = useState(false);
   const [tableOrderNumber, setTableOrderNumber] = useState<string | null>(() => {
     try {
@@ -2760,13 +2864,19 @@ export default function App() {
   const pokeCurrentGroup = pokeFlowStep > 0 ? selectedGroups[pokeFlowStep - 1] ?? null : null;
   const filteredPokeCurrentOptions = useMemo(() => {
     if (!pokeCurrentGroup) return [] as BuilderItem["groups"][number]["options"];
-    const activeOptions = pokeCurrentGroup.options.filter((option) => !option.is_out_of_stock);
+    // Per il gruppo "Bevande" prendiamo le opzioni dagli items delle categorie
+    // del menu marcate `is_beverage = true`, così la fase finale del poke e il
+    // modal "Aggiungi bevande" condividono la stessa fonte di verità.
+    const isBeverageGroup = pokeCurrentGroup.name.toLowerCase().includes("bevand");
+    const sourceOptions = isBeverageGroup ? getBeverageOptions() : pokeCurrentGroup.options;
+    const activeOptions = sourceOptions.filter((option) => !option.is_out_of_stock);
     if (pokeExcludedAllergens.length === 0) return activeOptions;
     return activeOptions.filter((option) => {
       const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
       return !optionAllergens.some((code) => pokeExcludedAllergens.includes(code));
     });
-  }, [pokeCurrentGroup, pokeExcludedAllergens]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pokeCurrentGroup, pokeExcludedAllergens, menu]);
 
   const selectedOptionsWithPrice = useMemo(() => {
     if (!selectedBuilder) return [] as BuilderItem["groups"][number]["options"];
@@ -3132,28 +3242,86 @@ export default function App() {
   const canGoStep2 = orderItemsList.length > 0;
   const canGoStep3 =
     menuCheckoutForm.pickup_date !== "" && menuCheckoutForm.pickup_hour !== "" && menuCheckoutForm.pickup_minute !== "";
+  const phoneDigitsOnly = useMemo(
+    () => menuCheckoutForm.phone.replace(/\D/g, ""),
+    [menuCheckoutForm.phone]
+  );
+  const isPhoneValid = phoneDigitsOnly.length === 10;
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(menuCheckoutForm.email.trim());
   const canGoStep4 =
     menuCheckoutForm.first_name.trim().length > 0 &&
     menuCheckoutForm.last_name.trim().length > 0 &&
-    menuCheckoutForm.phone.trim().length > 0 &&
-    menuCheckoutForm.email.trim().length > 0;
+    isPhoneValid &&
+    isEmailValid;
   const pickupTimeLabel = useMemo(() => {
     if (!menuCheckoutForm.pickup_hour || !menuCheckoutForm.pickup_minute) return "";
     return `${menuCheckoutForm.pickup_hour}:${menuCheckoutForm.pickup_minute}`;
   }, [menuCheckoutForm.pickup_hour, menuCheckoutForm.pickup_minute]);
-  const pickupAllowedSlots = useMemo(() => {
-    const start = parseTimeToMinutes(appSettings.site.pickup_time_rule.start_time);
-    const end = parseTimeToMinutes(appSettings.site.pickup_time_rule.end_time);
-    if (start === null || end === null || start > end) return [] as { hour: string; minute: string }[];
-    const slots: { hour: string; minute: string }[] = [];
+  const pickupBaseSlots = useMemo(() => {
+    const seen = new Set<number>();
+    const slots: { hour: string; minute: string; minutes: number }[] = [];
+    for (const window of appSettings.site.pickup_time_rule) {
+      const start = parseTimeToMinutes(window.start_time);
+      const end = parseTimeToMinutes(window.end_time);
+      if (start === null || end === null || start > end) continue;
     for (let minutes = start; minutes <= end; minutes += 5) {
+        if (seen.has(minutes)) continue;
+        seen.add(minutes);
       slots.push({
         hour: String(Math.floor(minutes / 60)).padStart(2, "0"),
-        minute: String(minutes % 60).padStart(2, "0")
+          minute: String(minutes % 60).padStart(2, "0"),
+          minutes
       });
     }
+    }
+    slots.sort((a, b) => a.minutes - b.minutes);
     return slots;
-  }, [appSettings.site.pickup_time_rule.start_time, appSettings.site.pickup_time_rule.end_time]);
+  }, [appSettings.site.pickup_time_rule]);
+  const todayIsoForPickup = useMemo(() => {
+    const y = pickupNowTick.getFullYear();
+    const m = String(pickupNowTick.getMonth() + 1).padStart(2, "0");
+    const d = String(pickupNowTick.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }, [pickupNowTick]);
+  const tomorrowIsoForPickup = useMemo(() => {
+    const dt = new Date(pickupNowTick);
+    dt.setDate(dt.getDate() + 1);
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth() + 1).padStart(2, "0");
+    const d = String(dt.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }, [pickupNowTick]);
+  const pickupAllowedSlots = useMemo(() => {
+    if (menuCheckoutForm.pickup_date !== todayIsoForPickup) {
+      return pickupBaseSlots.map(({ hour, minute }) => ({ hour, minute }));
+    }
+    const threshold = getMinutesOfDayFromDate(pickupNowTick) + PICKUP_PREP_BUFFER_MINUTES;
+    return pickupBaseSlots
+      .filter((slot) => slot.minutes >= threshold)
+      .map(({ hour, minute }) => ({ hour, minute }));
+  }, [pickupBaseSlots, menuCheckoutForm.pickup_date, todayIsoForPickup, pickupNowTick]);
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setPickupNowTick(new Date());
+    }, 30_000);
+    return () => {
+      window.clearInterval(id);
+    };
+  }, []);
+  useEffect(() => {
+    if (menuCheckoutForm.pickup_date !== todayIsoForPickup) return;
+    if (pickupBaseSlots.length === 0) return;
+    const threshold = getMinutesOfDayFromDate(pickupNowTick) + PICKUP_PREP_BUFFER_MINUTES;
+    const hasFutureSlotToday = pickupBaseSlots.some((slot) => slot.minutes >= threshold);
+    if (!hasFutureSlotToday) {
+      setMenuCheckoutForm((old) => ({
+        ...old,
+        pickup_date: tomorrowIsoForPickup,
+        pickup_hour: "",
+        pickup_minute: ""
+      }));
+    }
+  }, [menuCheckoutForm.pickup_date, pickupBaseSlots, pickupNowTick, todayIsoForPickup, tomorrowIsoForPickup]);
   const pickupAllowedHours = useMemo(
     () => Array.from(new Set(pickupAllowedSlots.map((entry) => entry.hour))),
     [pickupAllowedSlots]
@@ -3487,7 +3655,7 @@ export default function App() {
             pickup_time_rule: value as {
               start_time: string;
               end_time: string;
-            }
+            }[]
           }
         };
       }
@@ -3656,13 +3824,29 @@ export default function App() {
       .reduce((sum, entry) => sum + Math.max(0, Number(entry.quantity || 0)), 0);
   }
 
+  function getVariantLimits(variant: { force_min?: number; force_max?: number }) {
+    const max = Math.max(1, Number(variant.force_max ?? 1));
+    const min = Math.max(0, Math.min(Number(variant.force_min ?? 1), max));
+    return { min, max };
+  }
+
+  function countSelectedForVariant(selection: Record<number, number> | undefined): number {
+    if (!selection) return 0;
+    return Object.values(selection).reduce((sum, qty) => sum + (qty > 0 ? qty : 0), 0);
+  }
+
   function openMenuItemVariantModal(item: MenuItem) {
     const variants = getMenuItemVariants(item);
     if (variants.length === 0) return;
-    const selectedByVariantId: Record<number, number> = {};
+    const selectedByVariantId: Record<number, Record<number, number>> = {};
     variants.forEach((variant) => {
+      const limits = getVariantLimits(variant);
       const firstChoice = variant.choices[0];
-      if (firstChoice) selectedByVariantId[variant.id] = firstChoice.id;
+      if (limits.max === 1 && firstChoice && limits.min >= 1) {
+        selectedByVariantId[variant.id] = { [firstChoice.id]: 1 };
+      } else {
+        selectedByVariantId[variant.id] = {};
+      }
     });
     setMenuItemVariantModal({ item, selectedByVariantId, note: "" });
   }
@@ -3681,17 +3865,34 @@ export default function App() {
     let extraTotal = 0;
     const selectedSignature: string[] = [];
     for (const variant of variants) {
-      const choiceId = Number(selectedByVariantId[variant.id] ?? 0);
-      const choice = variant.choices.find((entry) => entry.id === choiceId);
-      if (!choice) {
-        showSettingsNotice("error", `Seleziona una scelta per ${variant.name}`);
+      const limits = getVariantLimits(variant);
+      const selection = selectedByVariantId[variant.id] ?? {};
+      const totalSelected = countSelectedForVariant(selection);
+      if (totalSelected < limits.min) {
+        showSettingsNotice("error", `Per ${variant.name} seleziona almeno ${limits.min} ${limits.min === 1 ? "opzione" : "opzioni"}`);
         return;
       }
+      if (totalSelected > limits.max) {
+        showSettingsNotice("error", `Per ${variant.name} puoi selezionare al massimo ${limits.max} ${limits.max === 1 ? "opzione" : "opzioni"}`);
+        return;
+      }
+      const variantLabels: string[] = [];
+      for (const [choiceIdRaw, qty] of Object.entries(selection)) {
+        if (qty <= 0) continue;
+        const choice = variant.choices.find((entry) => entry.id === Number(choiceIdRaw));
+        if (!choice) continue;
       const extraPrice = Math.max(0, Number(choice.extra_price || 0));
-      const label = choice.included || extraPrice <= 0 ? `${variant.name}: ${choice.name}` : `${variant.name}: ${choice.name} (+${formatCurrency(extraPrice)})`;
-      details.push(label);
-      if (!choice.included && extraPrice > 0) extraTotal += extraPrice;
-      selectedSignature.push(`${variant.id}:${choice.id}`);
+        const qtyPrefix = qty > 1 ? `${qty}× ` : "";
+        const label = choice.included || extraPrice <= 0
+          ? `${qtyPrefix}${choice.name}`
+          : `${qtyPrefix}${choice.name} (+${formatCurrency(extraPrice * qty)})`;
+        variantLabels.push(label);
+        if (!choice.included && extraPrice > 0) extraTotal += extraPrice * qty;
+        selectedSignature.push(`${variant.id}:${choice.id}x${qty}`);
+      }
+      if (variantLabels.length > 0) {
+        details.push(`${variant.name}: ${variantLabels.join(", ")}`);
+      }
     }
     const cleanNote = String(note || "").trim();
     if (cleanNote) {
@@ -3706,6 +3907,16 @@ export default function App() {
         String(entry.variant_signature || "") === signature
     );
     const cartId = existingEntry ? existingEntry.id : -(Date.now() + Math.round(Math.random() * 999));
+    const serializedSelection: Record<number, Record<number, number>> = {};
+    for (const [vIdRaw, choiceMap] of Object.entries(selectedByVariantId)) {
+      const vId = Number(vIdRaw);
+      const filtered: Record<number, number> = {};
+      for (const [cIdRaw, qty] of Object.entries(choiceMap)) {
+        const cId = Number(cIdRaw);
+        if (qty > 0) filtered[cId] = qty;
+      }
+      if (Object.keys(filtered).length > 0) serializedSelection[vId] = filtered;
+    }
     setOrderItems((old) => {
       const current = old[cartId];
       if (current) {
@@ -3720,7 +3931,7 @@ export default function App() {
           id: cartId,
           source_item_id: item.id,
           variant_signature: signature,
-          variant_selected_by_variant_id: { ...selectedByVariantId },
+          variant_selected_by_variant_id: serializedSelection,
           variant_note: cleanNote || undefined,
           name: parsed.cleanName,
           price: finalPrice,
@@ -3739,11 +3950,14 @@ export default function App() {
     const variants = getMenuItemVariants(item);
     let extraTotal = 0;
     for (const variant of variants) {
-      const choiceId = Number(selectedByVariantId[variant.id] ?? 0);
-      const choice = variant.choices.find((entry) => entry.id === choiceId);
+      const selection = selectedByVariantId[variant.id] ?? {};
+      for (const [choiceIdRaw, qty] of Object.entries(selection)) {
+        if (qty <= 0) continue;
+        const choice = variant.choices.find((entry) => entry.id === Number(choiceIdRaw));
       if (!choice) continue;
       const extraPrice = Math.max(0, Number(choice.extra_price || 0));
-      if (!choice.included && extraPrice > 0) extraTotal += extraPrice;
+        if (!choice.included && extraPrice > 0) extraTotal += extraPrice * qty;
+      }
     }
     return Number(item.price || 0) + extraTotal;
   }
@@ -3755,6 +3969,98 @@ export default function App() {
       if (found) return found;
     }
     return null;
+  }
+
+  // Una "opzione bevanda" è strutturalmente identica a un'opzione del builder
+  // (id, name, price, allergen_codes), in modo da poter riutilizzare la stessa
+  // UI dell'ultima fase del poke (option-chip + corona + prezzo).
+  type BeverageOption = BuilderItem["groups"][number]["options"][number];
+
+  // Pesca tutti gli items delle categorie marcate `is_beverage = true` (attive),
+  // dedupica per id e li formatta come opzioni del poke builder.
+  function getBeverageOptions(): BeverageOption[] {
+    if (!menu) return [];
+    const map = new Map<number, BeverageOption>();
+    for (const category of menu.categories) {
+      if (category.active === false) continue;
+      if (!category.is_beverage) continue;
+      for (const item of category.items) {
+        const itemActive = (item as MenuItem & { active?: boolean }).active;
+        if (itemActive === false) continue;
+        if (map.has(item.id)) continue;
+        const parsed = extractAllergenCodesFromName(item.name);
+        map.set(item.id, {
+          id: item.id,
+          name: parsed.cleanName,
+          price: Number(item.price || 0),
+          is_out_of_stock: false,
+          allergen_codes: Array.isArray(item.allergen_codes) ? item.allergen_codes : [],
+          tag_ids: []
+        });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => {
+      const ap = Number(a.price || 0);
+      const bp = Number(b.price || 0);
+      if (ap !== bp) return ap - bp;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  function openDrinksModal() {
+    setDrinksModalSelections({});
+    setDrinksModalOpen(true);
+  }
+
+  function closeDrinksModal() {
+    setDrinksModalOpen(false);
+    setDrinksModalSelections({});
+  }
+
+  function updateDrinkSelection(optionId: number, delta: number) {
+    setDrinksModalSelections((old) => {
+      const current = old[optionId] || 0;
+      const next = Math.max(0, current + delta);
+      if (next === 0) {
+        const { [optionId]: _removed, ...rest } = old;
+        return rest;
+      }
+      return { ...old, [optionId]: next };
+    });
+  }
+
+  // Conferma e aggiunge le bevande selezionate al carrello come item indipendenti.
+  // Ogni bevanda diventa un cart item separato (id univoco con timestamp + offset).
+  function confirmDrinksSelection() {
+    const entries = Object.entries(drinksModalSelections).filter(([, qty]) => qty && qty > 0);
+    if (entries.length === 0) {
+      closeDrinksModal();
+      return;
+    }
+    const options = getBeverageOptions();
+    setOrderItems((old) => {
+      const next = { ...old };
+      // base id: massimo id già usato + 1; usiamo timestamp per assicurare unicità
+      const baseId = Date.now();
+      let offset = 0;
+      for (const [idStr, qty] of entries) {
+        const optionId = Number(idStr);
+        const option = options.find((opt) => opt.id === optionId);
+        if (!option || !qty) continue;
+        const cartId = baseId + offset;
+        offset += 1;
+        next[cartId] = {
+          id: cartId,
+          source_item_id: 0,
+          name: option.name,
+          price: Number(option.price || 0),
+          quantity: qty,
+          course: 1
+        };
+      }
+      return next;
+    });
+    closeDrinksModal();
   }
 
   function openOrderItemEdit(item: CartItem) {
@@ -3778,14 +4084,27 @@ export default function App() {
       const menuItem = getMenuItemById(sourceId);
       const variants = menuItem ? getMenuItemVariants(menuItem) : [];
       if (menuItem && variants.length > 0) {
-        const selectedByVariantId: Record<number, number> = {};
+        const selectedByVariantId: Record<number, Record<number, number>> = {};
         variants.forEach((variant) => {
-          const fromItem = Number(item.variant_selected_by_variant_id?.[variant.id] ?? 0);
-          const selectedChoice =
-            variant.choices.find((entry) => entry.id === fromItem) ??
-            variant.choices.find((entry) => entry.id === Number(String(item.variant_signature || "").split("|").find((token) => token.startsWith(`${variant.id}:`))?.split(":")[1] || 0)) ??
-            variant.choices[0];
-          if (selectedChoice) selectedByVariantId[variant.id] = selectedChoice.id;
+          const limits = getVariantLimits(variant);
+          const stored = item.variant_selected_by_variant_id?.[variant.id];
+          const choiceMap: Record<number, number> = {};
+          if (stored && typeof stored === "object") {
+            for (const [cIdRaw, qty] of Object.entries(stored)) {
+              const cId = Number(cIdRaw);
+              const q = Number(qty);
+              if (variant.choices.some((c) => c.id === cId) && q > 0) {
+                choiceMap[cId] = q;
+              }
+            }
+          }
+          if (Object.keys(choiceMap).length === 0) {
+            // Fallback: prima choice o nulla
+            if (limits.min >= 1 && variant.choices[0]) {
+              choiceMap[variant.choices[0].id] = 1;
+            }
+          }
+          selectedByVariantId[variant.id] = choiceMap;
         });
         setOrderItemEditModal({
           cartItemId: item.id,
@@ -3870,12 +4189,72 @@ export default function App() {
     return next;
   }
 
+  /**
+   * Variante della migrazione che NON cappa al force_max del nuovo builder.
+   * Serve per rilevare eccessi e mostrare il modal di rimozione manuale.
+   */
+  function mapPokeSelectionsToBuilderNoCap(
+    oldBuilder: BuilderItem,
+    oldSelections: Record<number, Record<number, number>>,
+    newBuilder: BuilderItem
+  ): Record<number, Record<number, number>> {
+    const groupOrdinalIndex = (builder: BuilderItem, groupId: number) => {
+      const group = builder.groups.find((entry) => entry.id === groupId);
+      if (!group) return -1;
+      const baseName = displayPhaseName(group.name);
+      const sameNameGroups = builder.groups.filter((entry) => displayPhaseName(entry.name) === baseName);
+      return sameNameGroups.findIndex((entry) => entry.id === groupId);
+    };
+    const next: Record<number, Record<number, number>> = {};
+    for (const newGroup of newBuilder.groups) {
+      const newPhaseName = displayPhaseName(newGroup.name);
+      const sameNameNew = newBuilder.groups.filter((entry) => displayPhaseName(entry.name) === newPhaseName);
+      const newIndex = sameNameNew.findIndex((entry) => entry.id === newGroup.id);
+      const oldGroup = oldBuilder.groups.find((entry) => {
+        if (displayPhaseName(entry.name) !== newPhaseName) return false;
+        return groupOrdinalIndex(oldBuilder, entry.id) === newIndex;
+      });
+      if (!oldGroup) continue;
+      const oldGroupSelections = oldSelections[oldGroup.id] ?? {};
+      const migratedGroup: Record<number, number> = {};
+      for (const [optionIdRaw, qty] of Object.entries(oldGroupSelections)) {
+        if (qty <= 0) continue;
+        const oldOption = oldGroup.options.find((entry) => entry.id === Number(optionIdRaw));
+        if (!oldOption) continue;
+        const targetName = oldOption.name.trim().toLowerCase();
+        const newOption = newGroup.options.find((entry) => entry.name.trim().toLowerCase() === targetName);
+        if (!newOption || newOption.is_out_of_stock) continue;
+        migratedGroup[newOption.id] = (migratedGroup[newOption.id] ?? 0) + qty;
+      }
+      if (Object.keys(migratedGroup).length > 0) {
+        next[newGroup.id] = migratedGroup;
+      }
+    }
+    return next;
+  }
+
+  function countSelectionsForGroup(selections: Record<number, number> | undefined): number {
+    if (!selections) return 0;
+    return Object.values(selections).reduce((sum, qty) => sum + (qty > 0 ? qty : 0), 0);
+  }
+
   function changeOrderEditPokeBuilder(nextBuilderId: number) {
+    if (!orderItemEditModal || orderItemEditModal.mode !== "poke" || !orderItemEditModal.pokeBuilder || !orderItemEditModal.selectedByGroup) return;
+    if (orderItemEditModal.pokeBuilder.id === nextBuilderId) return;
+    const nextBuilder = pokeBuilderItemsPublic.find((entry) => entry.id === nextBuilderId);
+    if (!nextBuilder) return;
+    const mappedNoCap = mapPokeSelectionsToBuilderNoCap(orderItemEditModal.pokeBuilder, orderItemEditModal.selectedByGroup, nextBuilder);
+    const hasOverflow = nextBuilder.groups.some((group) => {
+      const max = Math.max(0, Number(group.force_max || 0));
+      const selected = countSelectionsForGroup(mappedNoCap[group.id]);
+      return max > 0 && selected > max;
+    });
+    if (hasOverflow) {
+      setPokeSizeChangeModal({ nextBuilder, draftSelectedByGroup: mappedNoCap });
+      return;
+    }
     setOrderItemEditModal((old) => {
       if (!old || old.mode !== "poke" || !old.pokeBuilder || !old.selectedByGroup) return old;
-      if (old.pokeBuilder.id === nextBuilderId) return old;
-      const nextBuilder = pokeBuilderItemsPublic.find((entry) => entry.id === nextBuilderId);
-      if (!nextBuilder) return old;
       const migrated = migratePokeSelectionsToBuilder(old.pokeBuilder, old.selectedByGroup, nextBuilder);
       return {
         ...old,
@@ -3883,6 +4262,48 @@ export default function App() {
         selectedByGroup: migrated
       };
     });
+  }
+
+  function decrementPokeSizeChangeOption(groupId: number, optionId: number) {
+    setPokeSizeChangeModal((old) => {
+      if (!old) return old;
+      const groupSelections = old.draftSelectedByGroup[groupId] ?? {};
+      const currentQty = groupSelections[optionId] ?? 0;
+      if (currentQty <= 0) return old;
+      const nextGroup = { ...groupSelections };
+      if (currentQty === 1) {
+        delete nextGroup[optionId];
+      } else {
+        nextGroup[optionId] = currentQty - 1;
+      }
+      const nextDraft = { ...old.draftSelectedByGroup };
+      if (Object.keys(nextGroup).length === 0) {
+        delete nextDraft[groupId];
+      } else {
+        nextDraft[groupId] = nextGroup;
+      }
+      return { ...old, draftSelectedByGroup: nextDraft };
+    });
+  }
+
+  function confirmPokeSizeChange() {
+    if (!pokeSizeChangeModal) return;
+    const { nextBuilder, draftSelectedByGroup } = pokeSizeChangeModal;
+    const stillOverflow = nextBuilder.groups.some((group) => {
+      const max = Math.max(0, Number(group.force_max || 0));
+      const selected = countSelectionsForGroup(draftSelectedByGroup[group.id]);
+      return max > 0 && selected > max;
+    });
+    if (stillOverflow) return;
+    setOrderItemEditModal((old) => {
+      if (!old || old.mode !== "poke") return old;
+      return {
+        ...old,
+        pokeBuilder: nextBuilder,
+        selectedByGroup: draftSelectedByGroup
+      };
+    });
+    setPokeSizeChangeModal(null);
   }
 
   function getOrderEditPhaseLabel(builder: BuilderItem, groupId: number) {
@@ -3984,17 +4405,34 @@ export default function App() {
       let extraTotal = 0;
       const selectedSignature: string[] = [];
       for (const variant of variants) {
-        const choiceId = Number(orderItemEditModal.selectedByVariantId[variant.id] ?? 0);
-        const choice = variant.choices.find((entry) => entry.id === choiceId);
-        if (!choice) {
-          showSettingsNotice("error", `Seleziona una scelta per ${variant.name}`);
+        const limits = getVariantLimits(variant);
+        const selection = orderItemEditModal.selectedByVariantId![variant.id] ?? {};
+        const totalSelected = countSelectedForVariant(selection);
+        if (totalSelected < limits.min) {
+          showSettingsNotice("error", `Per ${variant.name} seleziona almeno ${limits.min} ${limits.min === 1 ? "opzione" : "opzioni"}`);
           return;
         }
+        if (totalSelected > limits.max) {
+          showSettingsNotice("error", `Per ${variant.name} puoi selezionare al massimo ${limits.max} ${limits.max === 1 ? "opzione" : "opzioni"}`);
+          return;
+        }
+        const variantLabels: string[] = [];
+        for (const [choiceIdRaw, qty] of Object.entries(selection)) {
+          if (qty <= 0) continue;
+          const choice = variant.choices.find((entry) => entry.id === Number(choiceIdRaw));
+          if (!choice) continue;
         const extraPrice = Math.max(0, Number(choice.extra_price || 0));
-        const label = choice.included || extraPrice <= 0 ? `${variant.name}: ${choice.name}` : `${variant.name}: ${choice.name} (+${formatCurrency(extraPrice)})`;
-        details.push(label);
-        if (!choice.included && extraPrice > 0) extraTotal += extraPrice;
-        selectedSignature.push(`${variant.id}:${choice.id}`);
+          const qtyPrefix = qty > 1 ? `${qty}× ` : "";
+          const label = choice.included || extraPrice <= 0
+            ? `${qtyPrefix}${choice.name}`
+            : `${qtyPrefix}${choice.name} (+${formatCurrency(extraPrice * qty)})`;
+          variantLabels.push(label);
+          if (!choice.included && extraPrice > 0) extraTotal += extraPrice * qty;
+          selectedSignature.push(`${variant.id}:${choice.id}x${qty}`);
+        }
+        if (variantLabels.length > 0) {
+          details.push(`${variant.name}: ${variantLabels.join(", ")}`);
+        }
       }
       const cleanNote = String(orderItemEditModal.note || "").trim();
       if (cleanNote) {
@@ -4004,6 +4442,16 @@ export default function App() {
       const baseName = extractAllergenCodesFromName(orderItemEditModal.menuItem.name).cleanName;
       const nextPrice = Number(orderItemEditModal.menuItem.price || 0) + extraTotal;
       const nextSignature = selectedSignature.join("|");
+      const serializedSelection: Record<number, Record<number, number>> = {};
+      for (const [vIdRaw, choiceMap] of Object.entries(orderItemEditModal.selectedByVariantId!)) {
+        const vId = Number(vIdRaw);
+        const filtered: Record<number, number> = {};
+        for (const [cIdRaw, qty] of Object.entries(choiceMap)) {
+          const cId = Number(cIdRaw);
+          if (qty > 0) filtered[cId] = qty;
+        }
+        if (Object.keys(filtered).length > 0) serializedSelection[vId] = filtered;
+      }
       setOrderItems((old) => {
         const current = old[orderItemEditModal.cartItemId];
         if (!current) return old;
@@ -4013,7 +4461,7 @@ export default function App() {
             ...current,
             source_item_id: orderItemEditModal.menuItem?.id,
             variant_signature: nextSignature,
-            variant_selected_by_variant_id: { ...orderItemEditModal.selectedByVariantId! },
+            variant_selected_by_variant_id: serializedSelection,
             variant_note: cleanNote || undefined,
             name: baseName,
             details,
@@ -4083,11 +4531,14 @@ export default function App() {
       const variants = getMenuItemVariants(orderItemEditModal.menuItem);
       let extraTotal = 0;
       for (const variant of variants) {
-        const choiceId = Number(orderItemEditModal.selectedByVariantId[variant.id] ?? 0);
-        const choice = variant.choices.find((entry) => entry.id === choiceId);
+        const selection = orderItemEditModal.selectedByVariantId[variant.id] ?? {};
+        for (const [choiceIdRaw, qty] of Object.entries(selection)) {
+          if (qty <= 0) continue;
+          const choice = variant.choices.find((entry) => entry.id === Number(choiceIdRaw));
         if (!choice) continue;
         const extraPrice = Math.max(0, Number(choice.extra_price || 0));
-        if (!choice.included && extraPrice > 0) extraTotal += extraPrice;
+          if (!choice.included && extraPrice > 0) extraTotal += extraPrice * qty;
+        }
       }
       return Number(orderItemEditModal.menuItem.price || 0) + extraTotal;
     }
@@ -4106,6 +4557,32 @@ export default function App() {
     }
     return 0;
   }
+
+  const isOrderEditValid = useMemo(() => {
+    if (!orderItemEditModal) return true;
+    if (orderItemEditModal.mode === "poke" && orderItemEditModal.pokeBuilder && orderItemEditModal.selectedByGroup) {
+      const builder = orderItemEditModal.pokeBuilder;
+      const selectedByGroup = orderItemEditModal.selectedByGroup;
+      for (const group of builder.groups) {
+        const limits = getOrderEditGroupEffectiveLimits(builder, group.id);
+        const selected = getOrderEditPokeSelectionCount(builder, selectedByGroup, group.id);
+        if (selected < limits.min) return false;
+        if (limits.max > 0 && selected > limits.max) return false;
+      }
+      return true;
+    }
+    if (orderItemEditModal.mode === "menu_variant" && orderItemEditModal.menuItem && orderItemEditModal.selectedByVariantId) {
+      const variants = getMenuItemVariants(orderItemEditModal.menuItem);
+      for (const variant of variants) {
+        const limits = getVariantLimits(variant);
+        const total = countSelectedForVariant(orderItemEditModal.selectedByVariantId[variant.id]);
+        if (total < limits.min) return false;
+        if (total > limits.max) return false;
+      }
+      return true;
+    }
+    return true;
+  }, [orderItemEditModal]);
 
   function addDishToOrder(item: MenuItem) {
     if (appSettings.site.orders_blocked.enabled) {
@@ -4484,8 +4961,10 @@ export default function App() {
     option: BuilderItem["groups"][number]["options"][number]
   ) {
     if (option.is_out_of_stock) return;
+    // Il gruppo "Bevande" non ha limite di quantità totale
+    const isBeverageGroup = group.name.toLowerCase().includes("bevand");
     const selectedCount = getGroupSelectionCount(group.id);
-    if (selectedCount >= group.force_max) {
+    if (!isBeverageGroup && selectedCount >= group.force_max) {
       showPokeLimitMessage(`Max ${group.force_max} ${displayPhaseName(group.name)}`);
       return;
     }
@@ -4523,7 +5002,9 @@ export default function App() {
   }
 
   function canProceedGroup(group: BuilderItem["groups"][number]) {
+    const isBeverageGroup = group.name.toLowerCase().includes("bevand");
     const selectedCount = getGroupSelectionCount(group.id);
+    if (isBeverageGroup) return true;
     if (!group.required) return selectedCount <= group.force_max;
     return selectedCount >= group.force_min && selectedCount <= group.force_max;
   }
@@ -6403,8 +6884,8 @@ export default function App() {
                       <img src={imageUrl} alt="" />
                     </button>
                   ))}
-                </div>
-              </div>
+            </div>
+            </div>
               {/* Riga 2 — destra → sinistra */}
               <div className="gallery-marquee-track">
                 <div className="gallery-marquee-inner gallery-marquee-rtl">
@@ -6431,7 +6912,7 @@ export default function App() {
                       <img src={imageUrl} alt="" />
                     </button>
                   ))}
-                </div>
+              </div>
               </div>
             </div>
           </section>
@@ -6457,8 +6938,8 @@ export default function App() {
                       aria-hidden="true"
                     />
                   ))}
-                </div>
-              </div>
+            </div>
+          </div>
             ))}
           </div>
           <section id="compose-poke-section" className="menu-compose-strip section-padding">
@@ -6530,8 +7011,8 @@ export default function App() {
                   );
                 })}
               </div>
-            </div>
-          </section>
+              </div>
+            </section>
 
           <div className="container section-padding menu-categories-block">
             {filteredMenuCategories.map((category) => (
@@ -6543,58 +7024,58 @@ export default function App() {
                 </header>
                 <div className="menu-dishes-grid">
                   {category.items.map((item) => {
-                    const parsed = extractAllergenCodesFromName(item.name);
-                    const baseDescription = translateDescription(item.description) || "Descrizione disponibile in sala.";
-                    const finalDescription = parsed.allergens
-                      ? `${baseDescription} Allergeni: ${parsed.allergens}.`
-                      : baseDescription;
+                        const parsed = extractAllergenCodesFromName(item.name);
+                        const baseDescription = translateDescription(item.description) || "Descrizione disponibile in sala.";
+                        const finalDescription = parsed.allergens
+                          ? `${baseDescription} Allergeni: ${parsed.allergens}.`
+                          : baseDescription;
                     /* Se il titolo è lungo (probabile 2 righe da desktop), limitiamo la descrizione a 1 riga */
                     const isLongTitle = parsed.cleanName.trim().length > 28;
-                    return (
+                        return (
                       <article
                         key={item.id}
                         className={`menu-dish-item ${isLongTitle ? "menu-dish-item--title-long" : ""}`.trim()}
                       >
-                        <button
-                          className="menu-dish-thumb menu-open-trigger"
-                          onClick={() => setInfoModalItem(item)}
-                          aria-label={`Apri info ${item.name}`}
-                        >
-                          {item.image_url ? (
+                      <button
+                        className="menu-dish-thumb menu-open-trigger"
+                        onClick={() => setInfoModalItem(item)}
+                        aria-label={`Apri info ${item.name}`}
+                      >
+                        {item.image_url ? (
                             <img src={resolveMediaSrc(item.image_url)} alt={item.name} className="menu-dish-thumb-img" />
-                          ) : (
-                            <span>IMG</span>
-                          )}
-                        </button>
-                        <div className="menu-dish-content">
-                          <div className="menu-dish-title-row">
-                            <h5 className="menu-open-trigger" onClick={() => setInfoModalItem(item)}>
-                              {parsed.cleanName}
-                            </h5>
-                          </div>
-                          <p className="menu-open-trigger" onClick={() => setInfoModalItem(item)}>
-                            {finalDescription}
-                          </p>
+                        ) : (
+                          <span>IMG</span>
+                        )}
+                      </button>
+                      <div className="menu-dish-content">
+                        <div className="menu-dish-title-row">
+                          <h5 className="menu-open-trigger" onClick={() => setInfoModalItem(item)}>
+                            {parsed.cleanName}
+                          </h5>
                         </div>
-                        <div className="menu-dish-actions">
-                          <strong className="menu-dish-price">{formatCurrency(item.price)}</strong>
-                          {getMenuItemQuantity(item.id) === 0 ? (
-                            <button className="dish-add-btn" onClick={() => addDishToOrder(item)}>
-                              {t("add")}
+                        <p className="menu-open-trigger" onClick={() => setInfoModalItem(item)}>
+                          {finalDescription}
+                        </p>
+                      </div>
+                      <div className="menu-dish-actions">
+                        <strong className="menu-dish-price">{formatCurrency(item.price)}</strong>
+                        {getMenuItemQuantity(item.id) === 0 ? (
+                          <button className="dish-add-btn" onClick={() => addDishToOrder(item)}>
+                            {t("add")}
+                          </button>
+                        ) : (
+                          <div className="dish-qty-controls">
+                            <button className="qty-text-action" onClick={() => updateDishQty(item, -1)} aria-label="Diminuisci quantità">
+                              -
                             </button>
-                          ) : (
-                            <div className="dish-qty-controls">
-                              <button className="qty-text-action" onClick={() => updateDishQty(item, -1)} aria-label="Diminuisci quantità">
-                                -
-                              </button>
-                              <span>{getMenuItemQuantity(item.id)}</span>
-                              <button className="qty-text-action" onClick={() => updateDishQty(item, 1)} aria-label="Aumenta quantità">
-                                +
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </article>
+                            <span>{getMenuItemQuantity(item.id)}</span>
+                            <button className="qty-text-action" onClick={() => updateDishQty(item, 1)} aria-label="Aumenta quantità">
+                              +
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </article>
                     );
                   })}
                 </div>
@@ -6717,8 +7198,8 @@ export default function App() {
                       className="poke-builder-fish-img"
                     />
                   ))}
-                </div>
-              </div>
+            </div>
+          </div>
             ))}
           </div>
           <section className="poke-phase-strip">
@@ -7022,7 +7503,7 @@ export default function App() {
                                   </span>
                                 </div>
                               </div>
-                            </article>
+                      </article>
                           </div>
                         </div>
                       );
@@ -7036,9 +7517,7 @@ export default function App() {
                   {(() => {
                     const isBeverageGroup = pokeCurrentGroup.name.toLowerCase().includes("bevand");
                     const mergeExtraWithIncluded = true;
-                    const includedOptions = isBeverageGroup
-                      ? []
-                      : filteredPokeCurrentOptions.filter((option) => option.price <= 0);
+                    const includedOptions = filteredPokeCurrentOptions.filter((option) => option.price <= 0);
                     const extraOptions = filteredPokeCurrentOptions.filter((option) => option.price > 0);
                     const combinedOptions = mergeExtraWithIncluded ? [...includedOptions, ...extraOptions] : includedOptions;
                     return (
@@ -7051,91 +7530,141 @@ export default function App() {
                       </p>
                   )}
                   </div>
-                  <p className="muted poke-phase-selection">
+                  {!isBeverageGroup && (
+                    <p className="muted poke-phase-selection">
                     {t("selectedMax", {
                       selected: getGroupSelectionCount(pokeCurrentGroup.id),
                       max: pokeCurrentGroup.force_max
                     })}
                     {pokeCurrentGroup.required ? t("minPart", { min: pokeCurrentGroup.force_min }) : ""}
                   </p>
+                  )}
 
-                  {combinedOptions.length > 0 && (
-                    <div className="poke-options-block">
-                      {!mergeExtraWithIncluded && <p className="muted"><strong>{t("included")}</strong></p>}
-                      <div
-                        className="option-grid option-grid--poke-builder"
-                          style={
-                            {
-                              "--poke-chip-w": `${pokeOptionGridWidthCh(combinedOptions)}ch`
-                            } as CSSProperties
-                          }
-                      >
-                        {combinedOptions.map((option) => {
+                  {combinedOptions.length > 0 && (() => {
+                    // Costruisci i gruppi per tag mantenendo l'ordine di apparizione
+                    type TagGroup = { tagId: string | null; name: string | null; color: string; options: typeof combinedOptions };
+                    const tagRulesList = appSettings.site.tag_rules ?? [];
+                    const tagMap = new Map<string, { name: string; color: string }>();
+                    tagRulesList.forEach((tr) => {
+                      const key = normalizeIngredientKey(tr.name);
+                      if (key) tagMap.set(key, { name: tr.name, color: tr.color });
+                    });
+                    const groups: TagGroup[] = [];
+                    const untagged: TagGroup = { tagId: null, name: null, color: "#cbd5e1", options: [] };
+                    for (const option of combinedOptions) {
+                      const optionTagIds = Array.isArray(option.tag_ids) ? option.tag_ids : [];
+                      const firstMatching = optionTagIds.find((tid) => tagMap.has(tid));
+                      if (firstMatching && tagMap.has(firstMatching)) {
+                        const meta = tagMap.get(firstMatching)!;
+                        let existing = groups.find((g) => g.tagId === firstMatching);
+                        if (!existing) {
+                          existing = { tagId: firstMatching, name: meta.name, color: meta.color, options: [] };
+                          groups.push(existing);
+                        }
+                        existing.options.push(option);
+                      } else {
+                        untagged.options.push(option);
+                      }
+                    }
+                    if (untagged.options.length > 0) groups.push(untagged);
+                    const hasTaggedGroups = groups.some((g) => g.tagId !== null);
+                    const renderChip = (option: typeof combinedOptions[number]) => {
                             const optionQty = getOptionQuantity(pokeCurrentGroup.id, option.id);
                             return (
                               <div
-                                key={option.id}
+                          key={`chip-${option.id}`}
                                 role="button"
                                 tabIndex={0}
-                                className={`option-chip ${option.price > 0 ? "option-chip--surcharge" : ""} ${optionQty > 0 ? "selected" : ""} ${option.is_out_of_stock ? "disabled" : ""}`}
+                          className={`option-chip ${option.price > 0 ? "option-chip--surcharge" : ""} ${optionQty > 0 ? "selected" : ""} ${option.is_out_of_stock ? "disabled" : ""}`}
                                 onClick={() => incrementOption(pokeCurrentGroup, option)}
                                 onKeyDown={(e) => {
                                   if (e.key === "Enter" || e.key === " ") incrementOption(pokeCurrentGroup, option);
                                 }}
                               >
-                                <span className="option-chip-label">
-                                  {option.price > 0 ? <OptionSurchargeCrownIcon /> : null}
-                                  {option.name}
-                                </span>
-                                <div className="option-chip-trailing">
-                                  {optionQty > 0 ? (
-                                    <span
-                                      className="chip-qty-pill"
-                                      role="group"
-                                      aria-label={`Quantità ${optionQty}`}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                      }}
-                                      onKeyDown={(e) => {
-                                        e.stopPropagation();
-                                      }}
-                                    >
+                          <span className="option-chip-label">
+                            {option.price > 0 ? <OptionSurchargeCrownIcon /> : null}
+                            {option.name}
+                          </span>
+                          <div className="option-chip-trailing">
+                            {optionQty > 0 ? (
+                              <span
+                                className="chip-qty-pill"
+                                role="group"
+                                aria-label={`Quantità ${optionQty}`}
+                                onClick={(e) => e.stopPropagation()}
+                                onKeyDown={(e) => e.stopPropagation()}
+                              >
                                     <button
-                                        type="button"
-                                        className="chip-qty-pill-btn"
+                                  type="button"
+                                  className="chip-qty-pill-btn"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         decrementOption(pokeCurrentGroup.id, option.id);
                                       }}
-                                        aria-label="Diminuisci quantità"
+                                  aria-label="Diminuisci quantità"
                                     >
-                                        −
+                                  −
                                     </button>
-                                      <span className="chip-qty-pill-num">{optionQty}</span>
+                                <span className="chip-qty-pill-num">{optionQty}</span>
                                     <button
-                                        type="button"
-                                        className="chip-qty-pill-btn"
+                                  type="button"
+                                  className="chip-qty-pill-btn"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         incrementOption(pokeCurrentGroup, option);
                                       }}
-                                        aria-label="Aumenta quantità"
+                                  aria-label="Aumenta quantità"
                                     >
                                       +
                                     </button>
                                   </span>
-                                  ) : (
-                                    <em className={option.price > 0 ? "chip-price-surcharge" : undefined}>
-                                      {option.price > 0 ? `+ ${formatCurrency(option.price)}` : ""}
-                                    </em>
+                            ) : (
+                              <em className={option.price > 0 ? "chip-price-surcharge" : undefined}>
+                                {option.price > 0 ? `+ ${formatCurrency(option.price)}` : ""}
+                              </em>
                                 )}
-                                </div>
+                          </div>
                               </div>
                             );
-                          })}
-                      </div>
+                    };
+                    return (
+                      <div className="poke-options-block">
+                        {!mergeExtraWithIncluded && <p className="muted"><strong>{t("included")}</strong></p>}
+                        <div
+                          className="option-grid option-grid--poke-builder"
+                          style={
+                            {
+                              "--poke-chip-w": `${pokeOptionGridWidthCh(combinedOptions)}ch`
+                            } as CSSProperties
+                          }
+                        >
+                          {groups.map((group, gIdx) => (
+                            <Fragment key={`tag-group-${group.tagId ?? "untagged"}-${gIdx}`}>
+                              {hasTaggedGroups && (
+                                <div
+                                  className={`poke-phase-tag-separator ${group.tagId ? "" : "is-untagged"}`.trim()}
+                                  style={{ "--tag-color": group.color } as CSSProperties}
+                                  aria-hidden="true"
+                                >
+                                  {group.name ? (
+                                    <span
+                                      className="poke-phase-tag-separator__pill"
+                                      style={{ borderColor: group.color, color: group.color } as CSSProperties}
+                                    >
+                                      {group.name}
+                                    </span>
+                                  ) : (
+                                    <span className="poke-phase-tag-separator__pill is-empty" aria-hidden="true" />
+                                  )}
                     </div>
                   )}
+                              {group.options.map((option) => renderChip(option))}
+                            </Fragment>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {!mergeExtraWithIncluded && extraOptions.length > 0 && (
                     <div className="poke-options-block">
@@ -7483,9 +8012,28 @@ export default function App() {
                   )}
                 </div>
                 <p className="order-total">{t("total")}: {formatCurrency(orderTotalAmount)}</p>
+                <div className="order-drawer-actions">
                 <button className="cta big" disabled={orderItemsList.length === 0} onClick={goToCheckout}>
                   {isTableOrderMode ? t("sendOrder") : t("completeOrder")}
                 </button>
+                  {getBeverageOptions().length > 0 && (
+                    <button
+                      type="button"
+                      className="cta big home-blob-btn order-drawer-add-drinks"
+                      onClick={openDrinksModal}
+                    >
+                      <span className="home-blob-btn__label">{t("addDrinks")}</span>
+                      <span className="home-blob-btn__inner" aria-hidden="true">
+                        <span className="home-blob-btn__blobs">
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                        </span>
+                      </span>
+                    </button>
+                  )}
+                </div>
                 {!isTableOrderMode && (
                   <p className="order-next-step-note">
                     *Nella fase successiva potrai controllare e modificare i piatti selezionati se hai sbagliato qualcosa
@@ -7496,6 +8044,127 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {drinksModalOpen && (() => {
+        const drinks = getBeverageOptions();
+        const selectedTotal = Object.entries(drinksModalSelections).reduce((sum, [idStr, qty]) => {
+          const option = drinks.find((d) => d.id === Number(idStr));
+          if (!option) return sum;
+          return sum + Number(option.price || 0) * (qty || 0);
+        }, 0);
+        const selectedCount = Object.values(drinksModalSelections).reduce((sum, q) => sum + (q || 0), 0);
+        return (
+          <div className="overlay modal-center drinks-modal-overlay" onClick={closeDrinksModal}>
+            <article className="info-modal drinks-modal" onClick={(e) => e.stopPropagation()}>
+              <header className="drinks-modal-header">
+                <h4>{t("addDrinks")}</h4>
+                <button
+                  type="button"
+                  className="drinks-modal-close"
+                  onClick={closeDrinksModal}
+                  aria-label="Chiudi"
+                >
+                  <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
+                </button>
+              </header>
+              <div className="drinks-modal-body">
+                {drinks.length === 0 ? (
+                  <p className="drinks-modal-empty">{t("noDrinksAvailable")}</p>
+                ) : (
+                  <div
+                    className="option-grid option-grid--poke-builder drinks-modal-grid"
+                    style={
+                      {
+                        "--poke-chip-w": `${pokeOptionGridWidthCh(drinks)}ch`
+                      } as CSSProperties
+                    }
+                  >
+                    {drinks.map((option) => {
+                      const optionQty = drinksModalSelections[option.id] || 0;
+                      const hasSurcharge = Number(option.price || 0) > 0;
+                      return (
+                        <div
+                          key={`drink-option-${option.id}`}
+                          role="button"
+                          tabIndex={0}
+                          className={`option-chip ${hasSurcharge ? "option-chip--surcharge" : ""} ${optionQty > 0 ? "selected" : ""}`.trim()}
+                          onClick={() => updateDrinkSelection(option.id, 1)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") updateDrinkSelection(option.id, 1);
+                          }}
+                        >
+                          <span className="option-chip-label">
+                            {hasSurcharge ? <OptionSurchargeCrownIcon /> : null}
+                            {option.name}
+                          </span>
+                          <div className="option-chip-trailing">
+                            {optionQty > 0 ? (
+                              <span
+                                className="chip-qty-pill"
+                                role="group"
+                                aria-label={`Quantità ${optionQty}`}
+                                onClick={(e) => e.stopPropagation()}
+                                onKeyDown={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  type="button"
+                                  className="chip-qty-pill-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateDrinkSelection(option.id, -1);
+                                  }}
+                                  aria-label="Diminuisci quantità"
+                                >
+                                  −
+                                </button>
+                                <span className="chip-qty-pill-num">{optionQty}</span>
+                                <button
+                                  type="button"
+                                  className="chip-qty-pill-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateDrinkSelection(option.id, 1);
+                                  }}
+                                  aria-label="Aumenta quantità"
+                                >
+                                  +
+                                </button>
+                              </span>
+                            ) : (
+                              <em className={hasSurcharge ? "chip-price-surcharge" : undefined}>
+                                {hasSurcharge ? `+ ${formatCurrency(Number(option.price || 0))}` : ""}
+                              </em>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              <footer className="drinks-modal-footer">
+                <div className="drinks-modal-summary">
+                  <span>{selectedCount > 0 ? `${selectedCount} ${selectedCount === 1 ? t("drinkSelectedOne") : t("drinkSelectedMany")}` : t("noDrinksSelected")}</span>
+                  {selectedCount > 0 && <strong>{formatCurrency(selectedTotal)}</strong>}
+                </div>
+                <div className="drinks-modal-actions">
+                  <button type="button" className="drinks-modal-btn drinks-modal-btn--ghost" onClick={closeDrinksModal}>
+                    {t("cancel")}
+                  </button>
+                  <button
+                    type="button"
+                    className="drinks-modal-btn drinks-modal-btn--primary"
+                    disabled={selectedCount === 0}
+                    onClick={confirmDrinksSelection}
+                  >
+                    {t("addToOrder")}
+                  </button>
+                </div>
+              </footer>
+            </article>
+          </div>
+        );
+      })()}
 
       {!loading && !error && route === "/completa-ordine" && (
         <section className="checkout-page">
@@ -7616,8 +8285,16 @@ export default function App() {
                     <input
                       id="pickup-date"
                       type="date"
+                      min={todayIsoForPickup}
                       value={menuCheckoutForm.pickup_date}
-                      onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, pickup_date: e.target.value }))}
+                      onChange={(e) =>
+                        setMenuCheckoutForm((old) => ({
+                          ...old,
+                          pickup_date: e.target.value,
+                          pickup_hour: "",
+                          pickup_minute: ""
+                        }))
+                      }
                     />
                     <small>{t("pickupDayHint")}</small>
                   </div>
@@ -7669,17 +8346,42 @@ export default function App() {
                       value={menuCheckoutForm.last_name}
                       onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, last_name: e.target.value }))}
                     />
+                    <div className="form-field">
                     <input
                       placeholder="Telefono"
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
+                        maxLength={10}
+                        pattern="\d{10}"
+                        aria-invalid={customerTouched.phone && !isPhoneValid}
+                        className={customerTouched.phone && !isPhoneValid ? "is-invalid" : ""}
                       value={menuCheckoutForm.phone}
-                      onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, phone: e.target.value }))}
-                    />
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                          setMenuCheckoutForm((old) => ({ ...old, phone: digits }));
+                        }}
+                        onBlur={() => setCustomerTouched((old) => ({ ...old, phone: true }))}
+                      />
+                      {customerTouched.phone && !isPhoneValid && (
+                        <small className="form-field-error">{t("phoneInvalid")}</small>
+                      )}
+                    </div>
+                    <div className="form-field">
                     <input
                       placeholder="Email"
                       type="email"
+                        autoComplete="email"
+                        aria-invalid={customerTouched.email && !isEmailValid}
+                        className={customerTouched.email && !isEmailValid ? "is-invalid" : ""}
                       value={menuCheckoutForm.email}
                       onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, email: e.target.value }))}
+                        onBlur={() => setCustomerTouched((old) => ({ ...old, email: true }))}
                     />
+                      {customerTouched.email && !isEmailValid && (
+                        <small className="form-field-error">{t("emailInvalid")}</small>
+                      )}
+                    </div>
                   </div>
                 </>
               )}
@@ -7895,41 +8597,217 @@ export default function App() {
               <strong>{menuItemVariantModal.item.name}</strong>
             </p>
             <h4>Seleziona varianti</h4>
-            <div className="admin-item-variant-public-list">
-              {getMenuItemVariants(menuItemVariantModal.item).map((variant) => (
-                <section key={`public-variant-${variant.id}`} className="admin-item-variant-public-group">
-                  <h5>{variant.name}</h5>
-                  <div className="admin-item-variant-public-options">
+            <div className="admin-item-variant-public-list public-variant-poke-style">
+              {getMenuItemVariants(menuItemVariantModal.item).map((variant) => {
+                const limits = getVariantLimits(variant);
+                const selection = menuItemVariantModal.selectedByVariantId[variant.id] ?? {};
+                const totalSelected = countSelectedForVariant(selection);
+                const isMulti = limits.max > 1;
+                const remainingSlots = Math.max(0, limits.max - totalSelected);
+                const validationStatus =
+                  totalSelected < limits.min
+                    ? "missing"
+                    : totalSelected > limits.max
+                    ? "overflow"
+                    : "ok";
+                const chipOptionsForWidth = variant.choices.map((c) => ({
+                  name: c.name,
+                  price: Math.max(0, Number(c.extra_price || 0))
+                }));
+                return (
+                <section key={`public-variant-${variant.id}`} className={`admin-item-variant-public-group ${isMulti ? "is-multi" : "is-single"} ${validationStatus !== "ok" ? `is-${validationStatus}` : ""}`.trim()}>
+                  <div className="admin-item-variant-public-head">
+                    <h5>{variant.name}</h5>
+                    <small className="admin-item-variant-public-limits">
+                      {isMulti ? (
+                        <>
+                          Selezionati {totalSelected} / Max {limits.max}
+                          {limits.min > 0 && limits.min !== limits.max && ` (Min ${limits.min})`}
+                        </>
+                      ) : limits.min > 0 ? (
+                        <>Obbligatorio · Max 1</>
+                      ) : (
+                        <>Facoltativo · Max 1</>
+                      )}
+                    </small>
+                  </div>
+                  {validationStatus === "missing" && (
+                    <span className="admin-item-variant-public-status is-missing">
+                      <wa-icon name="triangle-exclamation" variant="solid" aria-hidden="true"></wa-icon>
+                      {limits.min - totalSelected === 1
+                        ? "Seleziona ancora 1 opzione"
+                        : `Seleziona ancora ${limits.min - totalSelected} opzioni`}
+                    </span>
+                  )}
+                  <div
+                    className="option-grid option-grid--poke-builder"
+                    style={
+                      {
+                        "--poke-chip-w": `${pokeOptionGridWidthCh(chipOptionsForWidth)}ch`
+                      } as CSSProperties
+                    }
+                  >
                     {variant.choices.map((choice) => {
-                      const selected = menuItemVariantModal.selectedByVariantId[variant.id] === choice.id;
-                      const extraPrice = Number(choice.extra_price || 0);
-                      const extraLabel = !choice.included && extraPrice > 0 ? ` (+${formatCurrency(extraPrice)})` : "";
-                      return (
-                        <button
-                          key={`public-variant-choice-${variant.id}-${choice.id}`}
-                          type="button"
-                          className={`admin-tag-option public-variant-option ${selected ? "selected" : ""}`.trim()}
-                          onClick={() =>
+                      const qty = selection[choice.id] ?? 0;
+                      const selected = qty > 0;
+                      const extraPrice = Math.max(0, Number(choice.extra_price || 0));
+                      const hasSurcharge = !choice.included && extraPrice > 0;
+                      const handleIncrement = () => {
                             setMenuItemVariantModal((old) => {
                               if (!old) return old;
+                          const current = old.selectedByVariantId[variant.id] ?? {};
+                          if (isMulti) {
+                            const total = Object.values(current).reduce((s, q) => s + (q > 0 ? q : 0), 0);
+                            if (total >= limits.max) return old;
+                            const currentQty = current[choice.id] ?? 0;
                               return {
                                 ...old,
-                                selectedByVariantId: { ...old.selectedByVariantId, [variant.id]: choice.id }
-                              };
-                            })
+                              selectedByVariantId: {
+                                ...old.selectedByVariantId,
+                                [variant.id]: { ...current, [choice.id]: currentQty + 1 }
+                              }
+                            };
                           }
+                          // Single: toggla la scelta (sostituisce)
+                          return {
+                            ...old,
+                            selectedByVariantId: {
+                              ...old.selectedByVariantId,
+                              [variant.id]: { [choice.id]: 1 }
+                            }
+                          };
+                        });
+                      };
+                      const handleDecrement = () => {
+                        setMenuItemVariantModal((old) => {
+                          if (!old) return old;
+                          const current = old.selectedByVariantId[variant.id] ?? {};
+                          const currentQty = current[choice.id] ?? 0;
+                          if (currentQty <= 0) return old;
+                          const nextChoices = { ...current };
+                          if (currentQty === 1) delete nextChoices[choice.id];
+                          else nextChoices[choice.id] = currentQty - 1;
+                          return {
+                            ...old,
+                            selectedByVariantId: { ...old.selectedByVariantId, [variant.id]: nextChoices }
+                          };
+                        });
+                      };
+                      const canIncrement = !isMulti || (qty < limits.max && remainingSlots > 0);
+                      return (
+                        <div
+                          key={`public-variant-choice-${variant.id}-${choice.id}`}
+                          role="button"
+                          tabIndex={0}
+                          className={`option-chip ${hasSurcharge ? "option-chip--surcharge" : ""} ${selected ? "selected" : ""} ${!canIncrement && !selected ? "disabled" : ""}`.trim()}
+                          onClick={() => {
+                            if (selected) return;
+                            if (!canIncrement) return;
+                            handleIncrement();
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              if (selected) return;
+                              if (!canIncrement) return;
+                              handleIncrement();
+                            }
+                          }}
                         >
-                          <span className={`public-variant-option-chip ${selected ? "selected" : ""}`.trim()}>
+                          <span className="option-chip-label">
+                            {hasSurcharge ? <OptionSurchargeCrownIcon /> : null}
                             {choice.name}
-                            {extraLabel}
                           </span>
-                        </button>
+                          <div className="option-chip-trailing">
+                            {qty > 0 ? (
+                              <span
+                                className="chip-qty-pill"
+                                role="group"
+                                aria-label={`Quantità ${qty}`}
+                                onClick={(e) => e.stopPropagation()}
+                                onKeyDown={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  type="button"
+                                  className="chip-qty-pill-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDecrement();
+                                  }}
+                                  aria-label="Diminuisci quantità"
+                                >
+                                  −
+                                </button>
+                                <span className="chip-qty-pill-num">{qty}</span>
+                                <button
+                                  type="button"
+                                  className="chip-qty-pill-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (qty >= limits.max || remainingSlots <= 0) return;
+                                    if (isMulti) handleIncrement();
+                                  }}
+                                  aria-label="Aumenta quantità"
+                                  disabled={!isMulti || qty >= limits.max || remainingSlots <= 0}
+                                >
+                                  +
+                                </button>
+                              </span>
+                            ) : (
+                              <em className={hasSurcharge ? "chip-price-surcharge" : undefined}>
+                                {hasSurcharge ? `+ ${formatCurrency(extraPrice)}` : ""}
+                              </em>
+                            )}
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
                 </section>
+                );
+              })}
+            </div>
+            {(() => {
+              const baseCodes = Array.isArray(menuItemVariantModal.item.allergen_codes)
+                ? menuItemVariantModal.item.allergen_codes
+                : [];
+              const variantCodes: number[] = [];
+              for (const variant of getMenuItemVariants(menuItemVariantModal.item)) {
+                const selection = menuItemVariantModal.selectedByVariantId[variant.id] ?? {};
+                for (const choiceIdRaw of Object.keys(selection)) {
+                  if ((selection[Number(choiceIdRaw)] ?? 0) <= 0) continue;
+                  const selectedChoice = variant.choices.find((c) => c.id === Number(choiceIdRaw));
+                  if (selectedChoice && Array.isArray(selectedChoice.allergen_codes)) {
+                    variantCodes.push(...selectedChoice.allergen_codes);
+                  }
+                }
+              }
+              const allCodes = Array.from(new Set([...baseCodes, ...variantCodes])).sort((a, b) => a - b);
+              if (allCodes.length === 0) return null;
+              const displayed = ALLERGEN_OPTIONS.filter((option) => allCodes.includes(option.id));
+              return (
+                <section className="public-variant-allergens">
+                  <h5 className="public-variant-allergens__title">Allergeni presenti</h5>
+                  <div className="public-variant-allergens__grid">
+                    {displayed.map((allergen) => (
+                      <span
+                        key={`public-variant-allergen-${allergen.id}`}
+                        className="public-variant-allergen-chip"
+                        title={`${allergen.id}. ${allergen.title}`}
+                      >
+                        {allergen.icon_url ? (
+                          <img src={allergen.icon_url} alt={allergen.title} />
+                        ) : (
+                          <span className="public-variant-allergen-chip__fallback">{allergen.id}</span>
+                        )}
+                        <small>
+                          {allergen.id}. {allergen.title}
+                        </small>
+                      </span>
               ))}
             </div>
+                </section>
+              );
+            })()}
             <label className="field-label">
               <span>Note</span>
               <textarea
@@ -7948,7 +8826,19 @@ export default function App() {
               <button className="plain-link public-variant-cancel-btn" onClick={() => setMenuItemVariantModal(null)}>
                 Annulla
               </button>
-              <button className="cta" onClick={confirmMenuItemVariantSelection}>
+              <button
+                className="cta"
+                onClick={confirmMenuItemVariantSelection}
+                disabled={(() => {
+                  if (!menuItemVariantModal) return true;
+                  for (const variant of getMenuItemVariants(menuItemVariantModal.item)) {
+                    const limits = getVariantLimits(variant);
+                    const total = countSelectedForVariant(menuItemVariantModal.selectedByVariantId[variant.id]);
+                    if (total < limits.min || total > limits.max) return true;
+                  }
+                  return false;
+                })()}
+              >
                 Aggiungi prodotto
               </button>
             </div>
@@ -7973,41 +8863,216 @@ export default function App() {
                 <p className="muted">
                   <strong>{orderItemEditModal.menuItem.name}</strong>
                 </p>
-                <div className="admin-item-variant-public-list">
-                  {getMenuItemVariants(orderItemEditModal.menuItem).map((variant) => (
-                    <section key={`edit-variant-${variant.id}`} className="admin-item-variant-public-group">
-                      <h5>{variant.name}</h5>
-                      <div className="admin-item-variant-public-options">
+                <div className="admin-item-variant-public-list public-variant-poke-style">
+                  {getMenuItemVariants(orderItemEditModal.menuItem).map((variant) => {
+                    const limits = getVariantLimits(variant);
+                    const selection = orderItemEditModal.selectedByVariantId![variant.id] ?? {};
+                    const totalSelected = countSelectedForVariant(selection);
+                    const isMulti = limits.max > 1;
+                    const remainingSlots = Math.max(0, limits.max - totalSelected);
+                    const validationStatus =
+                      totalSelected < limits.min
+                        ? "missing"
+                        : totalSelected > limits.max
+                        ? "overflow"
+                        : "ok";
+                    const chipOptionsForWidth = variant.choices.map((c) => ({
+                      name: c.name,
+                      price: Math.max(0, Number(c.extra_price || 0))
+                    }));
+                    return (
+                    <section key={`edit-variant-${variant.id}`} className={`admin-item-variant-public-group ${isMulti ? "is-multi" : "is-single"} ${validationStatus !== "ok" ? `is-${validationStatus}` : ""}`.trim()}>
+                      <div className="admin-item-variant-public-head">
+                        <h5>{variant.name}</h5>
+                        <small className="admin-item-variant-public-limits">
+                          {isMulti ? (
+                            <>
+                              Selezionati {totalSelected} / Max {limits.max}
+                              {limits.min > 0 && limits.min !== limits.max && ` (Min ${limits.min})`}
+                            </>
+                          ) : limits.min > 0 ? (
+                            <>Obbligatorio · Max 1</>
+                          ) : (
+                            <>Facoltativo · Max 1</>
+                          )}
+                        </small>
+                      </div>
+                      {validationStatus === "missing" && (
+                        <span className="admin-item-variant-public-status is-missing">
+                          <wa-icon name="triangle-exclamation" variant="solid" aria-hidden="true"></wa-icon>
+                          {limits.min - totalSelected === 1
+                            ? "Seleziona ancora 1 opzione"
+                            : `Seleziona ancora ${limits.min - totalSelected} opzioni`}
+                        </span>
+                      )}
+                      <div
+                        className="option-grid option-grid--poke-builder"
+                        style={
+                          {
+                            "--poke-chip-w": `${pokeOptionGridWidthCh(chipOptionsForWidth)}ch`
+                          } as CSSProperties
+                        }
+                      >
                         {variant.choices.map((choice) => {
-                          const selected = orderItemEditModal.selectedByVariantId?.[variant.id] === choice.id;
-                          const extraPrice = Number(choice.extra_price || 0);
-                          const extraLabel = !choice.included && extraPrice > 0 ? ` (+${formatCurrency(extraPrice)})` : "";
-                          return (
-                            <button
-                              key={`edit-choice-${variant.id}-${choice.id}`}
-                              type="button"
-                              className={`admin-tag-option public-variant-option ${selected ? "selected" : ""}`.trim()}
-                              onClick={() =>
+                          const qty = selection[choice.id] ?? 0;
+                          const selected = qty > 0;
+                          const extraPrice = Math.max(0, Number(choice.extra_price || 0));
+                          const hasSurcharge = !choice.included && extraPrice > 0;
+                          const handleIncrement = () => {
                                 setOrderItemEditModal((old) => {
                                   if (!old || old.mode !== "menu_variant" || !old.selectedByVariantId) return old;
+                              const current = old.selectedByVariantId[variant.id] ?? {};
+                              if (isMulti) {
+                                const total = Object.values(current).reduce((s, q) => s + (q > 0 ? q : 0), 0);
+                                if (total >= limits.max) return old;
+                                const currentQty = current[choice.id] ?? 0;
                                   return {
                                     ...old,
-                                    selectedByVariantId: { ...old.selectedByVariantId, [variant.id]: choice.id }
-                                  };
-                                })
+                                  selectedByVariantId: {
+                                    ...old.selectedByVariantId,
+                                    [variant.id]: { ...current, [choice.id]: currentQty + 1 }
+                                  }
+                                };
                               }
+                              return {
+                                ...old,
+                                selectedByVariantId: {
+                                  ...old.selectedByVariantId,
+                                  [variant.id]: { [choice.id]: 1 }
+                                }
+                              };
+                            });
+                          };
+                          const handleDecrement = () => {
+                            setOrderItemEditModal((old) => {
+                              if (!old || old.mode !== "menu_variant" || !old.selectedByVariantId) return old;
+                              const current = old.selectedByVariantId[variant.id] ?? {};
+                              const currentQty = current[choice.id] ?? 0;
+                              if (currentQty <= 0) return old;
+                              const nextChoices = { ...current };
+                              if (currentQty === 1) delete nextChoices[choice.id];
+                              else nextChoices[choice.id] = currentQty - 1;
+                              return {
+                                ...old,
+                                selectedByVariantId: { ...old.selectedByVariantId, [variant.id]: nextChoices }
+                              };
+                            });
+                          };
+                          const canIncrement = !isMulti || (qty < limits.max && remainingSlots > 0);
+                          return (
+                            <div
+                              key={`edit-choice-${variant.id}-${choice.id}`}
+                              role="button"
+                              tabIndex={0}
+                              className={`option-chip ${hasSurcharge ? "option-chip--surcharge" : ""} ${selected ? "selected" : ""} ${!canIncrement && !selected ? "disabled" : ""}`.trim()}
+                              onClick={() => {
+                                if (selected) return;
+                                if (!canIncrement) return;
+                                handleIncrement();
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  if (selected) return;
+                                  if (!canIncrement) return;
+                                  handleIncrement();
+                                }
+                              }}
                             >
-                              <span className={`public-variant-option-chip ${selected ? "selected" : ""}`.trim()}>
+                              <span className="option-chip-label">
+                                {hasSurcharge ? <OptionSurchargeCrownIcon /> : null}
                                 {choice.name}
-                                {extraLabel}
                               </span>
-                            </button>
+                              <div className="option-chip-trailing">
+                                {qty > 0 ? (
+                                  <span
+                                    className="chip-qty-pill"
+                                    role="group"
+                                    aria-label={`Quantità ${qty}`}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onKeyDown={(e) => e.stopPropagation()}
+                                  >
+                                    <button
+                                      type="button"
+                                      className="chip-qty-pill-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDecrement();
+                                      }}
+                                      aria-label="Diminuisci quantità"
+                                    >
+                                      −
+                                    </button>
+                                    <span className="chip-qty-pill-num">{qty}</span>
+                                    <button
+                                      type="button"
+                                      className="chip-qty-pill-btn"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (qty >= limits.max || remainingSlots <= 0) return;
+                                        if (isMulti) handleIncrement();
+                                      }}
+                                      aria-label="Aumenta quantità"
+                                      disabled={!isMulti || qty >= limits.max || remainingSlots <= 0}
+                                    >
+                                      +
+                                    </button>
+                                  </span>
+                                ) : (
+                                  <em className={hasSurcharge ? "chip-price-surcharge" : undefined}>
+                                    {hasSurcharge ? `+ ${formatCurrency(extraPrice)}` : ""}
+                                  </em>
+                                )}
+                              </div>
+                            </div>
                           );
                         })}
                       </div>
                     </section>
+                    );
+                  })}
+                </div>
+                {(() => {
+                  const baseCodes = Array.isArray(orderItemEditModal.menuItem.allergen_codes)
+                    ? orderItemEditModal.menuItem.allergen_codes
+                    : [];
+                  const variantCodes: number[] = [];
+                  for (const variant of getMenuItemVariants(orderItemEditModal.menuItem)) {
+                    const selection = orderItemEditModal.selectedByVariantId![variant.id] ?? {};
+                    for (const choiceIdRaw of Object.keys(selection)) {
+                      if ((selection[Number(choiceIdRaw)] ?? 0) <= 0) continue;
+                      const selectedChoice = variant.choices.find((c) => c.id === Number(choiceIdRaw));
+                      if (selectedChoice && Array.isArray(selectedChoice.allergen_codes)) {
+                        variantCodes.push(...selectedChoice.allergen_codes);
+                      }
+                    }
+                  }
+                  const allCodes = Array.from(new Set([...baseCodes, ...variantCodes])).sort((a, b) => a - b);
+                  if (allCodes.length === 0) return null;
+                  const displayed = ALLERGEN_OPTIONS.filter((option) => allCodes.includes(option.id));
+                  return (
+                    <section className="public-variant-allergens">
+                      <h5 className="public-variant-allergens__title">Allergeni presenti</h5>
+                      <div className="public-variant-allergens__grid">
+                        {displayed.map((allergen) => (
+                          <span
+                            key={`edit-variant-allergen-${allergen.id}`}
+                            className="public-variant-allergen-chip"
+                            title={`${allergen.id}. ${allergen.title}`}
+                          >
+                            {allergen.icon_url ? (
+                              <img src={allergen.icon_url} alt={allergen.title} />
+                            ) : (
+                              <span className="public-variant-allergen-chip__fallback">{allergen.id}</span>
+                            )}
+                            <small>
+                              {allergen.id}. {allergen.title}
+                            </small>
+                          </span>
                   ))}
                 </div>
+                    </section>
+                  );
+                })()}
                 <label className="field-label">
                   <span>Note</span>
                   <textarea
@@ -8023,7 +9088,32 @@ export default function App() {
                 </label>
               </>
             )}
-            {orderItemEditModal.mode === "poke" && orderItemEditModal.pokeBuilder && orderItemEditModal.selectedByGroup && (
+            {orderItemEditModal.mode === "poke" && orderItemEditModal.pokeBuilder && orderItemEditModal.selectedByGroup && (() => {
+              const pokeBuilder = orderItemEditModal.pokeBuilder!;
+              const selectedByGroup = orderItemEditModal.selectedByGroup!;
+              type GroupValidation =
+                | { status: "ok"; min: number; max: number; selected: number }
+                | { status: "missing"; min: number; max: number; selected: number; missing: number }
+                | { status: "overflow"; min: number; max: number; selected: number; overflow: number };
+              const groupValidations = new Map<number, GroupValidation>();
+              const invalidGroupLabels: { label: string; status: "missing" | "overflow"; delta: number }[] = [];
+              for (const group of pokeBuilder.groups) {
+                const limits = getOrderEditGroupEffectiveLimits(pokeBuilder, group.id);
+                const selected = getOrderEditPokeSelectionCount(pokeBuilder, selectedByGroup, group.id);
+                if (limits.max > 0 && selected > limits.max) {
+                  const overflow = selected - limits.max;
+                  groupValidations.set(group.id, { status: "overflow", min: limits.min, max: limits.max, selected, overflow });
+                  invalidGroupLabels.push({ label: getOrderEditPhaseLabel(pokeBuilder, group.id), status: "overflow", delta: overflow });
+                } else if (selected < limits.min) {
+                  const missing = limits.min - selected;
+                  groupValidations.set(group.id, { status: "missing", min: limits.min, max: limits.max, selected, missing });
+                  invalidGroupLabels.push({ label: getOrderEditPhaseLabel(pokeBuilder, group.id), status: "missing", delta: missing });
+                } else {
+                  groupValidations.set(group.id, { status: "ok", min: limits.min, max: limits.max, selected });
+                }
+              }
+              const hasErrors = invalidGroupLabels.length > 0;
+              return (
               <>
                 {pokeBuilderItemsPublic.length > 1 ? (
                   <div className="order-edit-poke-size-row">
@@ -8048,27 +9138,62 @@ export default function App() {
                     </div>
                   </div>
                 ) : (
-                  <p className="muted">
-                    <strong>{orderItemEditModal.pokeBuilder.name}</strong>
-                  </p>
+                <p className="muted">
+                  <strong>{orderItemEditModal.pokeBuilder.name}</strong>
+                </p>
+                )}
+                {hasErrors && (
+                  <div className="order-edit-poke-alert" role="alert">
+                    <wa-icon name="triangle-exclamation" variant="solid" aria-hidden="true"></wa-icon>
+                    <div className="order-edit-poke-alert-body">
+                      <strong>Manca qualcosa per completare il poke</strong>
+                      <ul>
+                        {invalidGroupLabels.map((entry, idx) => (
+                          <li key={`order-edit-alert-${idx}`}>
+                            <span className="order-edit-poke-alert-phase">{entry.label}:</span>{" "}
+                            {entry.status === "missing"
+                              ? `aggiungi ${entry.delta} ${entry.delta === 1 ? "ingrediente" : "ingredienti"}`
+                              : `rimuovi ${entry.delta} ${entry.delta === 1 ? "ingrediente" : "ingredienti"}`}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 )}
                 <div className="order-edit-poke-groups">
-                  {orderItemEditModal.pokeBuilder.groups.map((group) => (
-                    <section key={`edit-poke-group-${group.id}`} className="order-edit-poke-group">
-                      {(() => {
-                        const limits = getOrderEditGroupEffectiveLimits(orderItemEditModal.pokeBuilder!, group.id);
+                  {pokeBuilder.groups.map((group) => {
+                    const validation = groupValidations.get(group.id);
+                    const limits = { min: validation?.min ?? 0, max: validation?.max ?? 0 };
+                    const groupClassNames = [
+                      "order-edit-poke-group",
+                      validation?.status === "missing" ? "is-missing" : "",
+                      validation?.status === "overflow" ? "is-overflow" : ""
+                    ]
+                      .filter(Boolean)
+                      .join(" ");
                         return (
+                    <section key={`edit-poke-group-${group.id}`} className={groupClassNames}>
                       <div className="order-edit-poke-group-head">
-                        <h5>{getOrderEditPhaseLabel(orderItemEditModal.pokeBuilder!, group.id)}</h5>
+                        <h5>{getOrderEditPhaseLabel(pokeBuilder, group.id)}</h5>
                         <small>
                           Min {limits.min} - Max {limits.max}
                         </small>
                       </div>
-                        );
-                      })()}
+                      {validation && validation.status !== "ok" && (
+                        <span
+                          className={`order-edit-poke-group-status ${
+                            validation.status === "missing" ? "is-missing" : "is-overflow"
+                          }`}
+                        >
+                          <wa-icon name="triangle-exclamation" variant="solid" aria-hidden="true"></wa-icon>
+                          {validation.status === "missing"
+                            ? `Aggiungi ${validation.missing} ${validation.missing === 1 ? "ingrediente" : "ingredienti"}`
+                            : `Rimuovi ${validation.overflow} ${validation.overflow === 1 ? "ingrediente" : "ingredienti"}`}
+                        </span>
+                      )}
                       <div className="order-edit-poke-options">
                         {group.options.map((option) => {
-                          const qty = orderItemEditModal.selectedByGroup?.[group.id]?.[option.id] ?? 0;
+                          const qty = selectedByGroup?.[group.id]?.[option.id] ?? 0;
                           const hasExtra = Number(option.price || 0) > 0;
                           return (
                             <div
@@ -8096,16 +9221,18 @@ export default function App() {
                         })}
                       </div>
                     </section>
-                  ))}
+                    );
+                  })}
                 </div>
               </>
-            )}
+              );
+            })()}
             <div className="admin-modal-actions order-edit-modal-actions">
               <span className="public-variant-total-price">{formatCurrency(getOrderItemEditPricePreview())}</span>
               <button className="plain-link public-variant-cancel-btn" onClick={() => setOrderItemEditModal(null)}>
                 Annulla
               </button>
-              <button className="cta" onClick={saveOrderItemEdit}>
+              <button className="cta" onClick={saveOrderItemEdit} disabled={!isOrderEditValid}>
                 Salva modifiche
               </button>
             </div>
@@ -8113,6 +9240,90 @@ export default function App() {
         </div>
       )}
 
+      {pokeSizeChangeModal && (() => {
+        const { nextBuilder, draftSelectedByGroup } = pokeSizeChangeModal;
+        const overflowGroups = nextBuilder.groups
+          .map((group) => {
+            const max = Math.max(0, Number(group.force_max || 0));
+            const selectionMap = draftSelectedByGroup[group.id] ?? {};
+            const selected = countSelectionsForGroup(selectionMap);
+            const toRemove = Math.max(0, selected - max);
+            return { group, max, selected, toRemove, selectionMap };
+          })
+          .filter((entry) => entry.toRemove > 0);
+        const hasOverflow = overflowGroups.length > 0;
+        return (
+          <div className="overlay modal-center poke-size-change-overlay" onClick={() => setPokeSizeChangeModal(null)}>
+            <article className="info-modal admin-modal poke-size-change-modal" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setPokeSizeChangeModal(null)}
+                aria-label="Chiudi"
+              >
+                <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
+              </button>
+              <h4>Cambia dimensione</h4>
+              <p className="muted poke-size-change-hint">
+                Cambiando dimensione in <strong>{nextBuilder.name}</strong> devi eliminare alcuni ingredienti per rispettare i nuovi limiti.
+              </p>
+              <div className="poke-size-change-list">
+                {overflowGroups.map(({ group, max, selected, toRemove, selectionMap }) => (
+                  <section key={`size-change-group-${group.id}`} className="poke-size-change-group">
+                    <div className="poke-size-change-group-head">
+                      <h5>{getOrderEditPhaseLabel(nextBuilder, group.id)}</h5>
+                      <span className="poke-size-change-counts">
+                        Selezionati {selected} / Max {max}
+                      </span>
+                    </div>
+                    <span className="poke-size-change-badge">
+                      <wa-icon name="triangle-exclamation" variant="solid" aria-hidden="true"></wa-icon>
+                      Da eliminare: {toRemove}
+                    </span>
+                    <div className="poke-size-change-options">
+                      {Object.entries(selectionMap)
+                        .filter(([, qty]) => qty > 0)
+                        .map(([optionIdRaw, qty]) => {
+                          const optionId = Number(optionIdRaw);
+                          const option = group.options.find((entry) => entry.id === optionId);
+                          if (!option) return null;
+                          return (
+                            <div key={`size-change-option-${group.id}-${optionId}`} className="poke-size-change-option">
+                              <span className="poke-size-change-option-name">{option.name}</span>
+                              <div className="poke-size-change-option-actions">
+                                <button
+                                  type="button"
+                                  className="qty-text-action"
+                                  aria-label={`Rimuovi ${option.name}`}
+                                  onClick={() => decrementPokeSizeChangeOption(group.id, optionId)}
+                                >
+                                  -
+                                </button>
+                                <small>{qty}</small>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </section>
+                ))}
+              </div>
+              <div className="admin-modal-actions poke-size-change-actions">
+                <button className="plain-link public-variant-cancel-btn" onClick={() => setPokeSizeChangeModal(null)}>
+                  Annulla
+                </button>
+                <button
+                  className="cta"
+                  onClick={confirmPokeSizeChange}
+                  disabled={hasOverflow}
+                >
+                  Conferma
+                </button>
+              </div>
+            </article>
+          </div>
+        );
+      })()}
 
       {!isTableOrderMode && (
         <section className="final-cta-fullbleed">
