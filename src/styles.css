@@ -900,7 +900,8 @@ select {
 .about-image {
   height: 100%;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 4 / 4.2;
+  max-height: 520px;
   overflow: hidden;
 }
 

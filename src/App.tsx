@@ -2786,8 +2786,28 @@ export default function App() {
     ],
     []
   );
+  const optimizeGalleryImageSrc = useCallback((url: string) => {
+    const clean = String(url || "").trim();
+    if (!clean) return "";
+    if (!/^https?:\/\//i.test(clean)) return clean;
+    try {
+      const parsed = new URL(clean);
+      const host = parsed.hostname.toLowerCase();
+      if (host.includes("images.unsplash.com")) {
+        parsed.searchParams.set("auto", "format");
+        parsed.searchParams.set("fit", "crop");
+        parsed.searchParams.set("w", "720");
+        parsed.searchParams.set("q", "60");
+        return parsed.toString();
+      }
+      return clean;
+    } catch {
+      return clean;
+    }
+  }, []);
   const galleryImages = (appSettings.site.gallery_images.length > 0 ? appSettings.site.gallery_images : showcaseImages)
     .map((imageUrl) => resolveMediaSrc(imageUrl))
+    .map((imageUrl) => optimizeGalleryImageSrc(imageUrl))
     .filter((imageUrl) => String(imageUrl || "").trim().length > 0);
   const featuredFoodCategories = useMemo(() => {
     const categories = home?.categories ?? [];
@@ -6871,7 +6891,7 @@ export default function App() {
                       onClick={() => setGalleryLightboxSrc(imageUrl)}
                       aria-label={`${t("galleryTitle")} ${idx + 1}`}
                     >
-                      <img src={imageUrl} alt={`Galleria ${idx + 1}`} />
+                      <img src={imageUrl} alt={`Galleria ${idx + 1}`} loading="lazy" decoding="async" />
                     </button>
                   ))}
                   {galleryImages.map((imageUrl, idx) => (
@@ -6883,7 +6903,7 @@ export default function App() {
                       aria-hidden="true"
                       tabIndex={-1}
                     >
-                      <img src={imageUrl} alt="" />
+                      <img src={imageUrl} alt="" loading="lazy" decoding="async" />
                     </button>
                   ))}
             </div>
@@ -6899,7 +6919,7 @@ export default function App() {
                       onClick={() => setGalleryLightboxSrc(imageUrl)}
                       aria-label={`${t("galleryTitle")} ${idx + 1}`}
                     >
-                      <img src={imageUrl} alt={`Galleria ${idx + 1}`} />
+                      <img src={imageUrl} alt={`Galleria ${idx + 1}`} loading="lazy" decoding="async" />
                     </button>
                   ))}
                   {galleryImages.map((imageUrl, idx) => (
@@ -6911,7 +6931,7 @@ export default function App() {
                       aria-hidden="true"
                       tabIndex={-1}
                     >
-                      <img src={imageUrl} alt="" />
+                      <img src={imageUrl} alt="" loading="lazy" decoding="async" />
                     </button>
                   ))}
               </div>
