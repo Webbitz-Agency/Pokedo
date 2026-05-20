@@ -1458,6 +1458,68 @@ function filterMenuItemVariantsForAllergens(item: MenuItem, excludedAllergens: n
     .filter((variant) => variant.choices.length > 0);
 }
 
+type PokeBuilderOption = BuilderItem["groups"][number]["options"][number];
+type BeverageOption = PokeBuilderOption & { category_id?: number; category_name?: string };
+
+type OptionDisplayGroup = {
+  key: string;
+  name: string | null;
+  color: string;
+  options: PokeBuilderOption[];
+};
+
+const BEVERAGE_CATEGORY_SEPARATOR_COLORS = ["#2563eb", "#059669", "#d97706", "#7c3aed", "#dc2626", "#0891b2"];
+
+function buildOptionDisplayGroups(
+  options: PokeBuilderOption[],
+  isBeverageGroup: boolean,
+  tagRules: { name: string; color: string }[]
+): OptionDisplayGroup[] {
+  if (isBeverageGroup) {
+    const groups: OptionDisplayGroup[] = [];
+    let colorIdx = 0;
+    for (const option of options) {
+      const beverage = option as BeverageOption;
+      const categoryName = String(beverage.category_name ?? "").trim() || "Altro";
+      const groupKey = `cat-${categoryName}`;
+      let existing = groups.find((group) => group.key === groupKey);
+      if (!existing) {
+        const color = BEVERAGE_CATEGORY_SEPARATOR_COLORS[colorIdx % BEVERAGE_CATEGORY_SEPARATOR_COLORS.length];
+        colorIdx += 1;
+        existing = { key: groupKey, name: categoryName, color, options: [] };
+        groups.push(existing);
+      }
+      existing.options.push(option);
+    }
+    return groups;
+  }
+
+  const tagMap = new Map<string, { name: string; color: string }>();
+  tagRules.forEach((rule) => {
+    const key = normalizeIngredientKey(rule.name);
+    if (key) tagMap.set(key, { name: rule.name, color: rule.color });
+  });
+  const groups: OptionDisplayGroup[] = [];
+  const untagged: OptionDisplayGroup = { key: "untagged", name: null, color: "#cbd5e1", options: [] };
+  for (const option of options) {
+    const optionTagIds = Array.isArray(option.tag_ids) ? option.tag_ids : [];
+    const firstMatching = optionTagIds.find((tagId) => tagMap.has(tagId));
+    if (firstMatching && tagMap.has(firstMatching)) {
+      const meta = tagMap.get(firstMatching)!;
+      let existing = groups.find((group) => group.key === firstMatching);
+      if (!existing) {
+        existing = { key: firstMatching, name: meta.name, color: meta.color, options: [] };
+        groups.push(existing);
+      }
+      existing.options.push(option);
+    } else {
+      untagged.options.push(option);
+    }
+  }
+  if (untagged.options.length > 0) groups.push(untagged);
+  return groups;
+}
+
 /** Nasconde il piatto solo se l'allergene è sul prodotto base o non resta nessuna scelta ordinabile. */
 function menuItemVisibleInAllergenFilter(item: MenuItem, excludedAllergens: number[]): boolean {
   if (excludedAllergens.length === 0) return true;
@@ -4061,40 +4123,35 @@ export default function App() {
     return null;
   }
 
-  // Una "opzione bevanda" è strutturalmente identica a un'opzione del builder
-  // (id, name, price, allergen_codes), in modo da poter riutilizzare la stessa
-  // UI dell'ultima fase del poke (option-chip + corona + prezzo).
-  type BeverageOption = BuilderItem["groups"][number]["options"][number];
-
-  // Pesca tutti gli items delle categorie marcate `is_beverage = true` (attive),
-  // dedupica per id e li formatta come opzioni del poke builder.
+  // Pesca gli items delle categorie menu con `is_beverage = true`, nell'ordine
+  // delle categorie e dei prodotti definito in PokeManager.
   function getBeverageOptions(): BeverageOption[] {
     if (!menu) return [];
-    const map = new Map<number, BeverageOption>();
+    const options: BeverageOption[] = [];
+    const seenIds = new Set<number>();
     for (const category of menu.categories) {
       if (category.active === false) continue;
       if (!category.is_beverage) continue;
+      const categoryName = String(category.name || "").trim();
       for (const item of category.items) {
         const itemActive = (item as MenuItem & { active?: boolean }).active;
         if (itemActive === false) continue;
-        if (map.has(item.id)) continue;
+        if (seenIds.has(item.id)) continue;
+        seenIds.add(item.id);
         const parsed = extractAllergenCodesFromName(item.name);
-        map.set(item.id, {
+        options.push({
           id: item.id,
           name: parsed.cleanName,
           price: Number(item.price || 0),
           is_out_of_stock: false,
           allergen_codes: Array.isArray(item.allergen_codes) ? item.allergen_codes : [],
-          tag_ids: []
+          tag_ids: [],
+          category_id: category.id,
+          category_name: categoryName
         });
       }
     }
-    return Array.from(map.values()).sort((a, b) => {
-      const ap = Number(a.price || 0);
-      const bp = Number(b.price || 0);
-      if (ap !== bp) return ap - bp;
-      return a.name.localeCompare(b.name);
-    });
+    return options;
   }
 
   function openDrinksModal() {
@@ -7633,33 +7690,14 @@ export default function App() {
                   )}
 
                   {combinedOptions.length > 0 && (() => {
-                    // Costruisci i gruppi per tag mantenendo l'ordine di apparizione
-                    type TagGroup = { tagId: string | null; name: string | null; color: string; options: typeof combinedOptions };
-                    const tagRulesList = appSettings.site.tag_rules ?? [];
-                    const tagMap = new Map<string, { name: string; color: string }>();
-                    tagRulesList.forEach((tr) => {
-                      const key = normalizeIngredientKey(tr.name);
-                      if (key) tagMap.set(key, { name: tr.name, color: tr.color });
-                    });
-                    const groups: TagGroup[] = [];
-                    const untagged: TagGroup = { tagId: null, name: null, color: "#cbd5e1", options: [] };
-                    for (const option of combinedOptions) {
-                      const optionTagIds = Array.isArray(option.tag_ids) ? option.tag_ids : [];
-                      const firstMatching = optionTagIds.find((tid) => tagMap.has(tid));
-                      if (firstMatching && tagMap.has(firstMatching)) {
-                        const meta = tagMap.get(firstMatching)!;
-                        let existing = groups.find((g) => g.tagId === firstMatching);
-                        if (!existing) {
-                          existing = { tagId: firstMatching, name: meta.name, color: meta.color, options: [] };
-                          groups.push(existing);
-                        }
-                        existing.options.push(option);
-                      } else {
-                        untagged.options.push(option);
-                      }
-                    }
-                    if (untagged.options.length > 0) groups.push(untagged);
-                    const hasTaggedGroups = groups.some((g) => g.tagId !== null);
+                    const groups = buildOptionDisplayGroups(
+                      combinedOptions,
+                      isBeverageGroup,
+                      appSettings.site.tag_rules ?? []
+                    );
+                    const showGroupSeparators = isBeverageGroup
+                      ? groups.length > 0
+                      : groups.some((group) => group.key !== "untagged");
                     const renderChip = (option: typeof combinedOptions[number]) => {
                             const optionQty = getOptionQuantity(pokeCurrentGroup.id, option.id);
                             return (
@@ -7731,10 +7769,10 @@ export default function App() {
                           }
                         >
                           {groups.map((group, gIdx) => (
-                            <Fragment key={`tag-group-${group.tagId ?? "untagged"}-${gIdx}`}>
-                              {hasTaggedGroups && (
+                            <Fragment key={`option-group-${group.key}-${gIdx}`}>
+                              {showGroupSeparators && (
                                 <div
-                                  className={`poke-phase-tag-separator ${group.tagId ? "" : "is-untagged"}`.trim()}
+                                  className={`poke-phase-tag-separator ${group.name ? "" : "is-untagged"}`.trim()}
                                   style={{ "--tag-color": group.color } as CSSProperties}
                                   aria-hidden="true"
                                 >
@@ -8139,12 +8177,73 @@ export default function App() {
 
       {drinksModalOpen && (() => {
         const drinks = getBeverageOptions();
+        const drinkGroups = buildOptionDisplayGroups(drinks, true, []);
         const selectedTotal = Object.entries(drinksModalSelections).reduce((sum, [idStr, qty]) => {
           const option = drinks.find((d) => d.id === Number(idStr));
           if (!option) return sum;
           return sum + Number(option.price || 0) * (qty || 0);
         }, 0);
         const selectedCount = Object.values(drinksModalSelections).reduce((sum, q) => sum + (q || 0), 0);
+        const renderDrinkChip = (option: BeverageOption) => {
+          const optionQty = drinksModalSelections[option.id] || 0;
+          const hasSurcharge = Number(option.price || 0) > 0;
+          return (
+            <div
+              key={`drink-option-${option.id}`}
+              role="button"
+              tabIndex={0}
+              className={`option-chip ${hasSurcharge ? "option-chip--surcharge" : ""} ${optionQty > 0 ? "selected" : ""}`.trim()}
+              onClick={() => updateDrinkSelection(option.id, 1)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") updateDrinkSelection(option.id, 1);
+              }}
+            >
+              <span className="option-chip-label">
+                {hasSurcharge ? <OptionSurchargeCrownIcon /> : null}
+                {option.name}
+              </span>
+              <div className="option-chip-trailing">
+                {optionQty > 0 ? (
+                  <span
+                    className="chip-qty-pill"
+                    role="group"
+                    aria-label={`Quantità ${optionQty}`}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      className="chip-qty-pill-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateDrinkSelection(option.id, -1);
+                      }}
+                      aria-label="Diminuisci quantità"
+                    >
+                      −
+                    </button>
+                    <span className="chip-qty-pill-num">{optionQty}</span>
+                    <button
+                      type="button"
+                      className="chip-qty-pill-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateDrinkSelection(option.id, 1);
+                      }}
+                      aria-label="Aumenta quantità"
+                    >
+                      +
+                    </button>
+                  </span>
+                ) : (
+                  <em className={hasSurcharge ? "chip-price-surcharge" : undefined}>
+                    {hasSurcharge ? `+ ${formatCurrency(Number(option.price || 0))}` : ""}
+                  </em>
+                )}
+              </div>
+            </div>
+          );
+        };
         return (
           <div className="overlay modal-center drinks-modal-overlay" onClick={closeDrinksModal}>
             <article className="info-modal drinks-modal" onClick={(e) => e.stopPropagation()}>
@@ -8171,66 +8270,25 @@ export default function App() {
                       } as CSSProperties
                     }
                   >
-                    {drinks.map((option) => {
-                      const optionQty = drinksModalSelections[option.id] || 0;
-                      const hasSurcharge = Number(option.price || 0) > 0;
-                      return (
-                        <div
-                          key={`drink-option-${option.id}`}
-                          role="button"
-                          tabIndex={0}
-                          className={`option-chip ${hasSurcharge ? "option-chip--surcharge" : ""} ${optionQty > 0 ? "selected" : ""}`.trim()}
-                          onClick={() => updateDrinkSelection(option.id, 1)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") updateDrinkSelection(option.id, 1);
-                          }}
-                        >
-                          <span className="option-chip-label">
-                            {hasSurcharge ? <OptionSurchargeCrownIcon /> : null}
-                            {option.name}
-                          </span>
-                          <div className="option-chip-trailing">
-                            {optionQty > 0 ? (
-                              <span
-                                className="chip-qty-pill"
-                                role="group"
-                                aria-label={`Quantità ${optionQty}`}
-                                onClick={(e) => e.stopPropagation()}
-                                onKeyDown={(e) => e.stopPropagation()}
-                              >
-                                <button
-                                  type="button"
-                                  className="chip-qty-pill-btn"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updateDrinkSelection(option.id, -1);
-                                  }}
-                                  aria-label="Diminuisci quantità"
-                                >
-                                  −
-                                </button>
-                                <span className="chip-qty-pill-num">{optionQty}</span>
-                                <button
-                                  type="button"
-                                  className="chip-qty-pill-btn"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    updateDrinkSelection(option.id, 1);
-                                  }}
-                                  aria-label="Aumenta quantità"
-                                >
-                                  +
-                                </button>
-                              </span>
-                            ) : (
-                              <em className={hasSurcharge ? "chip-price-surcharge" : undefined}>
-                                {hasSurcharge ? `+ ${formatCurrency(Number(option.price || 0))}` : ""}
-                              </em>
-                            )}
+                    {drinkGroups.map((group, groupIdx) => (
+                      <Fragment key={`drink-group-${group.key}-${groupIdx}`}>
+                        {drinkGroups.length > 0 && (
+                          <div
+                            className="poke-phase-tag-separator"
+                            style={{ "--tag-color": group.color } as CSSProperties}
+                            aria-hidden="true"
+                          >
+                            <span
+                              className="poke-phase-tag-separator__pill"
+                              style={{ borderColor: group.color, color: group.color } as CSSProperties}
+                            >
+                              {group.name}
+                            </span>
                           </div>
-                        </div>
-                      );
-                    })}
+                        )}
+                        {group.options.map((option) => renderDrinkChip(option as BeverageOption))}
+                      </Fragment>
+                    ))}
                   </div>
                 )}
               </div>
