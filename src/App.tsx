@@ -1435,17 +1435,39 @@ function sanitizeAllergenCodes(value: unknown): number[] {
   return Array.from(new Set(clean)).sort((a, b) => a - b);
 }
 
-/** Allergeni del prodotto base + di ogni scelta variante (per filtro menu). */
-function collectMenuItemAllergenCodes(item: MenuItem): number[] {
-  const codes = [...sanitizeAllergenCodes(item.allergen_codes)];
+function choiceHasExcludedAllergen(
+  choice: { allergen_codes?: number[] },
+  excludedAllergens: number[]
+): boolean {
+  if (excludedAllergens.length === 0) return false;
+  return sanitizeAllergenCodes(choice.allergen_codes).some((code) => excludedAllergens.includes(code));
+}
+
+function filterMenuItemVariantsForAllergens(item: MenuItem, excludedAllergens: number[]) {
   const variants = Array.isArray(item.variants) ? item.variants : [];
-  for (const variant of variants) {
-    const choices = Array.isArray(variant.choices) ? variant.choices : [];
-    for (const choice of choices) {
-      codes.push(...sanitizeAllergenCodes(choice.allergen_codes));
-    }
+  if (excludedAllergens.length === 0) {
+    return variants.filter((variant) => Array.isArray(variant.choices) && variant.choices.length > 0);
   }
-  return Array.from(new Set(codes)).sort((a, b) => a - b);
+  return variants
+    .map((variant) => ({
+      ...variant,
+      choices: (Array.isArray(variant.choices) ? variant.choices : []).filter(
+        (choice) => !choiceHasExcludedAllergen(choice, excludedAllergens)
+      )
+    }))
+    .filter((variant) => variant.choices.length > 0);
+}
+
+/** Nasconde il piatto solo se l'allergene è sul prodotto base o non resta nessuna scelta ordinabile. */
+function menuItemVisibleInAllergenFilter(item: MenuItem, excludedAllergens: number[]): boolean {
+  if (excludedAllergens.length === 0) return true;
+  const baseAllergens = sanitizeAllergenCodes(item.allergen_codes);
+  if (baseAllergens.some((code) => excludedAllergens.includes(code))) return false;
+  const hasConfiguredVariants = (Array.isArray(item.variants) ? item.variants : []).some(
+    (variant) => Array.isArray(variant.choices) && variant.choices.length > 0
+  );
+  if (!hasConfiguredVariants) return true;
+  return filterMenuItemVariantsForAllergens(item, excludedAllergens).length > 0;
 }
 
 function sanitizeTagIds(value: unknown): string[] {
@@ -2836,10 +2858,7 @@ export default function App() {
     return menu.categories
       .map((category) => ({
         ...category,
-        items: category.items.filter((item) => {
-          const itemAllergens = collectMenuItemAllergenCodes(item);
-          return !itemAllergens.some((code) => menuExcludedAllergens.includes(code));
-        })
+        items: category.items.filter((item) => menuItemVisibleInAllergenFilter(item, menuExcludedAllergens))
       }))
       .filter((category) => category.items.length > 0);
   }, [menu, menuExcludedAllergens]);
@@ -3850,7 +3869,7 @@ export default function App() {
   }
 
   function getMenuItemVariants(item: MenuItem) {
-    return Array.isArray(item.variants) ? item.variants.filter((variant) => Array.isArray(variant.choices) && variant.choices.length > 0) : [];
+    return filterMenuItemVariantsForAllergens(item, menuExcludedAllergens);
   }
 
   function getMenuItemQuantity(itemId: number) {
@@ -3885,6 +3904,42 @@ export default function App() {
     });
     setMenuItemVariantModal({ item, selectedByVariantId, note: "" });
   }
+
+  useEffect(() => {
+    if (menuExcludedAllergens.length === 0) return;
+    const pruneSelection = (item: MenuItem, selectedByVariantId: Record<number, Record<number, number>>) => {
+      const variants = filterMenuItemVariantsForAllergens(item, menuExcludedAllergens);
+      const nextSelected: Record<number, Record<number, number>> = {};
+      variants.forEach((variant) => {
+        const limits = getVariantLimits(variant);
+        const visibleIds = new Set(variant.choices.map((choice) => choice.id));
+        const cleaned: Record<number, number> = {};
+        for (const [choiceIdRaw, qty] of Object.entries(selectedByVariantId[variant.id] ?? {})) {
+          const choiceId = Number(choiceIdRaw);
+          if (visibleIds.has(choiceId) && qty > 0) cleaned[choiceId] = qty;
+        }
+        if (Object.keys(cleaned).length === 0) {
+          const firstChoice = variant.choices[0];
+          if (limits.max === 1 && firstChoice && limits.min >= 1) {
+            cleaned[firstChoice.id] = 1;
+          }
+        }
+        nextSelected[variant.id] = cleaned;
+      });
+      return nextSelected;
+    };
+
+    setMenuItemVariantModal((old) => {
+      if (!old) return old;
+      const nextSelected = pruneSelection(old.item, old.selectedByVariantId);
+      return { ...old, selectedByVariantId: nextSelected };
+    });
+    setOrderItemEditModal((old) => {
+      if (!old || old.mode !== "menu_variant" || !old.menuItem || !old.selectedByVariantId) return old;
+      const nextSelected = pruneSelection(old.menuItem, old.selectedByVariantId);
+      return { ...old, selectedByVariantId: nextSelected };
+    });
+  }, [menuExcludedAllergens]);
 
   function confirmMenuItemVariantSelection() {
     if (!menuItemVariantModal) return;
@@ -7146,7 +7201,9 @@ export default function App() {
                     <p className="section-kicker">Allergeni</p>
                     <h3>Filtra i piatti in base agli allergeni</h3>
                     <p className="allergen-modal-sub">
-                      Se selezioni una o più icone, i piatti con quegli allergeni non saranno visibili.
+                      Se selezioni una o più icone, nascondiamo i piatti con quegli allergeni nel prodotto base e le
+                      opzioni di variante che li contengono; il piatto resta visibile se puoi ancora ordinarlo con altre
+                      scelte.
                     </p>
                   </div>
                   <button
