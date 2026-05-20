@@ -342,7 +342,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     galleryKicker: "Galleria",
     galleryTitle: "Vivi l'atmosfera del ristorante",
     visitKicker: "Passa a trovarci",
-    visitTitle: "Ti aspettiamo in ristorante.",
+    visitTitle: "Ti aspettiamo da Pokedo!",
     visitBody: "Prenota o chiedi informazioni direttamente al telefono.",
     currentPhase: "Fase attuale",
     prevPhase: "Fase precedente",
@@ -1433,6 +1433,19 @@ function sanitizeAllergenCodes(value: unknown): number[] {
     .map((entry) => Number(String(entry).trim()))
     .filter((entry) => Number.isInteger(entry) && entry >= 1 && entry <= 14);
   return Array.from(new Set(clean)).sort((a, b) => a - b);
+}
+
+/** Allergeni del prodotto base + di ogni scelta variante (per filtro menu). */
+function collectMenuItemAllergenCodes(item: MenuItem): number[] {
+  const codes = [...sanitizeAllergenCodes(item.allergen_codes)];
+  const variants = Array.isArray(item.variants) ? item.variants : [];
+  for (const variant of variants) {
+    const choices = Array.isArray(variant.choices) ? variant.choices : [];
+    for (const choice of choices) {
+      codes.push(...sanitizeAllergenCodes(choice.allergen_codes));
+    }
+  }
+  return Array.from(new Set(codes)).sort((a, b) => a - b);
 }
 
 function sanitizeTagIds(value: unknown): string[] {
@@ -2824,7 +2837,7 @@ export default function App() {
       .map((category) => ({
         ...category,
         items: category.items.filter((item) => {
-          const itemAllergens = Array.isArray(item.allergen_codes) ? item.allergen_codes : [];
+          const itemAllergens = collectMenuItemAllergenCodes(item);
           return !itemAllergens.some((code) => menuExcludedAllergens.includes(code));
         })
       }))
