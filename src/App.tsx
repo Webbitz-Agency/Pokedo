@@ -2786,7 +2786,9 @@ export default function App() {
     ],
     []
   );
-  const galleryImages = appSettings.site.gallery_images.length > 0 ? appSettings.site.gallery_images : showcaseImages;
+  const galleryImages = (appSettings.site.gallery_images.length > 0 ? appSettings.site.gallery_images : showcaseImages)
+    .map((imageUrl) => resolveMediaSrc(imageUrl))
+    .filter((imageUrl) => String(imageUrl || "").trim().length > 0);
   const featuredFoodCategories = useMemo(() => {
     const categories = home?.categories ?? [];
     const beverageKeywords = ["bevande", "birre", "vini", "bollicine", "amari", "caff"];
@@ -8617,7 +8619,7 @@ export default function App() {
                 return (
                 <section key={`public-variant-${variant.id}`} className={`admin-item-variant-public-group ${isMulti ? "is-multi" : "is-single"} ${validationStatus !== "ok" ? `is-${validationStatus}` : ""}`.trim()}>
                   <div className="admin-item-variant-public-head">
-                    <h5>{variant.name}</h5>
+                  <h5>{variant.name}</h5>
                     <small className="admin-item-variant-public-limits">
                       {isMulti ? (
                         <>
@@ -8736,7 +8738,7 @@ export default function App() {
                                   aria-label="Diminuisci quantità"
                                 >
                                   −
-                                </button>
+                        </button>
                                 <span className="chip-qty-pill-num">{qty}</span>
                                 <button
                                   type="button"
@@ -8883,7 +8885,7 @@ export default function App() {
                     return (
                     <section key={`edit-variant-${variant.id}`} className={`admin-item-variant-public-group ${isMulti ? "is-multi" : "is-single"} ${validationStatus !== "ok" ? `is-${validationStatus}` : ""}`.trim()}>
                       <div className="admin-item-variant-public-head">
-                        <h5>{variant.name}</h5>
+                      <h5>{variant.name}</h5>
                         <small className="admin-item-variant-public-limits">
                           {isMulti ? (
                             <>
@@ -9001,7 +9003,7 @@ export default function App() {
                                       aria-label="Diminuisci quantità"
                                     >
                                       −
-                                    </button>
+                            </button>
                                     <span className="chip-qty-pill-num">{qty}</span>
                                     <button
                                       type="button"

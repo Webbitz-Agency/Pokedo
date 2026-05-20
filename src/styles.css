@@ -899,11 +899,13 @@ select {
 
 .about-image {
   height: 100%;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
 }
 
 .about-image img {
   width: 100%;
-  min-height: 430px;
   height: 100%;
   object-fit: cover;
   border-radius: 16px;
