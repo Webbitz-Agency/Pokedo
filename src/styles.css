@@ -2366,6 +2366,59 @@ select {
   box-shadow: 0 8px 14px rgba(15, 23, 42, 0.1);
 }
 
+.public-additional-filter-block {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.public-additional-filter-title {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1f3a8a;
+}
+
+.public-tag-filter-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.public-tag-filter-option {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: #fff;
+  padding: 2px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.public-tag-filter-option:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.1);
+}
+
+.public-tag-filter-option.selected {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.public-tag-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
 .public-allergen-option.selected {
   border-color: #2563eb;
   background: #eff6ff;

@@ -44,10 +44,19 @@ type MenuItem = {
   price: number;
   active: boolean;
   allergen_codes?: number[];
+  tag_ids?: string[];
   variants?: {
     id: number;
     name: string;
-    choices: { id: number; name: string; included: boolean; extra_price: number; allergen_codes?: number[] }[];
+    choices: {
+      id: number;
+      name: string;
+      included: boolean;
+      extra_price: number;
+      allergen_codes?: number[];
+      is_out_of_stock?: boolean;
+      inactive_until?: string | null;
+    }[];
     force_min?: number;
     force_max?: number;
     linked_poke_builder_id?: number;
@@ -217,6 +226,7 @@ type AppSettings = {
       id: number;
       name: string;
       color: string;
+      additional_filter: boolean;
     }[];
     pickup_time_rule: {
       start_time: string;
@@ -1373,7 +1383,8 @@ function normalizeAppSettings(value: unknown): AppSettings {
       return {
         id: Number(source.id ?? idx + 1),
         name,
-        color: /^#[0-9a-f]{6}$/.test(rawColor) ? rawColor : "#22c55e"
+        color: /^#[0-9a-f]{6}$/.test(rawColor) ? rawColor : "#22c55e",
+        additional_filter: Boolean(source.additional_filter)
       };
     })
     .filter((entry, idx, all) => all.findIndex((other) => other.name.toLowerCase() === entry.name.toLowerCase()) === idx);
@@ -1443,17 +1454,31 @@ function choiceHasExcludedAllergen(
   return sanitizeAllergenCodes(choice.allergen_codes).some((code) => excludedAllergens.includes(code));
 }
 
+function isVariantChoiceActive(choice: { is_out_of_stock?: boolean; inactive_until?: string | null }): boolean {
+  if (!choice.is_out_of_stock) return true;
+  const untilRaw = choice.inactive_until;
+  if (!untilRaw) return false;
+  const today = new Date();
+  const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  return untilRaw < todayIso;
+}
+
+type MenuVariantChoice = NonNullable<MenuItem["variants"]>[number]["choices"][number];
+
+function filterVariantChoices(choices: MenuVariantChoice[] | undefined, excludedAllergens: number[]) {
+  return (Array.isArray(choices) ? choices : []).filter((choice) => {
+    if (!isVariantChoiceActive(choice)) return false;
+    if (excludedAllergens.length === 0) return true;
+    return !choiceHasExcludedAllergen(choice, excludedAllergens);
+  });
+}
+
 function filterMenuItemVariantsForAllergens(item: MenuItem, excludedAllergens: number[]) {
   const variants = Array.isArray(item.variants) ? item.variants : [];
-  if (excludedAllergens.length === 0) {
-    return variants.filter((variant) => Array.isArray(variant.choices) && variant.choices.length > 0);
-  }
   return variants
     .map((variant) => ({
       ...variant,
-      choices: (Array.isArray(variant.choices) ? variant.choices : []).filter(
-        (choice) => !choiceHasExcludedAllergen(choice, excludedAllergens)
-      )
+      choices: filterVariantChoices(variant.choices, excludedAllergens)
     }))
     .filter((variant) => variant.choices.length > 0);
 }
@@ -1532,6 +1557,15 @@ function menuItemVisibleInAllergenFilter(item: MenuItem, excludedAllergens: numb
   return filterMenuItemVariantsForAllergens(item, excludedAllergens).length > 0;
 }
 
+function menuItemVisibleInPublicFilters(
+  item: MenuItem,
+  excludedAllergens: number[],
+  activeFilterTagIds: string[]
+): boolean {
+  if (!menuItemVisibleInAllergenFilter(item, excludedAllergens)) return false;
+  return matchesAdditionalFilterTags(item.tag_ids, activeFilterTagIds);
+}
+
 function sanitizeTagIds(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   const unique: string[] = [];
@@ -1541,6 +1575,16 @@ function sanitizeTagIds(value: unknown): string[] {
     if (!unique.includes(normalized)) unique.push(normalized);
   });
   return unique;
+}
+
+function getTagRuleKey(name: string): string {
+  return normalizeIngredientKey(name);
+}
+
+function matchesAdditionalFilterTags(tagIds: string[] | undefined, activeFilterTagIds: string[]): boolean {
+  if (activeFilterTagIds.length === 0) return true;
+  const normalized = sanitizeTagIds(tagIds);
+  return activeFilterTagIds.some((tagId) => normalized.includes(tagId));
 }
 
 function getAdminPokeSlug(name: string) {
@@ -1562,7 +1606,15 @@ export default function App() {
     variants: [] as {
       id: number;
       name: string;
-      choices: { id: number; name: string; included: boolean; extra_price: number; allergen_codes?: number[] }[];
+      choices: {
+      id: number;
+      name: string;
+      included: boolean;
+      extra_price: number;
+      allergen_codes?: number[];
+      is_out_of_stock?: boolean;
+      inactive_until?: string | null;
+    }[];
     }[]
   });
   const [route, setRoute] = useState<Route>(detectRoute(`${window.location.pathname}${window.location.search}`));
@@ -1715,6 +1767,7 @@ export default function App() {
     draftSelectedByGroup: Record<number, Record<number, number>>;
   } | null>(null);
   const [menuExcludedAllergens, setMenuExcludedAllergens] = useState<number[]>([]);
+  const [menuActiveFilterTags, setMenuActiveFilterTags] = useState<string[]>([]);
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
   const [editingItemId, setEditingItemId] = useState<number | null>(null);
   const [openedOrderIds, setOpenedOrderIds] = useState<number[]>(() => {
@@ -1758,6 +1811,7 @@ export default function App() {
   const [selectedBuilderId, setSelectedBuilderId] = useState<number | null>(null);
   const [pokeFlowStep, setPokeFlowStep] = useState(0);
   const [pokeExcludedAllergens, setPokeExcludedAllergens] = useState<number[]>([]);
+  const [pokeActiveFilterTags, setPokeActiveFilterTags] = useState<string[]>([]);
   const [selectedByGroup, setSelectedByGroup] = useState<Record<number, Record<number, number>>>({});
   const [pokeLimitMessage, setPokeLimitMessage] = useState("");
   const [pokeAddedMessage, setPokeAddedMessage] = useState("");
@@ -2914,16 +2968,32 @@ export default function App() {
       return !beverageKeywords.some((k) => normalized.includes(k));
     });
   }, [home]);
+  const additionalFilterTagOptions = useMemo(
+    () =>
+      (appSettings.site.tag_rules ?? [])
+        .filter((rule) => rule.additional_filter)
+        .map((rule) => ({
+          id: getTagRuleKey(rule.name),
+          name: rule.name.trim() || "Tag",
+          color: rule.color
+        }))
+        .filter((rule) => rule.id),
+    [appSettings.site.tag_rules]
+  );
+  const menuPublicFilterCount = menuExcludedAllergens.length + menuActiveFilterTags.length;
+  const pokePublicFilterCount = pokeExcludedAllergens.length + pokeActiveFilterTags.length;
   const filteredMenuCategories = useMemo(() => {
     if (!menu) return [];
-    if (menuExcludedAllergens.length === 0) return menu.categories;
+    if (menuExcludedAllergens.length === 0 && menuActiveFilterTags.length === 0) return menu.categories;
     return menu.categories
       .map((category) => ({
         ...category,
-        items: category.items.filter((item) => menuItemVisibleInAllergenFilter(item, menuExcludedAllergens))
+        items: category.items.filter((item) =>
+          menuItemVisibleInPublicFilters(item, menuExcludedAllergens, menuActiveFilterTags)
+        )
       }))
       .filter((category) => category.items.length > 0);
-  }, [menu, menuExcludedAllergens]);
+  }, [menu, menuExcludedAllergens, menuActiveFilterTags]);
   const infoModalParsed = useMemo(() => {
     if (!infoModalItem) return { cleanName: "", allergens: null as string | null };
     return extractAllergenCodesFromName(infoModalItem.name);
@@ -2986,13 +3056,16 @@ export default function App() {
     const isBeverageGroup = pokeCurrentGroup.name.toLowerCase().includes("bevand");
     const sourceOptions = isBeverageGroup ? getBeverageOptions() : pokeCurrentGroup.options;
     const activeOptions = sourceOptions.filter((option) => !option.is_out_of_stock);
-    if (pokeExcludedAllergens.length === 0) return activeOptions;
+    if (pokeExcludedAllergens.length === 0 && pokeActiveFilterTags.length === 0) return activeOptions;
     return activeOptions.filter((option) => {
-      const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
-      return !optionAllergens.some((code) => pokeExcludedAllergens.includes(code));
+      if (pokeExcludedAllergens.length > 0) {
+        const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
+        if (optionAllergens.some((code) => pokeExcludedAllergens.includes(code))) return false;
+      }
+      return matchesAdditionalFilterTags(option.tag_ids, pokeActiveFilterTags);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pokeCurrentGroup, pokeExcludedAllergens, menu]);
+  }, [pokeCurrentGroup, pokeExcludedAllergens, pokeActiveFilterTags, menu]);
 
   const selectedOptionsWithPrice = useMemo(() => {
     if (!selectedBuilder) return [] as BuilderItem["groups"][number]["options"];
@@ -3069,7 +3142,7 @@ export default function App() {
   }, [selectedGroups]);
 
   useEffect(() => {
-    if (!selectedBuilder || pokeExcludedAllergens.length === 0) return;
+    if (!selectedBuilder || (pokeExcludedAllergens.length === 0 && pokeActiveFilterTags.length === 0)) return;
     setSelectedByGroup((old) => {
       let changed = false;
       const next: Record<number, Record<number, number>> = {};
@@ -3079,8 +3152,12 @@ export default function App() {
         const allowedOptionIds = new Set(
           group.options
             .filter((option) => {
-              const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
-              return !optionAllergens.some((code) => pokeExcludedAllergens.includes(code));
+              if (option.is_out_of_stock) return false;
+              if (pokeExcludedAllergens.length > 0) {
+                const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
+                if (optionAllergens.some((code) => pokeExcludedAllergens.includes(code))) return false;
+              }
+              return matchesAdditionalFilterTags(option.tag_ids, pokeActiveFilterTags);
             })
             .map((option) => option.id)
         );
@@ -3099,7 +3176,7 @@ export default function App() {
       });
       return changed ? next : old;
     });
-  }, [selectedBuilder, pokeExcludedAllergens]);
+  }, [selectedBuilder, pokeExcludedAllergens, pokeActiveFilterTags]);
   function getBuilderGroupLimit(item: BuilderItem, keyword: string) {
     const group = item.groups.find((g) => g.name.toLowerCase().includes(keyword));
     if (!group) return 0;
@@ -3759,6 +3836,7 @@ export default function App() {
               id: number;
               name: string;
               color: string;
+              additional_filter: boolean;
             }[]
           }
         };
@@ -7229,7 +7307,7 @@ export default function App() {
               </section>
             ))}
             {filteredMenuCategories.length === 0 && (
-              <p className="state">Nessun piatto disponibile con i filtri allergeni selezionati.</p>
+              <p className="state">Nessun piatto disponibile con i filtri selezionati.</p>
             )}
           </div>
 
@@ -7240,9 +7318,9 @@ export default function App() {
             onClick={() => setMenuAllergenAccordionOpen(true)}
             aria-label="Filtra allergeni"
           >
-            <span className="allergen-side-tab-label">Filtra allergeni</span>
-            {menuExcludedAllergens.length > 0 && (
-              <span className="allergen-side-tab-badge">{menuExcludedAllergens.length}</span>
+            <span className="allergen-side-tab-label">Filtra menu</span>
+            {menuPublicFilterCount > 0 && (
+              <span className="allergen-side-tab-badge">{menuPublicFilterCount}</span>
             )}
           </button>
 
@@ -7255,12 +7333,11 @@ export default function App() {
               <div className="allergen-modal" role="dialog" aria-modal="true" aria-label="Filtra allergeni">
                 <div className="allergen-modal-header">
                   <div>
-                    <p className="section-kicker">Allergeni</p>
-                    <h3>Filtra i piatti in base agli allergeni</h3>
+                    <p className="section-kicker">Filtri</p>
+                    <h3>Filtra il menu</h3>
                     <p className="allergen-modal-sub">
-                      Se selezioni una o più icone, nascondiamo i piatti con quegli allergeni nel prodotto base e le
-                      opzioni di variante che li contengono; il piatto resta visibile se puoi ancora ordinarlo con altre
-                      scelte.
+                      Allergeni: nascondiamo piatti e scelte che li contengono. Filtri aggiuntivi (es. Vegano): mostriamo
+                      solo piatti e ingredienti con quel tag.
                     </p>
                   </div>
                   <button
@@ -7298,9 +7375,43 @@ export default function App() {
                     );
                   })}
                 </div>
+                {additionalFilterTagOptions.length > 0 && (
+                  <div className="public-additional-filter-block">
+                    <p className="public-additional-filter-title">Filtri aggiuntivi</p>
+                    <div className="public-tag-filter-grid">
+                      {additionalFilterTagOptions.map((tag) => {
+                        const selected = menuActiveFilterTags.includes(tag.id);
+                        return (
+                          <button
+                            key={`public-menu-tag-filter-${tag.id}`}
+                            type="button"
+                            className={`public-tag-filter-option ${selected ? "selected" : ""}`.trim()}
+                            onClick={() =>
+                              setMenuActiveFilterTags((old) =>
+                                old.includes(tag.id)
+                                  ? old.filter((entry) => entry !== tag.id)
+                                  : [...old, tag.id]
+                              )
+                            }
+                          >
+                            <span className="public-tag-filter-pill" style={{ backgroundColor: tag.color }}>
+                              {tag.name}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <div className="allergen-modal-footer">
-                  {menuExcludedAllergens.length > 0 && (
-                    <button className="plain-link" onClick={() => setMenuExcludedAllergens([])}>
+                  {menuPublicFilterCount > 0 && (
+                    <button
+                      className="plain-link"
+                      onClick={() => {
+                        setMenuExcludedAllergens([]);
+                        setMenuActiveFilterTags([]);
+                      }}
+                    >
                       Mostra tutti i piatti
                     </button>
                   )}
@@ -7320,11 +7431,11 @@ export default function App() {
             type="button"
             className="poke-mobile-fab poke-mobile-fab--filter poke-mobile-fab--menu"
             onClick={() => setMenuAllergenAccordionOpen(true)}
-            aria-label="Filtra allergeni"
+            aria-label="Filtra menu"
           >
             <wa-icon name="filter" variant="solid" aria-hidden="true"></wa-icon>
-            {menuExcludedAllergens.length > 0 && (
-              <span className="poke-mobile-fab-badge">{menuExcludedAllergens.length}</span>
+            {menuPublicFilterCount > 0 && (
+              <span className="poke-mobile-fab-badge">{menuPublicFilterCount}</span>
             )}
           </button>
         </section>
@@ -7441,9 +7552,9 @@ export default function App() {
             onClick={() => setPokeAllergenAccordionOpen(true)}
             aria-label="Filtra allergeni"
           >
-            <span className="allergen-side-tab-label">Filtra allergeni</span>
-            {pokeExcludedAllergens.length > 0 && (
-              <span className="allergen-side-tab-badge">{pokeExcludedAllergens.length}</span>
+            <span className="allergen-side-tab-label">Filtra poke</span>
+            {pokePublicFilterCount > 0 && (
+              <span className="allergen-side-tab-badge">{pokePublicFilterCount}</span>
             )}
           </button>
 
@@ -7456,10 +7567,11 @@ export default function App() {
               <div className="allergen-modal" role="dialog" aria-modal="true" aria-label="Filtra allergeni">
                 <div className="allergen-modal-header">
                   <div>
-                <p className="section-kicker">Allergeni</p>
-                <h3>Filtra gli ingredienti in base agli allergeni</h3>
+                <p className="section-kicker">Filtri</p>
+                <h3>Filtra gli ingredienti</h3>
                     <p className="allergen-modal-sub">
-                      Se selezioni una o più icone, gli ingredienti con quegli allergeni non saranno visibili.
+                      Allergeni: nascondiamo gli ingredienti che li contengono. Filtri aggiuntivi (es. Vegano): mostriamo
+                      solo ingredienti con quel tag.
                 </p>
                   </div>
                 <button
@@ -7497,9 +7609,43 @@ export default function App() {
                   );
                 })}
               </div>
+                {additionalFilterTagOptions.length > 0 && (
+                  <div className="public-additional-filter-block">
+                    <p className="public-additional-filter-title">Filtri aggiuntivi</p>
+                    <div className="public-tag-filter-grid">
+                      {additionalFilterTagOptions.map((tag) => {
+                        const selected = pokeActiveFilterTags.includes(tag.id);
+                        return (
+                          <button
+                            key={`public-poke-tag-filter-${tag.id}`}
+                            type="button"
+                            className={`public-tag-filter-option ${selected ? "selected" : ""}`.trim()}
+                            onClick={() =>
+                              setPokeActiveFilterTags((old) =>
+                                old.includes(tag.id)
+                                  ? old.filter((entry) => entry !== tag.id)
+                                  : [...old, tag.id]
+                              )
+                            }
+                          >
+                            <span className="public-tag-filter-pill" style={{ backgroundColor: tag.color }}>
+                              {tag.name}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <div className="allergen-modal-footer">
-              {pokeExcludedAllergens.length > 0 && (
-                  <button className="plain-link" onClick={() => setPokeExcludedAllergens([])}>
+              {pokePublicFilterCount > 0 && (
+                  <button
+                    className="plain-link"
+                    onClick={() => {
+                      setPokeExcludedAllergens([]);
+                      setPokeActiveFilterTags([]);
+                    }}
+                  >
                     Mostra tutti gli ingredienti
                     </button>
                   )}
@@ -7533,8 +7679,8 @@ export default function App() {
             aria-label="Filtra allergeni"
           >
             <wa-icon name="filter" variant="solid" aria-hidden="true"></wa-icon>
-            {pokeExcludedAllergens.length > 0 && (
-              <span className="poke-mobile-fab-badge">{pokeExcludedAllergens.length}</span>
+            {pokePublicFilterCount > 0 && (
+              <span className="poke-mobile-fab-badge">{pokePublicFilterCount}</span>
             )}
           </button>
           <button
