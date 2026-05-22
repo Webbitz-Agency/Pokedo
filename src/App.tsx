@@ -1587,6 +1587,32 @@ function matchesAdditionalFilterTags(tagIds: string[] | undefined, activeFilterT
   return activeFilterTagIds.some((tagId) => normalized.includes(tagId));
 }
 
+type AdditionalFilterTagOption = { id: string; name: string; color: string };
+
+function renderAdditionalFiltersInAllergenGrid(
+  tags: AdditionalFilterTagOption[],
+  selectedTagIds: string[],
+  onToggle: (tagId: string) => void,
+  keyPrefix: string
+) {
+  return tags.map((tag) => {
+    const selected = selectedTagIds.includes(tag.id);
+    return (
+      <button
+        key={`${keyPrefix}-tag-${tag.id}`}
+        type="button"
+        className={`public-allergen-option public-allergen-option--tag ${selected ? "selected" : ""}`.trim()}
+        onClick={() => onToggle(tag.id)}
+      >
+        <span className="public-allergen-tag-mark" style={{ backgroundColor: tag.color }} aria-hidden="true">
+          {tag.name.trim().slice(0, 3)}
+        </span>
+        <small>{tag.name}</small>
+      </button>
+    );
+  });
+}
+
 function getAdminPokeSlug(name: string) {
   const normalized = name.toLowerCase();
   if (normalized.includes("small")) return "poke_small";
@@ -7333,11 +7359,11 @@ export default function App() {
               <div className="allergen-modal" role="dialog" aria-modal="true" aria-label="Filtra allergeni">
                 <div className="allergen-modal-header">
                   <div>
-                    <p className="section-kicker">Filtri</p>
-                    <h3>Filtra il menu</h3>
+                    <p className="section-kicker">Allergeni</p>
+                    <h3>Filtra i piatti in base agli allergeni</h3>
                     <p className="allergen-modal-sub">
-                      Allergeni: nascondiamo piatti e scelte che li contengono. Filtri aggiuntivi (es. Vegano): mostriamo
-                      solo piatti e ingredienti con quel tag.
+                      Seleziona le icone da escludere. I filtri speciali (es. Vegetariano) compaiono nella griglia
+                      sotto e mostrano solo piatti o ingredienti con quel tag.
                     </p>
                   </div>
                   <button
@@ -7374,35 +7400,16 @@ export default function App() {
                       </button>
                     );
                   })}
+                  {renderAdditionalFiltersInAllergenGrid(
+                    additionalFilterTagOptions,
+                    menuActiveFilterTags,
+                    (tagId) =>
+                      setMenuActiveFilterTags((old) =>
+                        old.includes(tagId) ? old.filter((entry) => entry !== tagId) : [...old, tagId]
+                      ),
+                    "public-menu"
+                  )}
                 </div>
-                {additionalFilterTagOptions.length > 0 && (
-                  <div className="public-additional-filter-block">
-                    <p className="public-additional-filter-title">Filtri aggiuntivi</p>
-                    <div className="public-tag-filter-grid">
-                      {additionalFilterTagOptions.map((tag) => {
-                        const selected = menuActiveFilterTags.includes(tag.id);
-                        return (
-                          <button
-                            key={`public-menu-tag-filter-${tag.id}`}
-                            type="button"
-                            className={`public-tag-filter-option ${selected ? "selected" : ""}`.trim()}
-                            onClick={() =>
-                              setMenuActiveFilterTags((old) =>
-                                old.includes(tag.id)
-                                  ? old.filter((entry) => entry !== tag.id)
-                                  : [...old, tag.id]
-                              )
-                            }
-                          >
-                            <span className="public-tag-filter-pill" style={{ backgroundColor: tag.color }}>
-                              {tag.name}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
                 <div className="allergen-modal-footer">
                   {menuPublicFilterCount > 0 && (
                     <button
@@ -7567,11 +7574,11 @@ export default function App() {
               <div className="allergen-modal" role="dialog" aria-modal="true" aria-label="Filtra allergeni">
                 <div className="allergen-modal-header">
                   <div>
-                <p className="section-kicker">Filtri</p>
-                <h3>Filtra gli ingredienti</h3>
+                <p className="section-kicker">Allergeni</p>
+                <h3>Filtra gli ingredienti in base agli allergeni</h3>
                     <p className="allergen-modal-sub">
-                      Allergeni: nascondiamo gli ingredienti che li contengono. Filtri aggiuntivi (es. Vegano): mostriamo
-                      solo ingredienti con quel tag.
+                      Seleziona le icone da escludere. I filtri speciali (es. Vegetariano) compaiono nella griglia
+                      sotto e mostrano solo ingredienti con quel tag.
                 </p>
                   </div>
                 <button
@@ -7608,35 +7615,16 @@ export default function App() {
                     </button>
                   );
                 })}
-              </div>
-                {additionalFilterTagOptions.length > 0 && (
-                  <div className="public-additional-filter-block">
-                    <p className="public-additional-filter-title">Filtri aggiuntivi</p>
-                    <div className="public-tag-filter-grid">
-                      {additionalFilterTagOptions.map((tag) => {
-                        const selected = pokeActiveFilterTags.includes(tag.id);
-                        return (
-                          <button
-                            key={`public-poke-tag-filter-${tag.id}`}
-                            type="button"
-                            className={`public-tag-filter-option ${selected ? "selected" : ""}`.trim()}
-                            onClick={() =>
-                              setPokeActiveFilterTags((old) =>
-                                old.includes(tag.id)
-                                  ? old.filter((entry) => entry !== tag.id)
-                                  : [...old, tag.id]
-                              )
-                            }
-                          >
-                            <span className="public-tag-filter-pill" style={{ backgroundColor: tag.color }}>
-                              {tag.name}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+                {renderAdditionalFiltersInAllergenGrid(
+                  additionalFilterTagOptions,
+                  pokeActiveFilterTags,
+                  (tagId) =>
+                    setPokeActiveFilterTags((old) =>
+                      old.includes(tagId) ? old.filter((entry) => entry !== tagId) : [...old, tagId]
+                    ),
+                  "public-poke"
                 )}
+              </div>
                 <div className="allergen-modal-footer">
               {pokePublicFilterCount > 0 && (
                   <button
