@@ -12234,43 +12234,43 @@ table button:hover {
 
 .menu-dish-filter-tags {
   position: absolute;
-  top: 8px;
-  left: 8px;
+  top: 6px;
+  left: 6px;
   z-index: 3;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 4px;
-  max-width: calc(100% - 16px);
+  gap: 3px;
+  max-width: calc(100% - 12px);
   pointer-events: none;
+  line-height: 0;
 }
 
-/* Stesso aspetto di PokeManager: .admin-item-product-tag + .settings-tag-preview */
+/* Chip compatto come PokeManager, in miniatura sulle card */
 .menu-dish-filter-tag {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  max-width: min(100%, 7.25rem);
-  border: 2px solid #2563eb;
+  max-width: min(100%, 5.5rem);
+  border: 1px solid #2563eb;
   border-radius: 999px;
   background: #fff;
-  padding: 2px;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
+  padding: 1px;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.12);
 }
 
 .menu-dish-filter-tag-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   min-width: 0;
-  max-width: 6.75rem;
+  max-width: 5rem;
   border-radius: 999px;
-  padding: 3px 7px;
+  padding: 1px 4px;
   color: #fff;
-  font-size: 11px;
+  font-size: 8px;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.15;
+  letter-spacing: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
