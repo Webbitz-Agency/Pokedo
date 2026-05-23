@@ -1562,6 +1562,7 @@ function menuItemVisibleInPublicFilters(
   excludedAllergens: number[],
   activeFilterTagIds: string[]
 ): boolean {
+  if ((item as MenuItem & { active?: boolean }).active === false) return false;
   if (!menuItemVisibleInAllergenFilter(item, excludedAllergens)) return false;
   return matchesAdditionalFilterTags(item.tag_ids, activeFilterTagIds);
 }
