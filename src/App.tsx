@@ -18,6 +18,7 @@ import {
 import { isPokeManagerMarketingPortal } from "./portal";
 import { AboutFishLanes } from "./AboutFishLanes";
 import { CategoryScrollCarouselSection } from "./CategoryScrollCarouselSection";
+import { ModalPortal } from "./ModalPortal";
 import pokedoLogo from "./pokedoLogo.png";
 import pokeBlankScaffold from "./poke-blank-scaffold.json";
 // CTA 3D hover: decommentare quando riattivi ./Poke3DHoverButton.tsx
@@ -1610,7 +1611,6 @@ function renderAdditionalFiltersInAllergenGrid(
           {tag.name.trim().slice(0, 3)}
         </span>
         <small>{tag.name}</small>
-        <span className="public-allergen-tag-kind">Filtro aggiuntivo</span>
       </button>
     );
   });
@@ -7377,6 +7377,7 @@ export default function App() {
 
           {/* ── Allergen filter modal (menu) ── */}
           {menuAllergenAccordionOpen && (
+            <ModalPortal>
             <div
               className="allergen-modal-overlay"
               onClick={(e) => { if (e.target === e.currentTarget) setMenuAllergenAccordionOpen(false); }}
@@ -7456,6 +7457,7 @@ export default function App() {
                 </div>
               </div>
             </div>
+            </ModalPortal>
           )}
 
           {/* ── Mobile FAB (bottom-right): filtra allergeni ── */}
@@ -7592,6 +7594,7 @@ export default function App() {
 
           {/* ── Allergen filter modal ── */}
           {pokeAllergenAccordionOpen && (
+            <ModalPortal>
             <div
               className="allergen-modal-overlay"
               onClick={(e) => { if (e.target === e.currentTarget) setPokeAllergenAccordionOpen(false); }}
@@ -7671,6 +7674,7 @@ export default function App() {
                 </div>
               </div>
                 </div>
+            </ModalPortal>
               )}
 
           {/* ── Order summary side tab (right) ── */}
@@ -7707,6 +7711,7 @@ export default function App() {
           </button>
 
           {pokeSummaryModalOpen && (
+            <ModalPortal>
             <div
               className="allergen-modal-overlay"
               onClick={(e) => {
@@ -7754,6 +7759,7 @@ export default function App() {
                 </p>
               </div>
             </div>
+            </ModalPortal>
           )}
 
           <div
@@ -8137,6 +8143,7 @@ export default function App() {
           )}
 
           {pokeExtraPrompt && (
+            <ModalPortal>
             <div
               className="poke-extra-prompt-overlay"
               onClick={(e) => {
@@ -8174,6 +8181,7 @@ export default function App() {
                 </div>
               </div>
             </div>
+            </ModalPortal>
           )}
         </section>
       )}

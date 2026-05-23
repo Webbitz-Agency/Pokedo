@@ -18,6 +18,10 @@
   --hero-graphic-blue: #1e3a8a;
   /* Palette poke-builder cliente: blu coerente con brand */
   --poke-brand-gradient: linear-gradient(120deg, #1f3a8a 0%, #1d4ed8 52%, #2563eb 100%);
+  /* Layering: footer sotto overlay/modali (anche quelli in portal sul body) */
+  --z-site-footer: 30;
+  --z-site-chrome: 100;
+  --z-overlay: 10050;
 }
 
 .app-root p {
@@ -1138,6 +1142,8 @@ select {
 }
 
 .site-footer {
+  position: relative;
+  z-index: var(--z-site-footer);
   margin-top: auto;
   background: #0f172a;
   color: #cbd5e1;
@@ -1422,7 +1428,7 @@ select {
   background: rgba(15, 23, 42, 0.55);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  z-index: 1080;
+  z-index: var(--z-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2388,17 +2394,6 @@ select {
   color: #1e293b;
 }
 
-.public-allergen-tag-kind {
-  display: block;
-  margin-top: 2px;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #2563eb;
-  line-height: 1.2;
-}
-
 .allergen-modal-additional-filters {
   margin-top: 20px;
   padding-top: 18px;
@@ -2763,7 +2758,7 @@ select {
   background: rgba(15,23,42,0.45);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 9000;
+  z-index: var(--z-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3006,8 +3001,7 @@ select {
   position: fixed;
   inset: 0;
   background: rgba(2, 6, 23, 0.45);
-  /* Sopra linguette poke (filtra allergeni / resoconto, z-index 800) e navbar; sotto modali dedicati es. allergeni (9000) */
-  z-index: 920;
+  z-index: var(--z-overlay);
   display: flex;
   justify-content: flex-end;
   animation: fadeIn 0.2s ease;
@@ -3250,7 +3244,7 @@ select {
 }
 
 .orders-blocked-overlay {
-  z-index: 9000;
+  z-index: var(--z-overlay);
 }
 
 .orders-blocked-modal {
@@ -3959,7 +3953,7 @@ textarea {
 .page-loading-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: var(--z-overlay);
   background: rgba(248, 250, 252, 0.96);
   backdrop-filter: blur(3px);
   display: flex;
@@ -7281,7 +7275,7 @@ textarea {
 }
 
 .poke-size-change-overlay {
-  z-index: 9999;
+  z-index: var(--z-overlay);
 }
 
 .poke-size-change-modal {
@@ -8488,7 +8482,7 @@ table button:hover {
   .mobile-nav-overlay {
     position: fixed;
     inset: 72px 0 0;
-    z-index: 70;
+    z-index: var(--z-site-chrome);
     background: rgba(15, 23, 42, 0.42);
     backdrop-filter: blur(3px);
     display: flex;
@@ -8868,7 +8862,7 @@ table button:hover {
   .mobile-poke-summary-overlay {
     position: fixed;
     inset: 0;
-    z-index: 95;
+    z-index: var(--z-overlay);
     background: rgba(2, 6, 23, 0.35);
     display: flex;
     align-items: flex-end;
@@ -10628,7 +10622,7 @@ table button:hover {
 .poke-story-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 95;
+  z-index: var(--z-overlay);
   background: rgba(15, 23, 42, 0.58);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
@@ -12035,7 +12029,7 @@ table button:hover {
 .gallery-lightbox {
   position: fixed;
   inset: 0;
-  z-index: 9500;
+  z-index: var(--z-overlay);
   background: rgba(2, 6, 23, 0.86);
   display: flex;
   align-items: center;
