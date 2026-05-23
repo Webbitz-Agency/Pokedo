@@ -2388,6 +2388,45 @@ select {
   color: #1e293b;
 }
 
+.public-allergen-tag-kind {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #2563eb;
+  line-height: 1.2;
+}
+
+.allergen-modal-additional-filters {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 2px solid #dbeafe;
+}
+
+.allergen-modal-additional-lead {
+  margin: 6px 0 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #475569;
+}
+
+.public-allergen-grid--tags {
+  margin-top: 0;
+}
+
+.public-allergen-option--tag {
+  border-color: #93c5fd;
+  background: #f8fafc;
+}
+
+.public-allergen-option--tag.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
 .public-allergen-option.selected {
   border-color: #2563eb;
   background: #eff6ff;

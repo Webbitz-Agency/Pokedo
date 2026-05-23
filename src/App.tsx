@@ -1604,14 +1604,38 @@ function renderAdditionalFiltersInAllergenGrid(
         type="button"
         className={`public-allergen-option public-allergen-option--tag ${selected ? "selected" : ""}`.trim()}
         onClick={() => onToggle(tag.id)}
+        aria-pressed={selected}
       >
         <span className="public-allergen-tag-mark" style={{ backgroundColor: tag.color }} aria-hidden="true">
           {tag.name.trim().slice(0, 3)}
         </span>
         <small>{tag.name}</small>
+        <span className="public-allergen-tag-kind">Filtro aggiuntivo</span>
       </button>
     );
   });
+}
+
+function renderAdditionalFiltersSection(
+  tags: AdditionalFilterTagOption[],
+  selectedTagIds: string[],
+  onToggle: (tagId: string) => void,
+  keyPrefix: string,
+  entityLabel: "piatti" | "ingredienti"
+) {
+  if (tags.length === 0) return null;
+  return (
+    <section className="allergen-modal-additional-filters" aria-label="Filtri aggiuntivi">
+      <p className="section-kicker">Filtri aggiuntivi</p>
+      <p className="allergen-modal-additional-lead">
+        Attiva un filtro per mostrare <strong>solo</strong> {entityLabel === "piatti" ? "i piatti" : "gli ingredienti"}{" "}
+        con quel tag (impostato in PokeManager su prodotto o ingrediente poke).
+      </p>
+      <div className="public-allergen-grid public-allergen-grid--tags">
+        {renderAdditionalFiltersInAllergenGrid(tags, selectedTagIds, onToggle, keyPrefix)}
+      </div>
+    </section>
+  );
 }
 
 function getAdminPokeSlug(name: string) {
@@ -7363,8 +7387,7 @@ export default function App() {
                     <p className="section-kicker">Allergeni</p>
                     <h3>Filtra i piatti in base agli allergeni</h3>
                     <p className="allergen-modal-sub">
-                      Seleziona le icone da escludere. I filtri speciali (es. Vegetariano) compaiono nella griglia
-                      sotto e mostrano solo piatti o ingredienti con quel tag.
+                      Seleziona le icone degli allergeni da <strong>escludere</strong> dal menu.
                     </p>
                   </div>
                   <button
@@ -7401,16 +7424,17 @@ export default function App() {
                       </button>
                     );
                   })}
-                  {renderAdditionalFiltersInAllergenGrid(
-                    additionalFilterTagOptions,
-                    menuActiveFilterTags,
-                    (tagId) =>
-                      setMenuActiveFilterTags((old) =>
-                        old.includes(tagId) ? old.filter((entry) => entry !== tagId) : [...old, tagId]
-                      ),
-                    "public-menu"
-                  )}
                 </div>
+                {renderAdditionalFiltersSection(
+                  additionalFilterTagOptions,
+                  menuActiveFilterTags,
+                  (tagId) =>
+                    setMenuActiveFilterTags((old) =>
+                      old.includes(tagId) ? old.filter((entry) => entry !== tagId) : [...old, tagId]
+                    ),
+                  "public-menu",
+                  "piatti"
+                )}
                 <div className="allergen-modal-footer">
                   {menuPublicFilterCount > 0 && (
                     <button
@@ -7578,9 +7602,8 @@ export default function App() {
                 <p className="section-kicker">Allergeni</p>
                 <h3>Filtra gli ingredienti in base agli allergeni</h3>
                     <p className="allergen-modal-sub">
-                      Seleziona le icone da escludere. I filtri speciali (es. Vegetariano) compaiono nella griglia
-                      sotto e mostrano solo ingredienti con quel tag.
-                </p>
+                      Seleziona le icone degli allergeni da <strong>escludere</strong> dal configuratore poke.
+                    </p>
                   </div>
                 <button
                   type="button"
@@ -7616,16 +7639,17 @@ export default function App() {
                     </button>
                   );
                 })}
-                {renderAdditionalFiltersInAllergenGrid(
-                  additionalFilterTagOptions,
-                  pokeActiveFilterTags,
-                  (tagId) =>
-                    setPokeActiveFilterTags((old) =>
-                      old.includes(tagId) ? old.filter((entry) => entry !== tagId) : [...old, tagId]
-                    ),
-                  "public-poke"
-                )}
               </div>
+              {renderAdditionalFiltersSection(
+                additionalFilterTagOptions,
+                pokeActiveFilterTags,
+                (tagId) =>
+                  setPokeActiveFilterTags((old) =>
+                    old.includes(tagId) ? old.filter((entry) => entry !== tagId) : [...old, tagId]
+                  ),
+                "public-poke",
+                "ingredienti"
+              )}
                 <div className="allergen-modal-footer">
               {pokePublicFilterCount > 0 && (
                   <button
