@@ -12241,27 +12241,39 @@ table button:hover {
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 3px;
+  gap: 4px;
   max-width: calc(100% - 16px);
   pointer-events: none;
 }
 
+/* Stesso aspetto di PokeManager: .admin-item-product-tag + .settings-tag-preview */
 .menu-dish-filter-tag {
   display: inline-flex;
   align-items: center;
-  max-width: min(100%, 7.5rem);
-  padding: 2px 5px;
-  border-radius: 4px;
-  font-size: 9px;
+  flex-shrink: 0;
+  max-width: min(100%, 7.25rem);
+  border: 2px solid #2563eb;
+  border-radius: 999px;
+  background: #fff;
+  padding: 2px;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
+}
+
+.menu-dish-filter-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  max-width: 6.75rem;
+  border-radius: 999px;
+  padding: 3px 7px;
+  color: #fff;
+  font-size: 11px;
   font-weight: 700;
   line-height: 1.1;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.2);
 }
 
 .menu-dish-thumb-img {
