@@ -1591,6 +1591,26 @@ function matchesAdditionalFilterTags(tagIds: string[] | undefined, activeFilterT
 
 type AdditionalFilterTagOption = { id: string; name: string; color: string };
 
+function getItemAdditionalFilterTags(
+  tagIds: string[] | undefined,
+  tagRules: { name: string; color: string; additional_filter?: boolean }[]
+): AdditionalFilterTagOption[] {
+  const rulesByKey = new Map<string, AdditionalFilterTagOption>();
+  tagRules.forEach((rule) => {
+    if (!rule.additional_filter) return;
+    const id = getTagRuleKey(rule.name);
+    if (!id) return;
+    rulesByKey.set(id, {
+      id,
+      name: rule.name.trim() || "Tag",
+      color: rule.color
+    });
+  });
+  return sanitizeTagIds(tagIds)
+    .map((id) => rulesByKey.get(id) ?? null)
+    .filter((entry): entry is AdditionalFilterTagOption => entry != null);
+}
+
 function renderAdditionalFiltersInAllergenGrid(
   tags: AdditionalFilterTagOption[],
   selectedTagIds: string[],
@@ -7307,6 +7327,10 @@ export default function App() {
                           : baseDescription;
                     /* Se il titolo è lungo (probabile 2 righe da desktop), limitiamo la descrizione a 1 riga */
                     const isLongTitle = parsed.cleanName.trim().length > 28;
+                    const itemAdditionalFilterTags = getItemAdditionalFilterTags(
+                      item.tag_ids,
+                      appSettings.site.tag_rules ?? []
+                    );
                         return (
                       <article
                         key={item.id}
@@ -7321,6 +7345,19 @@ export default function App() {
                             <img src={resolveMediaSrc(item.image_url)} alt={item.name} className="menu-dish-thumb-img" />
                         ) : (
                           <span>IMG</span>
+                        )}
+                        {itemAdditionalFilterTags.length > 0 && (
+                          <div className="menu-dish-filter-tags" aria-hidden="true">
+                            {itemAdditionalFilterTags.map((tag) => (
+                              <span
+                                key={`menu-dish-filter-tag-${item.id}-${tag.id}`}
+                                className="menu-dish-filter-tag"
+                                style={{ backgroundColor: tag.color }}
+                              >
+                                {tag.name}
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </button>
                       <div className="menu-dish-content">
