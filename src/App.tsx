@@ -7351,10 +7351,11 @@ export default function App() {
                             {itemAdditionalFilterTags.map((tag) => (
                               <span
                                 key={`menu-dish-filter-tag-${item.id}-${tag.id}`}
-                                className="menu-dish-filter-tag"
-                                style={{ backgroundColor: tag.color }}
+                                className="menu-dish-filter-tag public-allergen-option--tag"
                               >
-                                {tag.name.trim().slice(0, 3)}
+                                <span className="public-allergen-tag-mark" style={{ backgroundColor: tag.color }}>
+                                  {tag.name.trim().slice(0, 3)}
+                                </span>
                               </span>
                             ))}
                           </div>
