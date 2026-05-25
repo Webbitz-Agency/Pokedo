@@ -1,1 +1,1 @@
-{"root":["./src/aboutfishlanes.tsx","./src/app.tsx","./src/categoryscrollcarouselsection.tsx","./src/poke3dhoverbutton.tsx","./src/api.ts","./src/main.tsx","./src/portal.ts","./src/vite-env.d.ts","./src/webawesome.d.ts"],"version":"5.9.3"}
+{"root":["./src/aboutfishlanes.tsx","./src/app.tsx","./src/categoryscrollcarouselsection.tsx","./src/modalportal.tsx","./src/poke3dhoverbutton.tsx","./src/api.ts","./src/main.tsx","./src/portal.ts","./src/vite-env.d.ts","./src/webawesome.d.ts"],"version":"5.9.3"}

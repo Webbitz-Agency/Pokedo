@@ -12267,7 +12267,7 @@ table button:hover {
   border-radius: 999px;
   padding: 1px 4px;
   color: #fff;
-  font-size: 8px;
+  font-size: 8px !important;
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: 0;
