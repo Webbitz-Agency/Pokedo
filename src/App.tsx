@@ -7349,13 +7349,12 @@ export default function App() {
                         {itemAdditionalFilterTags.length > 0 && (
                           <div className="menu-dish-filter-tags" aria-hidden="true">
                             {itemAdditionalFilterTags.map((tag) => (
-                              <span key={`menu-dish-filter-tag-${item.id}-${tag.id}`} className="menu-dish-filter-tag">
-                                <span
-                                  className="menu-dish-filter-tag-chip"
-                                  style={{ backgroundColor: tag.color }}
-                                >
-                                  {tag.name}
-                                </span>
+                              <span
+                                key={`menu-dish-filter-tag-${item.id}-${tag.id}`}
+                                className="menu-dish-filter-tag"
+                                style={{ backgroundColor: tag.color }}
+                              >
+                                {tag.name.trim().slice(0, 3)}
                               </span>
                             ))}
                           </div>
