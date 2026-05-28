@@ -395,7 +395,47 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     phase_proteins: "Proteine",
     phase_green: "Green",
     phase_sauces: "Salsa",
-    phase_crunchy: "Crunchy"
+    phase_crunchy: "Crunchy",
+    additionalFiltersAria: "Filtri aggiuntivi",
+    additionalFiltersKicker: "Filtri aggiuntivi",
+    dishesEntity: "i piatti",
+    ingredientsEntity: "gli ingredienti",
+    additionalFiltersLead: "Attiva un filtro per mostrare solo {entity} con quel tag (impostato in PokeManager su prodotto o ingrediente poke).",
+    noDishesWithSelectedFilters: "Nessun piatto disponibile con i filtri selezionati.",
+    filterAllergens: "Filtra allergeni",
+    filterMenu: "Filtra menu",
+    filterPoke: "Filtra poke",
+    allergensTitle: "Allergeni",
+    filterDishesByAllergens: "Filtra i piatti in base agli allergeni",
+    filterIngredientsByAllergens: "Filtra gli ingredienti in base agli allergeni",
+    selectAllergensToExcludeFromMenu: "Seleziona le icone degli allergeni da escludere dal menu.",
+    selectAllergensToExcludeFromPoke: "Seleziona le icone degli allergeni da escludere dal configuratore poke.",
+    showAllDishes: "Mostra tutti i piatti",
+    applyFilter: "Applica filtro",
+    loadingHome: "Carico la home...",
+    loadingMenu: "Carico il menu...",
+    loadingPokeBuilder: "Carico il builder poke...",
+    loadingOrderPage: "Carico la pagina ordine...",
+    loadingAdmin: "Carico l'amministrazione...",
+    openOrder: "Apri ordine",
+    closeMobileMenu: "Chiudi menu mobile",
+    openMobileMenu: "Apri menu mobile",
+    mobileNavigationMenu: "Menu di navigazione mobile",
+    close: "Chiudi",
+    orderNotes: "Note ordine",
+    orderNotesPlaceholder: "Scrivi se non vuoi qualcosa, intolleranze, allergie...",
+    ordersBlockedTitle: "Ordinazioni bloccate",
+    ordersBlockedDefaultReason: "Al momento non è possibile effettuare nuovi ordini dal sito.",
+    understood: "Ho capito",
+    descriptionAvailableInStore: "Descrizione disponibile in sala.",
+    allergensPresent: "Allergeni presenti",
+    noAllergenSpecifiedForDish: "Nessun allergene specificato per questo piatto.",
+    selectVariants: "Seleziona varianti",
+    addProduct: "Aggiungi prodotto",
+    editProduct: "Modifica prodotto",
+    saveChanges: "Salva modifiche",
+    pokeAddedToOrder: "Poke aggiunta all'ordine.",
+    orderSendError: "Errore invio ordine"
   },
   en: {
     home: "Home",
@@ -474,7 +514,47 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     phase_proteins: "Proteins",
     phase_green: "Green",
     phase_sauces: "Sauces",
-    phase_crunchy: "Crunchy"
+    phase_crunchy: "Crunchy",
+    additionalFiltersAria: "Additional filters",
+    additionalFiltersKicker: "Additional filters",
+    dishesEntity: "dishes",
+    ingredientsEntity: "ingredients",
+    additionalFiltersLead: "Activate a filter to show only {entity} with that tag (set in PokeManager on dish or poke ingredient).",
+    noDishesWithSelectedFilters: "No dishes available with the selected filters.",
+    filterAllergens: "Filter allergens",
+    filterMenu: "Filter menu",
+    filterPoke: "Filter poke",
+    allergensTitle: "Allergens",
+    filterDishesByAllergens: "Filter dishes by allergens",
+    filterIngredientsByAllergens: "Filter ingredients by allergens",
+    selectAllergensToExcludeFromMenu: "Select allergen icons to exclude from the menu.",
+    selectAllergensToExcludeFromPoke: "Select allergen icons to exclude from the poke builder.",
+    showAllDishes: "Show all dishes",
+    applyFilter: "Apply filter",
+    loadingHome: "Loading home...",
+    loadingMenu: "Loading menu...",
+    loadingPokeBuilder: "Loading poke builder...",
+    loadingOrderPage: "Loading order page...",
+    loadingAdmin: "Loading admin...",
+    openOrder: "Open order",
+    closeMobileMenu: "Close mobile menu",
+    openMobileMenu: "Open mobile menu",
+    mobileNavigationMenu: "Mobile navigation menu",
+    close: "Close",
+    orderNotes: "Order notes",
+    orderNotesPlaceholder: "Write if you do not want something, intolerances, allergies...",
+    ordersBlockedTitle: "Orders blocked",
+    ordersBlockedDefaultReason: "It is currently not possible to place new orders from the website.",
+    understood: "Understood",
+    descriptionAvailableInStore: "Description available in the restaurant.",
+    allergensPresent: "Allergens present",
+    noAllergenSpecifiedForDish: "No allergen specified for this dish.",
+    selectVariants: "Select variants",
+    addProduct: "Add product",
+    editProduct: "Edit product",
+    saveChanges: "Save changes",
+    pokeAddedToOrder: "Poke added to order.",
+    orderSendError: "Order submission error"
   },
   de: {
     home: "Startseite",
@@ -553,7 +633,47 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     phase_proteins: "Proteine",
     phase_green: "Gemüse",
     phase_sauces: "Saucen",
-    phase_crunchy: "Knusprig"
+    phase_crunchy: "Knusprig",
+    additionalFiltersAria: "Zusätzliche Filter",
+    additionalFiltersKicker: "Zusätzliche Filter",
+    dishesEntity: "Gerichte",
+    ingredientsEntity: "Zutaten",
+    additionalFiltersLead: "Aktiviere einen Filter, um nur {entity} mit diesem Tag anzuzeigen (in PokeManager auf Produkt oder Poke-Zutat gesetzt).",
+    noDishesWithSelectedFilters: "Keine Gerichte mit den gewählten Filtern verfügbar.",
+    filterAllergens: "Allergene filtern",
+    filterMenu: "Menü filtern",
+    filterPoke: "Poke filtern",
+    allergensTitle: "Allergene",
+    filterDishesByAllergens: "Gerichte nach Allergenen filtern",
+    filterIngredientsByAllergens: "Zutaten nach Allergenen filtern",
+    selectAllergensToExcludeFromMenu: "Wähle Allergensymbole aus, die im Menü ausgeschlossen werden sollen.",
+    selectAllergensToExcludeFromPoke: "Wähle Allergensymbole aus, die im Poke-Konfigurator ausgeschlossen werden sollen.",
+    showAllDishes: "Alle Gerichte anzeigen",
+    applyFilter: "Filter anwenden",
+    loadingHome: "Startseite wird geladen...",
+    loadingMenu: "Menü wird geladen...",
+    loadingPokeBuilder: "Poke-Builder wird geladen...",
+    loadingOrderPage: "Bestellseite wird geladen...",
+    loadingAdmin: "Admin wird geladen...",
+    openOrder: "Bestellung öffnen",
+    closeMobileMenu: "Mobiles Menü schließen",
+    openMobileMenu: "Mobiles Menü öffnen",
+    mobileNavigationMenu: "Mobiles Navigationsmenü",
+    close: "Schließen",
+    orderNotes: "Bestellnotizen",
+    orderNotesPlaceholder: "Schreib hier Wünsche, Unverträglichkeiten, Allergien...",
+    ordersBlockedTitle: "Bestellungen gesperrt",
+    ordersBlockedDefaultReason: "Derzeit können keine neuen Bestellungen über die Website aufgegeben werden.",
+    understood: "Verstanden",
+    descriptionAvailableInStore: "Beschreibung im Restaurant verfügbar.",
+    allergensPresent: "Enthaltene Allergene",
+    noAllergenSpecifiedForDish: "Für dieses Gericht sind keine Allergene angegeben.",
+    selectVariants: "Varianten auswählen",
+    addProduct: "Produkt hinzufügen",
+    editProduct: "Produkt bearbeiten",
+    saveChanges: "Änderungen speichern",
+    pokeAddedToOrder: "Poke zur Bestellung hinzugefügt.",
+    orderSendError: "Fehler beim Senden der Bestellung"
   },
   es: {
     home: "Inicio",
@@ -632,7 +752,47 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     phase_proteins: "Proteínas",
     phase_green: "Verduras",
     phase_sauces: "Salsas",
-    phase_crunchy: "Crujiente"
+    phase_crunchy: "Crujiente",
+    additionalFiltersAria: "Filtros adicionales",
+    additionalFiltersKicker: "Filtros adicionales",
+    dishesEntity: "los platos",
+    ingredientsEntity: "los ingredientes",
+    additionalFiltersLead: "Activa un filtro para mostrar solo {entity} con esa etiqueta (configurada en PokeManager para producto o ingrediente poke).",
+    noDishesWithSelectedFilters: "No hay platos disponibles con los filtros seleccionados.",
+    filterAllergens: "Filtrar alérgenos",
+    filterMenu: "Filtrar menú",
+    filterPoke: "Filtrar poke",
+    allergensTitle: "Alérgenos",
+    filterDishesByAllergens: "Filtra los platos por alérgenos",
+    filterIngredientsByAllergens: "Filtra los ingredientes por alérgenos",
+    selectAllergensToExcludeFromMenu: "Selecciona los iconos de alérgenos que quieres excluir del menú.",
+    selectAllergensToExcludeFromPoke: "Selecciona los iconos de alérgenos que quieres excluir del configurador poke.",
+    showAllDishes: "Mostrar todos los platos",
+    applyFilter: "Aplicar filtro",
+    loadingHome: "Cargando inicio...",
+    loadingMenu: "Cargando menú...",
+    loadingPokeBuilder: "Cargando creador de poke...",
+    loadingOrderPage: "Cargando página de pedido...",
+    loadingAdmin: "Cargando administración...",
+    openOrder: "Abrir pedido",
+    closeMobileMenu: "Cerrar menú móvil",
+    openMobileMenu: "Abrir menú móvil",
+    mobileNavigationMenu: "Menú de navegación móvil",
+    close: "Cerrar",
+    orderNotes: "Notas del pedido",
+    orderNotesPlaceholder: "Escribe si no quieres algo, intolerancias, alergias...",
+    ordersBlockedTitle: "Pedidos bloqueados",
+    ordersBlockedDefaultReason: "En este momento no es posible realizar nuevos pedidos desde el sitio web.",
+    understood: "Entendido",
+    descriptionAvailableInStore: "Descripción disponible en sala.",
+    allergensPresent: "Alérgenos presentes",
+    noAllergenSpecifiedForDish: "No hay alérgenos especificados para este plato.",
+    selectVariants: "Selecciona variantes",
+    addProduct: "Añadir producto",
+    editProduct: "Editar producto",
+    saveChanges: "Guardar cambios",
+    pokeAddedToOrder: "Poke añadido al pedido.",
+    orderSendError: "Error al enviar el pedido"
   },
   fr: {
     home: "Accueil",
@@ -653,7 +813,47 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     homeHeroSlide2Title: "Le menu complet, numérique et toujours à jour.",
     homeHeroSlide2Sub:
       "Catégories, allergènes et plats avec des prix clairs : parcours tout le menu Pokedo avant de commander sur place ou à emporter.",
-    size_pick_cta: "Choisir"
+    size_pick_cta: "Choisir",
+    additionalFiltersAria: "Filtres supplémentaires",
+    additionalFiltersKicker: "Filtres supplémentaires",
+    dishesEntity: "les plats",
+    ingredientsEntity: "les ingrédients",
+    additionalFiltersLead: "Active un filtre pour afficher uniquement {entity} avec ce tag (défini dans PokeManager sur produit ou ingrédient poke).",
+    noDishesWithSelectedFilters: "Aucun plat disponible avec les filtres sélectionnés.",
+    filterAllergens: "Filtrer les allergènes",
+    filterMenu: "Filtrer le menu",
+    filterPoke: "Filtrer le poke",
+    allergensTitle: "Allergènes",
+    filterDishesByAllergens: "Filtrer les plats selon les allergènes",
+    filterIngredientsByAllergens: "Filtrer les ingrédients selon les allergènes",
+    selectAllergensToExcludeFromMenu: "Sélectionne les icônes d'allergènes à exclure du menu.",
+    selectAllergensToExcludeFromPoke: "Sélectionne les icônes d'allergènes à exclure du configurateur poke.",
+    showAllDishes: "Afficher tous les plats",
+    applyFilter: "Appliquer le filtre",
+    loadingHome: "Chargement de l'accueil...",
+    loadingMenu: "Chargement du menu...",
+    loadingPokeBuilder: "Chargement du builder poke...",
+    loadingOrderPage: "Chargement de la page commande...",
+    loadingAdmin: "Chargement de l'administration...",
+    openOrder: "Ouvrir la commande",
+    closeMobileMenu: "Fermer le menu mobile",
+    openMobileMenu: "Ouvrir le menu mobile",
+    mobileNavigationMenu: "Menu de navigation mobile",
+    close: "Fermer",
+    orderNotes: "Notes de commande",
+    orderNotesPlaceholder: "Écris ici tes préférences, intolérances, allergies...",
+    ordersBlockedTitle: "Commandes bloquées",
+    ordersBlockedDefaultReason: "Il n'est actuellement pas possible de passer de nouvelles commandes depuis le site.",
+    understood: "J'ai compris",
+    descriptionAvailableInStore: "Description disponible en salle.",
+    allergensPresent: "Allergènes présents",
+    noAllergenSpecifiedForDish: "Aucun allergène spécifié pour ce plat.",
+    selectVariants: "Sélectionner les variantes",
+    addProduct: "Ajouter le produit",
+    editProduct: "Modifier le produit",
+    saveChanges: "Enregistrer les modifications",
+    pokeAddedToOrder: "Poke ajouté à la commande.",
+    orderSendError: "Erreur lors de l'envoi de la commande"
   },
   zh: {
     home: "首页",
@@ -673,7 +873,47 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     homeHeroSlide1Lead: "在店享用或外带，随心搭配你的碗。",
     homeHeroSlide2Title: "完整电子菜单，实时更新。",
     homeHeroSlide2Sub: "分类、过敏原与价格一目了然：堂食或外带前先浏览 Pokedo 全部菜品。",
-    size_pick_cta: "选择"
+    size_pick_cta: "选择",
+    additionalFiltersAria: "附加筛选",
+    additionalFiltersKicker: "附加筛选",
+    dishesEntity: "菜品",
+    ingredientsEntity: "配料",
+    additionalFiltersLead: "启用筛选后，仅显示带有该标签的{entity}（在 PokeManager 中为菜品或 poke 配料设置）。",
+    noDishesWithSelectedFilters: "所选筛选条件下没有可用菜品。",
+    filterAllergens: "筛选过敏原",
+    filterMenu: "筛选菜单",
+    filterPoke: "筛选 poke",
+    allergensTitle: "过敏原",
+    filterDishesByAllergens: "按过敏原筛选菜品",
+    filterIngredientsByAllergens: "按过敏原筛选配料",
+    selectAllergensToExcludeFromMenu: "选择要从菜单中排除的过敏原图标。",
+    selectAllergensToExcludeFromPoke: "选择要从 poke 配置器中排除的过敏原图标。",
+    showAllDishes: "显示全部菜品",
+    applyFilter: "应用筛选",
+    loadingHome: "正在加载首页...",
+    loadingMenu: "正在加载菜单...",
+    loadingPokeBuilder: "正在加载 poke 配置器...",
+    loadingOrderPage: "正在加载下单页面...",
+    loadingAdmin: "正在加载管理后台...",
+    openOrder: "打开订单",
+    closeMobileMenu: "关闭移动菜单",
+    openMobileMenu: "打开移动菜单",
+    mobileNavigationMenu: "移动端导航菜单",
+    close: "关闭",
+    orderNotes: "订单备注",
+    orderNotesPlaceholder: "如有忌口、不耐受、过敏，请在这里填写...",
+    ordersBlockedTitle: "下单已关闭",
+    ordersBlockedDefaultReason: "目前无法通过网站提交新的订单。",
+    understood: "我知道了",
+    descriptionAvailableInStore: "店内可查看详细描述。",
+    allergensPresent: "含有过敏原",
+    noAllergenSpecifiedForDish: "该菜品未标注过敏原。",
+    selectVariants: "选择规格",
+    addProduct: "添加商品",
+    editProduct: "修改商品",
+    saveChanges: "保存修改",
+    pokeAddedToOrder: "Poke 已加入订单。",
+    orderSendError: "提交订单时出错"
   },
   ja: {
     home: "ホーム",
@@ -693,7 +933,47 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     homeHeroSlide1Lead: "店内でもテイクアウトでも、自分好みのボウルを。",
     homeHeroSlide2Title: "フルメニューをデジタルで、いつでも最新に。",
     homeHeroSlide2Sub: "カテゴリ・アレルゲン・価格が明確。店内・テイクアウトの前に Pokedo のメニューをじっくりチェック。",
-    size_pick_cta: "選ぶ"
+    size_pick_cta: "選ぶ",
+    additionalFiltersAria: "追加フィルター",
+    additionalFiltersKicker: "追加フィルター",
+    dishesEntity: "料理",
+    ingredientsEntity: "具材",
+    additionalFiltersLead: "フィルターを有効にすると、そのタグが付いた{entity}のみ表示されます（PokeManagerで商品またはポケ具材に設定）。",
+    noDishesWithSelectedFilters: "選択したフィルターに該当する料理はありません。",
+    filterAllergens: "アレルゲンを絞り込む",
+    filterMenu: "メニューを絞り込む",
+    filterPoke: "ポケを絞り込む",
+    allergensTitle: "アレルゲン",
+    filterDishesByAllergens: "アレルゲンで料理を絞り込む",
+    filterIngredientsByAllergens: "アレルゲンで具材を絞り込む",
+    selectAllergensToExcludeFromMenu: "メニューから除外するアレルゲンのアイコンを選択してください。",
+    selectAllergensToExcludeFromPoke: "ポケビルダーから除外するアレルゲンのアイコンを選択してください。",
+    showAllDishes: "すべての料理を表示",
+    applyFilter: "フィルターを適用",
+    loadingHome: "ホームを読み込み中...",
+    loadingMenu: "メニューを読み込み中...",
+    loadingPokeBuilder: "ポケビルダーを読み込み中...",
+    loadingOrderPage: "注文ページを読み込み中...",
+    loadingAdmin: "管理画面を読み込み中...",
+    openOrder: "注文を開く",
+    closeMobileMenu: "モバイルメニューを閉じる",
+    openMobileMenu: "モバイルメニューを開く",
+    mobileNavigationMenu: "モバイルナビゲーションメニュー",
+    close: "閉じる",
+    orderNotes: "注文メモ",
+    orderNotesPlaceholder: "不要なもの・不耐症・アレルギーがあれば入力してください...",
+    ordersBlockedTitle: "注文受付停止中",
+    ordersBlockedDefaultReason: "現在、サイトから新しい注文を受け付けていません。",
+    understood: "了解しました",
+    descriptionAvailableInStore: "説明は店内で確認できます。",
+    allergensPresent: "含まれるアレルゲン",
+    noAllergenSpecifiedForDish: "この料理にはアレルゲンの指定がありません。",
+    selectVariants: "バリエーションを選択",
+    addProduct: "商品を追加",
+    editProduct: "商品を編集",
+    saveChanges: "変更を保存",
+    pokeAddedToOrder: "ポケを注文に追加しました。",
+    orderSendError: "注文送信エラー"
   }
 };
 
@@ -1641,15 +1921,17 @@ function renderAdditionalFiltersSection(
   selectedTagIds: string[],
   onToggle: (tagId: string) => void,
   keyPrefix: string,
-  entityLabel: "piatti" | "ingredienti"
+  language: UiLanguage,
+  entityLabelKey: "dishesEntity" | "ingredientsEntity"
 ) {
   if (tags.length === 0) return null;
   return (
-    <section className="allergen-modal-additional-filters" aria-label="Filtri aggiuntivi">
-      <p className="section-kicker">Filtri aggiuntivi</p>
+    <section className="allergen-modal-additional-filters" aria-label={translateText(language, "additionalFiltersAria")}>
+      <p className="section-kicker">{translateText(language, "additionalFiltersKicker")}</p>
       <p className="allergen-modal-additional-lead">
-        Attiva un filtro per mostrare <strong>solo</strong> {entityLabel === "piatti" ? "i piatti" : "gli ingredienti"}{" "}
-        con quel tag (impostato in PokeManager su prodotto o ingrediente poke).
+        {translateText(language, "additionalFiltersLead", {
+          entity: translateText(language, entityLabelKey)
+        })}
       </p>
       <div className="public-allergen-grid public-allergen-grid--tags">
         {renderAdditionalFiltersInAllergenGrid(tags, selectedTagIds, onToggle, keyPrefix)}
@@ -4994,7 +5276,7 @@ export default function App() {
         course: 1
       }
     }));
-    setPokeAddedMessage("Poke aggiunta all'ordine.");
+    setPokeAddedMessage(t("pokeAddedToOrder"));
   }
 
   function startAnotherPoke() {
@@ -5194,7 +5476,7 @@ export default function App() {
       });
       await adminRefresh();
     } catch (e: unknown) {
-      setMenuCheckoutMessage(e instanceof Error ? e.message : "Errore invio ordine");
+      setMenuCheckoutMessage(e instanceof Error ? e.message : t("orderSendError"));
     } finally {
       setSaving(false);
     }
@@ -6359,14 +6641,14 @@ export default function App() {
 
   const loadingLabel =
     route === "/"
-      ? "Carico la home..."
+      ? t("loadingHome")
       : route === "/menu"
-        ? "Carico il menu..."
+        ? t("loadingMenu")
         : route === "/crea-la-tua-poke"
-          ? "Carico il builder poke..."
+          ? t("loadingPokeBuilder")
           : route === "/completa-ordine"
-            ? "Carico la pagina ordine..."
-            : "Carico l'amministrazione...";
+            ? t("loadingOrderPage")
+            : t("loadingAdmin");
 
   if (route === "/amministrazione") {
     return (
@@ -6434,7 +6716,7 @@ export default function App() {
                 <button
                   className={`order-icon-btn ${isTableOrderMode ? "table-mobile-cart-btn" : ""}`.trim()}
                   onClick={() => (orderOpen ? closeOrderDrawer() : openOrderDrawer())}
-                  aria-label="Apri ordine"
+                  aria-label={t("openOrder")}
                 >
                   <wa-icon name="clipboard" variant="regular" aria-hidden="true"></wa-icon>
                   {orderCount > 0 && <span className="order-badge">{orderCount}</span>}
@@ -6443,7 +6725,7 @@ export default function App() {
                   <button
                     className={`mobile-menu-toggle ${mobileMenuOpen ? "active" : ""}`.trim()}
                     onClick={() => setMobileMenuOpen((old) => !old)}
-                  aria-label={mobileMenuOpen ? "Chiudi menu mobile" : "Apri menu mobile"}
+                  aria-label={mobileMenuOpen ? t("closeMobileMenu") : t("openMobileMenu")}
                     aria-expanded={mobileMenuOpen}
                   aria-controls="mobile-nav-sheet"
                   >
@@ -6474,7 +6756,7 @@ export default function App() {
             className="mobile-nav-sheet"
             role="dialog"
             aria-modal="true"
-            aria-label="Menu di navigazione mobile"
+            aria-label={t("mobileNavigationMenu")}
             onClick={(e) => e.stopPropagation()}
           >
             {!isTableOrderMode && (
@@ -7351,9 +7633,12 @@ export default function App() {
                             {itemAdditionalFilterTags.map((tag) => (
                               <span
                                 key={`menu-dish-filter-tag-${item.id}-${tag.id}`}
-                                className="menu-dish-filter-tag public-allergen-option--tag"
+                                className="menu-dish-filter-tag"
                               >
-                                <span className="public-allergen-tag-mark" style={{ backgroundColor: tag.color }}>
+                                <span
+                                  className="public-allergen-tag-mark menu-dish-filter-tag-mark"
+                                  style={{ backgroundColor: tag.color }}
+                                >
                                   {tag.name.trim().slice(0, 3)}
                                 </span>
                               </span>
@@ -7395,9 +7680,7 @@ export default function App() {
                 </div>
               </section>
             ))}
-            {filteredMenuCategories.length === 0 && (
-              <p className="state">Nessun piatto disponibile con i filtri selezionati.</p>
-            )}
+            {filteredMenuCategories.length === 0 && <p className="state">{t("noDishesWithSelectedFilters")}</p>}
           </div>
 
           {/* ── Allergen side tab (desktop, left) ── */}
@@ -7405,9 +7688,9 @@ export default function App() {
             type="button"
             className="allergen-side-tab allergen-side-tab--menu"
             onClick={() => setMenuAllergenAccordionOpen(true)}
-            aria-label="Filtra allergeni"
+            aria-label={t("filterAllergens")}
           >
-            <span className="allergen-side-tab-label">Filtra menu</span>
+            <span className="allergen-side-tab-label">{t("filterMenu")}</span>
             {menuPublicFilterCount > 0 && (
               <span className="allergen-side-tab-badge">{menuPublicFilterCount}</span>
             )}
@@ -7420,20 +7703,20 @@ export default function App() {
               className="allergen-modal-overlay"
               onClick={(e) => { if (e.target === e.currentTarget) setMenuAllergenAccordionOpen(false); }}
             >
-              <div className="allergen-modal" role="dialog" aria-modal="true" aria-label="Filtra allergeni">
+              <div className="allergen-modal" role="dialog" aria-modal="true" aria-label={t("filterAllergens")}>
                 <div className="allergen-modal-header">
                   <div>
-                    <p className="section-kicker">Allergeni</p>
-                    <h3>Filtra i piatti in base agli allergeni</h3>
+                    <p className="section-kicker">{t("allergensTitle")}</p>
+                    <h3>{t("filterDishesByAllergens")}</h3>
                     <p className="allergen-modal-sub">
-                      Seleziona le icone degli allergeni da <strong>escludere</strong> dal menu.
+                      {t("selectAllergensToExcludeFromMenu")}
                     </p>
                   </div>
                   <button
                     type="button"
                     className="allergen-modal-close"
                     onClick={() => setMenuAllergenAccordionOpen(false)}
-                    aria-label="Chiudi"
+                    aria-label={t("close")}
                   >
                     <wa-icon name="xmark" variant="solid" aria-hidden="true" />
                   </button>
@@ -7472,7 +7755,8 @@ export default function App() {
                       old.includes(tagId) ? old.filter((entry) => entry !== tagId) : [...old, tagId]
                     ),
                   "public-menu",
-                  "piatti"
+                  uiLanguage,
+                  "dishesEntity"
                 )}
                 <div className="allergen-modal-footer">
                   {menuPublicFilterCount > 0 && (
@@ -7483,14 +7767,14 @@ export default function App() {
                         setMenuActiveFilterTags([]);
                       }}
                     >
-                      Mostra tutti i piatti
+                      {t("showAllDishes")}
                     </button>
                   )}
                   <button
                     className="menu-cta menu-cta-blue"
                     onClick={() => setMenuAllergenAccordionOpen(false)}
                   >
-                    Applica filtro
+                    {t("applyFilter")}
                   </button>
                 </div>
               </div>
@@ -7503,7 +7787,7 @@ export default function App() {
             type="button"
             className="poke-mobile-fab poke-mobile-fab--filter poke-mobile-fab--menu"
             onClick={() => setMenuAllergenAccordionOpen(true)}
-            aria-label="Filtra menu"
+            aria-label={t("filterMenu")}
           >
             <wa-icon name="filter" variant="solid" aria-hidden="true"></wa-icon>
             {menuPublicFilterCount > 0 && (
@@ -7622,9 +7906,9 @@ export default function App() {
             type="button"
             className="allergen-side-tab"
             onClick={() => setPokeAllergenAccordionOpen(true)}
-            aria-label="Filtra allergeni"
+            aria-label={t("filterAllergens")}
           >
-            <span className="allergen-side-tab-label">Filtra poke</span>
+            <span className="allergen-side-tab-label">{t("filterPoke")}</span>
             {pokePublicFilterCount > 0 && (
               <span className="allergen-side-tab-badge">{pokePublicFilterCount}</span>
             )}
@@ -7637,20 +7921,20 @@ export default function App() {
               className="allergen-modal-overlay"
               onClick={(e) => { if (e.target === e.currentTarget) setPokeAllergenAccordionOpen(false); }}
             >
-              <div className="allergen-modal" role="dialog" aria-modal="true" aria-label="Filtra allergeni">
+              <div className="allergen-modal" role="dialog" aria-modal="true" aria-label={t("filterAllergens")}>
                 <div className="allergen-modal-header">
                   <div>
-                <p className="section-kicker">Allergeni</p>
-                <h3>Filtra gli ingredienti in base agli allergeni</h3>
+                <p className="section-kicker">{t("allergensTitle")}</p>
+                <h3>{t("filterIngredientsByAllergens")}</h3>
                     <p className="allergen-modal-sub">
-                      Seleziona le icone degli allergeni da <strong>escludere</strong> dal configuratore poke.
+                      {t("selectAllergensToExcludeFromPoke")}
                     </p>
                   </div>
                 <button
                   type="button"
                     className="allergen-modal-close"
                     onClick={() => setPokeAllergenAccordionOpen(false)}
-                    aria-label="Chiudi"
+                    aria-label={t("close")}
                   >
                     <wa-icon name="xmark" variant="solid" aria-hidden="true" />
                 </button>
@@ -7689,7 +7973,8 @@ export default function App() {
                     old.includes(tagId) ? old.filter((entry) => entry !== tagId) : [...old, tagId]
                   ),
                 "public-poke",
-                "ingredienti"
+                uiLanguage,
+                "ingredientsEntity"
               )}
                 <div className="allergen-modal-footer">
               {pokePublicFilterCount > 0 && (
@@ -7731,7 +8016,7 @@ export default function App() {
             type="button"
             className="poke-mobile-fab poke-mobile-fab--filter"
             onClick={() => setPokeAllergenAccordionOpen(true)}
-            aria-label="Filtra allergeni"
+            aria-label={t("filterAllergens")}
           >
             <wa-icon name="filter" variant="solid" aria-hidden="true"></wa-icon>
             {pokePublicFilterCount > 0 && (
@@ -7770,7 +8055,7 @@ export default function App() {
                     type="button"
                     className="allergen-modal-close"
                     onClick={() => setPokeSummaryModalOpen(false)}
-                    aria-label="Chiudi"
+                    aria-label={t("close")}
                   >
                     <wa-icon name="xmark" variant="solid" aria-hidden="true" />
                   </button>
@@ -8458,7 +8743,7 @@ export default function App() {
                   type="button"
                   className="drinks-modal-close"
                   onClick={closeDrinksModal}
-                  aria-label="Chiudi"
+                  aria-label={t("close")}
                 >
                   <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
                 </button>
@@ -8752,9 +9037,9 @@ export default function App() {
                     {t("servicePickup", { pickup: pickupDateTimeLabel })}
                   </p>
                   <label className="field-label">
-                    <span>Note ordine</span>
+                    <span>{t("orderNotes")}</span>
                     <textarea
-                      placeholder="Scrivi se non vuoi qualcosa, intolleranze, allergie..."
+                      placeholder={t("orderNotesPlaceholder")}
                       value={menuCheckoutForm.order_note}
                       onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, order_note: e.target.value }))}
                     />
@@ -8827,14 +9112,14 @@ export default function App() {
             <div className="orders-blocked-icon" aria-hidden="true">
               <wa-icon name="ban" variant="solid"></wa-icon>
             </div>
-            <h4 className="orders-blocked-title">Ordinazioni Bloccate</h4>
+            <h4 className="orders-blocked-title">{t("ordersBlockedTitle")}</h4>
             {appSettings.site.orders_blocked.reason.trim() ? (
               <p className="orders-blocked-reason">
                 {appSettings.site.orders_blocked.reason.trim()}
               </p>
             ) : (
               <p className="orders-blocked-reason muted">
-                Al momento non è possibile effettuare nuovi ordini dal sito.
+                {t("ordersBlockedDefaultReason")}
               </p>
             )}
             <div className="orders-blocked-actions">
@@ -8843,7 +9128,7 @@ export default function App() {
                 className="cta orders-blocked-close-btn"
                 onClick={() => setOrdersBlockedModalOpen(false)}
               >
-                Ho capito
+                {t("understood")}
               </button>
             </div>
           </article>
@@ -8861,7 +9146,7 @@ export default function App() {
           <button
             type="button"
             className="gallery-lightbox-close"
-            aria-label="Chiudi"
+              aria-label={t("close")}
             onClick={() => setGalleryLightboxSrc(null)}
           >
             <i className="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -8885,7 +9170,7 @@ export default function App() {
             <div className="info-modal-head">
               <h4>{infoModalParsed.cleanName}</h4>
               <button className="plain-link" onClick={() => setInfoModalItem(null)}>
-                Chiudi
+                {t("close")}
               </button>
             </div>
             <div className="info-modal-product">
@@ -8897,12 +9182,12 @@ export default function App() {
                 )}
               </div>
               <div className="info-modal-content">
-                <p>{translateDescription(infoModalItem.description) || "Descrizione disponibile in sala."}</p>
+                <p>{translateDescription(infoModalItem.description) || t("descriptionAvailableInStore")}</p>
                 <strong className="info-modal-price">{formatCurrency(infoModalItem.price)}</strong>
               </div>
             </div>
             <section className="info-modal-allergens">
-              <h5>Allergeni presenti</h5>
+              <h5>{t("allergensPresent")}</h5>
               {infoModalAllergens.length > 0 ? (
                 <div className="info-modal-allergen-grid">
                   {infoModalAllergens.map((allergen) => (
@@ -8919,7 +9204,7 @@ export default function App() {
                   ))}
                 </div>
               ) : (
-                <p className="muted">Nessun allergene specificato per questo piatto.</p>
+                <p className="muted">{t("noAllergenSpecifiedForDish")}</p>
               )}
             </section>
             <div className="info-modal-actions">
@@ -8944,14 +9229,14 @@ export default function App() {
               type="button"
               className="modal-close-btn"
               onClick={() => setMenuItemVariantModal(null)}
-              aria-label="Chiudi"
+              aria-label={t("close")}
             >
               <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
             </button>
             <p className="muted">
               <strong>{menuItemVariantModal.item.name}</strong>
             </p>
-            <h4>Seleziona varianti</h4>
+            <h4>{t("selectVariants")}</h4>
             <div className="admin-item-variant-public-list public-variant-poke-style">
               {getMenuItemVariants(menuItemVariantModal.item).map((variant) => {
                 const limits = getVariantLimits(variant);
@@ -9141,7 +9426,7 @@ export default function App() {
               const displayed = ALLERGEN_OPTIONS.filter((option) => allCodes.includes(option.id));
               return (
                 <section className="public-variant-allergens">
-                  <h5 className="public-variant-allergens__title">Allergeni presenti</h5>
+                  <h5 className="public-variant-allergens__title">{t("allergensPresent")}</h5>
                   <div className="public-variant-allergens__grid">
                     {displayed.map((allergen) => (
                       <span
@@ -9164,9 +9449,9 @@ export default function App() {
               );
             })()}
             <label className="field-label">
-              <span>Note</span>
+              <span>{t("orderNotes")}</span>
               <textarea
-                placeholder="Scrivi se non vuoi qualcosa, intolleranze, allergie..."
+                placeholder={t("orderNotesPlaceholder")}
                 value={menuItemVariantModal.note}
                 onChange={(e) =>
                   setMenuItemVariantModal((old) => {
@@ -9179,7 +9464,7 @@ export default function App() {
             <div className="admin-modal-actions">
               <span className="public-variant-total-price">{formatCurrency(getMenuItemVariantModalPricePreview())}</span>
               <button className="plain-link public-variant-cancel-btn" onClick={() => setMenuItemVariantModal(null)}>
-                Annulla
+                {t("cancel")}
               </button>
               <button
                 className="cta"
@@ -9194,7 +9479,7 @@ export default function App() {
                   return false;
                 })()}
               >
-                Aggiungi prodotto
+                {t("addProduct")}
               </button>
             </div>
           </article>
@@ -9208,11 +9493,11 @@ export default function App() {
               type="button"
               className="modal-close-btn"
               onClick={() => setOrderItemEditModal(null)}
-              aria-label="Chiudi"
+              aria-label={t("close")}
             >
               <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
             </button>
-            <h4>Modifica prodotto</h4>
+            <h4>{t("editProduct")}</h4>
             {orderItemEditModal.mode === "menu_variant" && orderItemEditModal.menuItem && orderItemEditModal.selectedByVariantId && (
               <>
                 <p className="muted">
@@ -9406,7 +9691,7 @@ export default function App() {
                   const displayed = ALLERGEN_OPTIONS.filter((option) => allCodes.includes(option.id));
                   return (
                     <section className="public-variant-allergens">
-                      <h5 className="public-variant-allergens__title">Allergeni presenti</h5>
+                      <h5 className="public-variant-allergens__title">{t("allergensPresent")}</h5>
                       <div className="public-variant-allergens__grid">
                         {displayed.map((allergen) => (
                           <span
@@ -9431,7 +9716,7 @@ export default function App() {
                 <label className="field-label">
                   <span>Note</span>
                   <textarea
-                    placeholder="Scrivi se non vuoi qualcosa, intolleranze, allergie..."
+                    placeholder={t("orderNotesPlaceholder")}
                     value={orderItemEditModal.note || ""}
                     onChange={(e) =>
                       setOrderItemEditModal((old) => {
@@ -9585,10 +9870,10 @@ export default function App() {
             <div className="admin-modal-actions order-edit-modal-actions">
               <span className="public-variant-total-price">{formatCurrency(getOrderItemEditPricePreview())}</span>
               <button className="plain-link public-variant-cancel-btn" onClick={() => setOrderItemEditModal(null)}>
-                Annulla
+                {t("cancel")}
               </button>
               <button className="cta" onClick={saveOrderItemEdit} disabled={!isOrderEditValid}>
-                Salva modifiche
+                {t("saveChanges")}
               </button>
             </div>
           </article>
@@ -9614,7 +9899,7 @@ export default function App() {
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setPokeSizeChangeModal(null)}
-                aria-label="Chiudi"
+                aria-label={t("close")}
               >
                 <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
               </button>
