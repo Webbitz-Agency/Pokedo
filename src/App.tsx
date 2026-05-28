@@ -335,9 +335,9 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
       "Ingredienti selezionati, combinazioni personalizzabili e ordine digitale veloce: tutta la qualità Pokedo, senza attese.",
     goFullMenu: "Vai al menu completo",
     homeHeroSlide1Lead: "Crea la tua bowl in sala o da asporto",
-    homeHeroSlide2Title: "Il menu completo, digitale e sempre aggiornato.",
+    homeHeroSlide2Title: "Guarda il nostro menu per ordinare d'asporto!",
     homeHeroSlide2Sub:
-      "Categorie, allergeni e piatti con prezzi chiari: sfoglia tutto il digitale Pokedo prima di ordinare in sala o da asporto.",
+      "Sfoglia categorie, allergeni e piatti con prezzi chiari: il menu digitale e perfetto sia se mangi in sala, sia se preferisci ordinare da asporto.",
     aboutKicker: "Chi siamo",
     aboutTitle: "La nostra filosofia in ogni bowl",
     aboutEyebrow: "Pokè bar contemporaneo a San Miniato",
