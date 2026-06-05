@@ -20,6 +20,7 @@
   --poke-brand-gradient: linear-gradient(120deg, #1f3a8a 0%, #1d4ed8 52%, #2563eb 100%);
   /* Layering: footer sotto overlay/modali (anche quelli in portal sul body) */
   --z-site-footer: 30;
+  --z-floating-ui: 50;
   --z-site-chrome: 100;
   --z-overlay: 10050;
 }
@@ -451,7 +452,7 @@ select {
   position: fixed;
   left: 16px;
   bottom: 16px;
-  z-index: 72;
+  z-index: var(--z-floating-ui);
   display: flex;
   flex-direction: column-reverse;
   align-items: flex-start;
@@ -1194,7 +1195,6 @@ select {
 .menu-page {
   padding-bottom: 22px;
   position: relative;
-  isolation: isolate;
   overflow-x: clip;
 }
 
@@ -1271,7 +1271,6 @@ select {
   padding-bottom: 24px;
   background: #fff;
   position: relative;
-  isolation: isolate;
 }
 
 /* Pesci di sfondo (statici, niente movimento) ispirati alla home “Chi siamo” */
@@ -1359,7 +1358,7 @@ select {
   .poke-mobile-fab {
     position: fixed;
     right: 16px;
-    z-index: 72;
+    z-index: var(--z-floating-ui);
     width: 48px;
     height: 48px;
     border-radius: 999px;
@@ -1625,7 +1624,7 @@ select {
   position: fixed;
   top: calc(74px + env(safe-area-inset-top, 0px));
   right: max(14px, env(safe-area-inset-right, 0px));
-  z-index: 88;
+  z-index: var(--z-floating-ui);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -2486,7 +2485,7 @@ select {
   left: 0;
   top: 50%;
   transform: translateY(-50%) translateX(-50%);
-  z-index: 800;
+  z-index: var(--z-floating-ui);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2543,7 +2542,7 @@ select {
   right: 0;
   top: 50%;
   transform: translateY(-50%) translateX(50%);
-  z-index: 800;
+  z-index: var(--z-floating-ui);
   display: flex;
   flex-direction: column;
   align-items: center;
