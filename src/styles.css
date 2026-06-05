@@ -2801,6 +2801,14 @@ select {
   margin: 0;
 }
 
+.allergen-modal-disclaimer {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  line-height: 1.45;
+  margin: 8px 0 0;
+  max-width: 42rem;
+}
+
 .allergen-modal-close {
   flex-shrink: 0;
   width: 36px;

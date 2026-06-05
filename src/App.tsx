@@ -412,6 +412,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     filterIngredientsByAllergens: "Filtra gli ingredienti in base agli allergeni",
     selectAllergensToExcludeFromMenu: "Seleziona le icone degli allergeni da escludere dal menu.",
     selectAllergensToExcludeFromPoke: "Seleziona le icone degli allergeni da escludere dal configuratore poke.",
+    allergenFilterDisclaimer:
+      "Non possiamo garantire l'assenza di contaminazioni incrociate. Se hai un'allergia grave, contattaci prima di ordinare.",
     showAllDishes: "Mostra tutti i piatti",
     applyFilter: "Applica filtro",
     loadingHome: "Carico la home...",
@@ -532,6 +534,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     filterIngredientsByAllergens: "Filter ingredients by allergens",
     selectAllergensToExcludeFromMenu: "Select allergen icons to exclude from the menu.",
     selectAllergensToExcludeFromPoke: "Select allergen icons to exclude from the poke builder.",
+    allergenFilterDisclaimer:
+      "We cannot guarantee the absence of cross-contamination. If you have a severe allergy, please speak with us before ordering.",
     showAllDishes: "Show all dishes",
     applyFilter: "Apply filter",
     loadingHome: "Loading home...",
@@ -652,6 +656,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     filterIngredientsByAllergens: "Zutaten nach Allergenen filtern",
     selectAllergensToExcludeFromMenu: "Wähle Allergensymbole aus, die im Menü ausgeschlossen werden sollen.",
     selectAllergensToExcludeFromPoke: "Wähle Allergensymbole aus, die im Poke-Konfigurator ausgeschlossen werden sollen.",
+    allergenFilterDisclaimer:
+      "Wir können keine vollständige Vermeidung von Kreuzkontaminationen garantieren. Bei schweren Allergien sprich bitte vor der Bestellung mit uns.",
     showAllDishes: "Alle Gerichte anzeigen",
     applyFilter: "Filter anwenden",
     loadingHome: "Startseite wird geladen...",
@@ -772,6 +778,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     filterIngredientsByAllergens: "Filtra los ingredientes por alérgenos",
     selectAllergensToExcludeFromMenu: "Selecciona los iconos de alérgenos que quieres excluir del menú.",
     selectAllergensToExcludeFromPoke: "Selecciona los iconos de alérgenos que quieres excluir del configurador poke.",
+    allergenFilterDisclaimer:
+      "No podemos garantizar la ausencia de contaminación cruzada. Si tienes una alergia grave, habla con nosotros antes de pedir.",
     showAllDishes: "Mostrar todos los platos",
     applyFilter: "Aplicar filtro",
     loadingHome: "Cargando inicio...",
@@ -834,6 +842,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     filterIngredientsByAllergens: "Filtrer les ingrédients selon les allergènes",
     selectAllergensToExcludeFromMenu: "Sélectionne les icônes d'allergènes à exclure du menu.",
     selectAllergensToExcludeFromPoke: "Sélectionne les icônes d'allergènes à exclure du configurateur poke.",
+    allergenFilterDisclaimer:
+      "Nous ne pouvons pas garantir l'absence de contamination croisée. En cas d'allergie grave, contacte-nous avant de commander.",
     showAllDishes: "Afficher tous les plats",
     applyFilter: "Appliquer le filtre",
     loadingHome: "Chargement de l'accueil...",
@@ -895,6 +905,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     filterIngredientsByAllergens: "按过敏原筛选配料",
     selectAllergensToExcludeFromMenu: "选择要从菜单中排除的过敏原图标。",
     selectAllergensToExcludeFromPoke: "选择要从 poke 配置器中排除的过敏原图标。",
+    allergenFilterDisclaimer: "我们无法保证完全没有交叉污染。如有严重过敏，请在下单前与我们联系。",
     showAllDishes: "显示全部菜品",
     applyFilter: "应用筛选",
     loadingHome: "正在加载首页...",
@@ -956,6 +967,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     filterIngredientsByAllergens: "アレルゲンで具材を絞り込む",
     selectAllergensToExcludeFromMenu: "メニューから除外するアレルゲンのアイコンを選択してください。",
     selectAllergensToExcludeFromPoke: "ポケビルダーから除外するアレルゲンのアイコンを選択してください。",
+    allergenFilterDisclaimer:
+      "交差汚染がないことを保証できません。重度のアレルギーがある場合は、注文前にご相談ください。",
     showAllDishes: "すべての料理を表示",
     applyFilter: "フィルターを適用",
     loadingHome: "ホームを読み込み中...",
@@ -7771,6 +7784,7 @@ export default function App() {
                     <p className="allergen-modal-sub">
                       {t("selectAllergensToExcludeFromMenu")}
                     </p>
+                    <p className="allergen-modal-disclaimer">{t("allergenFilterDisclaimer")}</p>
                   </div>
                   <button
                     type="button"
@@ -7989,6 +8003,7 @@ export default function App() {
                     <p className="allergen-modal-sub">
                       {t("selectAllergensToExcludeFromPoke")}
                     </p>
+                    <p className="allergen-modal-disclaimer">{t("allergenFilterDisclaimer")}</p>
                   </div>
                 <button
                   type="button"
