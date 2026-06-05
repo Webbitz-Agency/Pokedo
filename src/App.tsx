@@ -7689,7 +7689,7 @@ export default function App() {
                               <span
                                 key={`menu-dish-filter-label-${item.id}-${tag.id}`}
                                 className="menu-dish-filter-label"
-                                style={{ color: tag.color }}
+                                style={{ backgroundColor: tag.color }}
                               >
                                 {tag.name.trim().slice(0, 3).toUpperCase()}
                               </span>
@@ -7698,7 +7698,7 @@ export default function App() {
                               <span
                                 key={`menu-dish-filter-label-also-${item.id}-${tag.id}`}
                                 className="menu-dish-filter-label menu-dish-filter-label--also"
-                                style={{ color: tag.color }}
+                                style={{ backgroundColor: tag.color }}
                               >
                                 {translateText(uiLanguage, "alsoFilterTag", {
                                   tag: tag.name.trim().slice(0, 3).toUpperCase()

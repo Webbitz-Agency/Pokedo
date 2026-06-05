@@ -12243,6 +12243,12 @@ table button:hover {
 }
 
 .menu-dish-filter-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #fff;
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -12254,6 +12260,7 @@ table button:hover {
 .menu-dish-filter-label--also {
   font-size: 0.58rem;
   font-weight: 800;
+  padding: 2px 5px;
 }
 
 .menu-dish-thumb-img {
