@@ -55,6 +55,7 @@ type MenuItem = {
       included: boolean;
       extra_price: number;
       allergen_codes?: number[];
+      tag_ids?: string[];
       is_out_of_stock?: boolean;
       inactive_until?: string | null;
     }[];
@@ -400,7 +401,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     additionalFiltersKicker: "Filtri aggiuntivi",
     dishesEntity: "i piatti",
     ingredientsEntity: "gli ingredienti",
-    additionalFiltersLead: "Attiva un filtro per mostrare solo {entity} con quel tag (impostato in PokeManager su prodotto o ingrediente poke).",
+    additionalFiltersLead: "Attiva un filtro per mostrare solo {entity} con quel tag (impostato in PokeManager su prodotto, scelta variante o ingrediente poke).",
+    alsoFilterTag: "Anche {tag}!",
     noDishesWithSelectedFilters: "Nessun piatto disponibile con i filtri selezionati.",
     filterAllergens: "Filtra allergeni",
     filterMenu: "Filtra menu",
@@ -519,7 +521,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     additionalFiltersKicker: "Additional filters",
     dishesEntity: "dishes",
     ingredientsEntity: "ingredients",
-    additionalFiltersLead: "Activate a filter to show only {entity} with that tag (set in PokeManager on dish or poke ingredient).",
+    additionalFiltersLead: "Activate a filter to show only {entity} with that tag (set in PokeManager on dish, variant choice or poke ingredient).",
+    alsoFilterTag: "Also {tag}!",
     noDishesWithSelectedFilters: "No dishes available with the selected filters.",
     filterAllergens: "Filter allergens",
     filterMenu: "Filter menu",
@@ -638,7 +641,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     additionalFiltersKicker: "Zusätzliche Filter",
     dishesEntity: "Gerichte",
     ingredientsEntity: "Zutaten",
-    additionalFiltersLead: "Aktiviere einen Filter, um nur {entity} mit diesem Tag anzuzeigen (in PokeManager auf Produkt oder Poke-Zutat gesetzt).",
+    additionalFiltersLead: "Aktiviere einen Filter, um nur {entity} mit diesem Tag anzuzeigen (in PokeManager auf Produkt, Variantenwahl oder Poke-Zutat gesetzt).",
+    alsoFilterTag: "Auch {tag}!",
     noDishesWithSelectedFilters: "Keine Gerichte mit den gewählten Filtern verfügbar.",
     filterAllergens: "Allergene filtern",
     filterMenu: "Menü filtern",
@@ -757,7 +761,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     additionalFiltersKicker: "Filtros adicionales",
     dishesEntity: "los platos",
     ingredientsEntity: "los ingredientes",
-    additionalFiltersLead: "Activa un filtro para mostrar solo {entity} con esa etiqueta (configurada en PokeManager para producto o ingrediente poke).",
+    additionalFiltersLead: "Activa un filtro para mostrar solo {entity} con esa etiqueta (configurada en PokeManager para producto, elección de variante o ingrediente poke).",
+    alsoFilterTag: "¡También {tag}!",
     noDishesWithSelectedFilters: "No hay platos disponibles con los filtros seleccionados.",
     filterAllergens: "Filtrar alérgenos",
     filterMenu: "Filtrar menú",
@@ -818,7 +823,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     additionalFiltersKicker: "Filtres supplémentaires",
     dishesEntity: "les plats",
     ingredientsEntity: "les ingrédients",
-    additionalFiltersLead: "Active un filtre pour afficher uniquement {entity} avec ce tag (défini dans PokeManager sur produit ou ingrédient poke).",
+    additionalFiltersLead: "Active un filtre pour afficher uniquement {entity} avec ce tag (défini dans PokeManager sur produit, choix de variante ou ingrédient poke).",
+    alsoFilterTag: "Aussi {tag} !",
     noDishesWithSelectedFilters: "Aucun plat disponible avec les filtres sélectionnés.",
     filterAllergens: "Filtrer les allergènes",
     filterMenu: "Filtrer le menu",
@@ -878,7 +884,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     additionalFiltersKicker: "附加筛选",
     dishesEntity: "菜品",
     ingredientsEntity: "配料",
-    additionalFiltersLead: "启用筛选后，仅显示带有该标签的{entity}（在 PokeManager 中为菜品或 poke 配料设置）。",
+    additionalFiltersLead: "启用筛选后，仅显示带有该标签的{entity}（在 PokeManager 中为菜品、变体选项或 poke 配料设置）。",
+    alsoFilterTag: "也有 {tag}！",
     noDishesWithSelectedFilters: "所选筛选条件下没有可用菜品。",
     filterAllergens: "筛选过敏原",
     filterMenu: "筛选菜单",
@@ -938,7 +945,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     additionalFiltersKicker: "追加フィルター",
     dishesEntity: "料理",
     ingredientsEntity: "具材",
-    additionalFiltersLead: "フィルターを有効にすると、そのタグが付いた{entity}のみ表示されます（PokeManagerで商品またはポケ具材に設定）。",
+    additionalFiltersLead: "フィルターを有効にすると、そのタグが付いた{entity}のみ表示されます（PokeManagerで商品、バリアント選択またはポケ具材に設定）。",
+    alsoFilterTag: "{tag} もあり！",
     noDishesWithSelectedFilters: "選択したフィルターに該当する料理はありません。",
     filterAllergens: "アレルゲンを絞り込む",
     filterMenu: "メニューを絞り込む",
@@ -1845,7 +1853,7 @@ function menuItemVisibleInPublicFilters(
 ): boolean {
   if ((item as MenuItem & { active?: boolean }).active === false) return false;
   if (!menuItemVisibleInAllergenFilter(item, excludedAllergens)) return false;
-  return matchesAdditionalFilterTags(item.tag_ids, activeFilterTagIds);
+  return itemMatchesAdditionalFilterTags(item, activeFilterTagIds);
 }
 
 function sanitizeTagIds(value: unknown): string[] {
@@ -1871,10 +1879,9 @@ function matchesAdditionalFilterTags(tagIds: string[] | undefined, activeFilterT
 
 type AdditionalFilterTagOption = { id: string; name: string; color: string };
 
-function getItemAdditionalFilterTags(
-  tagIds: string[] | undefined,
+function buildAdditionalFilterTagRulesMap(
   tagRules: { name: string; color: string; additional_filter?: boolean }[]
-): AdditionalFilterTagOption[] {
+): Map<string, AdditionalFilterTagOption> {
   const rulesByKey = new Map<string, AdditionalFilterTagOption>();
   tagRules.forEach((rule) => {
     if (!rule.additional_filter) return;
@@ -1886,9 +1893,51 @@ function getItemAdditionalFilterTags(
       color: rule.color
     });
   });
+  return rulesByKey;
+}
+
+function getItemAdditionalFilterTags(
+  tagIds: string[] | undefined,
+  tagRules: { name: string; color: string; additional_filter?: boolean }[]
+): AdditionalFilterTagOption[] {
+  const rulesByKey = buildAdditionalFilterTagRulesMap(tagRules);
   return sanitizeTagIds(tagIds)
     .map((id) => rulesByKey.get(id) ?? null)
     .filter((entry): entry is AdditionalFilterTagOption => entry != null);
+}
+
+function getItemChoiceAdditionalFilterTags(
+  item: MenuItem,
+  tagRules: { name: string; color: string; additional_filter?: boolean }[]
+): AdditionalFilterTagOption[] {
+  const rulesByKey = buildAdditionalFilterTagRulesMap(tagRules);
+  const productTagIds = new Set(sanitizeTagIds(item.tag_ids));
+  const found = new Map<string, AdditionalFilterTagOption>();
+  const variants = Array.isArray(item.variants) ? item.variants : [];
+  for (const variant of variants) {
+    for (const choice of variant.choices ?? []) {
+      if (!isVariantChoiceActive(choice)) continue;
+      for (const tagId of sanitizeTagIds(choice.tag_ids)) {
+        if (productTagIds.has(tagId)) continue;
+        const tag = rulesByKey.get(tagId);
+        if (tag) found.set(tagId, tag);
+      }
+    }
+  }
+  return Array.from(found.values());
+}
+
+function itemMatchesAdditionalFilterTags(item: MenuItem, activeFilterTagIds: string[]): boolean {
+  if (activeFilterTagIds.length === 0) return true;
+  if (matchesAdditionalFilterTags(item.tag_ids, activeFilterTagIds)) return true;
+  const variants = Array.isArray(item.variants) ? item.variants : [];
+  for (const variant of variants) {
+    for (const choice of variant.choices ?? []) {
+      if (!isVariantChoiceActive(choice)) continue;
+      if (matchesAdditionalFilterTags(choice.tag_ids, activeFilterTagIds)) return true;
+    }
+  }
+  return false;
 }
 
 function renderAdditionalFiltersInAllergenGrid(
@@ -7613,6 +7662,10 @@ export default function App() {
                       item.tag_ids,
                       appSettings.site.tag_rules ?? []
                     );
+                    const itemChoiceAdditionalFilterTags = getItemChoiceAdditionalFilterTags(
+                      item,
+                      appSettings.site.tag_rules ?? []
+                    );
                         return (
                       <article
                         key={item.id}
@@ -7628,7 +7681,7 @@ export default function App() {
                         ) : (
                           <span>IMG</span>
                         )}
-                        {itemAdditionalFilterTags.length > 0 && (
+                        {(itemAdditionalFilterTags.length > 0 || itemChoiceAdditionalFilterTags.length > 0) && (
                           <div className="menu-dish-filter-tags" aria-hidden="true">
                             {itemAdditionalFilterTags.map((tag) => (
                               <span
@@ -7641,6 +7694,17 @@ export default function App() {
                                 >
                                   {tag.name.trim().slice(0, 3)}
                                 </span>
+                              </span>
+                            ))}
+                            {itemChoiceAdditionalFilterTags.map((tag) => (
+                              <span
+                                key={`menu-dish-filter-also-tag-${item.id}-${tag.id}`}
+                                className="menu-dish-filter-also-tag"
+                                style={{ backgroundColor: tag.color }}
+                              >
+                                {translateText(uiLanguage, "alsoFilterTag", {
+                                  tag: tag.name.trim().slice(0, 3).toUpperCase()
+                                })}
                               </span>
                             ))}
                           </div>

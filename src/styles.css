@@ -12273,6 +12273,24 @@ table button:hover {
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.16);
 }
 
+.menu-dish-filter-also-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  max-width: 100%;
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.48rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.16);
+}
+
 .menu-dish-thumb-img {
   position: absolute;
   inset: 0;
