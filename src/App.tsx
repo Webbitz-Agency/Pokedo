@@ -243,6 +243,7 @@ type AppSettings = {
 
 const ORDER_STATUSES = ["received", "in_preparazione", "servito"];
 const ORDER_STORAGE_PUBLIC_KEY = "pokedo_order_items_public_v1";
+const PUBLIC_FILTERS_STORAGE_KEY = "pokedo_public_allergen_filters_v1";
 const OPENED_ORDERS_STORAGE_KEY = "pokedo_admin_opened_orders_v1";
 const UI_LANGUAGE_STORAGE_KEY = "pokedo_ui_language_v1";
 const POKE_PHASE_DESCRIPTION_SEED_KEY = "pokedo_poke_phase_description_seed_v1";
@@ -386,6 +387,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     selectHour: "Seleziona ora",
     selectMinutes: "Seleziona minuti",
     customerData: "Dati cliente",
+    checkoutCustomerAllergensTitle: "Allergie e intolleranze",
+    checkoutCustomerAllergensLead:
+      "Seleziona gli allergeni a cui sei sensibile o allergico/a, così possiamo prestare maggiore attenzione al tuo ordine.",
+    checkoutCustomerAllergensSummary: "Allergie dichiarate: {allergens}",
     phoneInvalid: "Inserisci un numero di telefono di 10 cifre",
     emailInvalid: "Inserisci un'email valida (es. nome@dominio.it)",
     finalSummary: "Riepilogo finale",
@@ -406,7 +411,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     noDishesWithSelectedFilters: "Nessun piatto disponibile con i filtri selezionati.",
     filterAllergens: "Filtra allergeni",
     filterMenu: "Filtro allergeni",
-    filterPoke: "Filtra poke",
+    filterPoke: "Filtro allergeni",
     allergensTitle: "Allergeni",
     filterDishesByAllergens: "Filtra i piatti in base agli allergeni",
     filterIngredientsByAllergens: "Filtra gli ingredienti in base agli allergeni",
@@ -508,6 +513,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     selectHour: "Select hour",
     selectMinutes: "Select minutes",
     customerData: "Customer details",
+    checkoutCustomerAllergensTitle: "Allergies and intolerances",
+    checkoutCustomerAllergensLead:
+      "Select any allergens you are sensitive or allergic to so we can take extra care with your order.",
+    checkoutCustomerAllergensSummary: "Declared allergies: {allergens}",
     phoneInvalid: "Enter a 10-digit phone number",
     emailInvalid: "Enter a valid email (e.g. name@domain.com)",
     finalSummary: "Final summary",
@@ -528,7 +537,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     noDishesWithSelectedFilters: "No dishes available with the selected filters.",
     filterAllergens: "Filter allergens",
     filterMenu: "Allergen filter",
-    filterPoke: "Filter poke",
+    filterPoke: "Allergen filter",
     allergensTitle: "Allergens",
     filterDishesByAllergens: "Filter dishes by allergens",
     filterIngredientsByAllergens: "Filter ingredients by allergens",
@@ -630,6 +639,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     selectHour: "Stunde wählen",
     selectMinutes: "Minuten wählen",
     customerData: "Kundendaten",
+    checkoutCustomerAllergensTitle: "Allergien und Unverträglichkeiten",
+    checkoutCustomerAllergensLead:
+      "Wähle Allergene aus, auf die du empfindlich reagierst oder allergisch bist, damit wir besonders auf deine Bestellung achten können.",
+    checkoutCustomerAllergensSummary: "Angegebene Allergien: {allergens}",
     phoneInvalid: "Gib eine 10-stellige Telefonnummer ein",
     emailInvalid: "Gib eine gültige E-Mail ein (z. B. name@domain.de)",
     finalSummary: "Endübersicht",
@@ -650,7 +663,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     noDishesWithSelectedFilters: "Keine Gerichte mit den gewählten Filtern verfügbar.",
     filterAllergens: "Allergene filtern",
     filterMenu: "Allergenfilter",
-    filterPoke: "Poke filtern",
+    filterPoke: "Allergenfilter",
     allergensTitle: "Allergene",
     filterDishesByAllergens: "Gerichte nach Allergenen filtern",
     filterIngredientsByAllergens: "Zutaten nach Allergenen filtern",
@@ -752,6 +765,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     selectHour: "Selecciona hora",
     selectMinutes: "Selecciona minutos",
     customerData: "Datos del cliente",
+    checkoutCustomerAllergensTitle: "Alergias e intolerancias",
+    checkoutCustomerAllergensLead:
+      "Selecciona los alérgenos a los que eres sensible o alérgico/a para que podamos cuidar mejor tu pedido.",
+    checkoutCustomerAllergensSummary: "Alergias declaradas: {allergens}",
     phoneInvalid: "Introduce un número de teléfono de 10 dígitos",
     emailInvalid: "Introduce un email válido (ej. nombre@dominio.com)",
     finalSummary: "Resumen final",
@@ -772,7 +789,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     noDishesWithSelectedFilters: "No hay platos disponibles con los filtros seleccionados.",
     filterAllergens: "Filtrar alérgenos",
     filterMenu: "Filtro de alérgenos",
-    filterPoke: "Filtrar poke",
+    filterPoke: "Filtro de alérgenos",
     allergensTitle: "Alérgenos",
     filterDishesByAllergens: "Filtra los platos por alérgenos",
     filterIngredientsByAllergens: "Filtra los ingredientes por alérgenos",
@@ -836,7 +853,11 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     noDishesWithSelectedFilters: "Aucun plat disponible avec les filtres sélectionnés.",
     filterAllergens: "Filtrer les allergènes",
     filterMenu: "Filtre allergènes",
-    filterPoke: "Filtrer le poke",
+    filterPoke: "Filtre allergènes",
+    checkoutCustomerAllergensTitle: "Allergies et intolérances",
+    checkoutCustomerAllergensLead:
+      "Sélectionne les allergènes auxquels tu es sensible ou allergique pour que nous puissions faire plus attention à ta commande.",
+    checkoutCustomerAllergensSummary: "Allergies déclarées : {allergens}",
     allergensTitle: "Allergènes",
     filterDishesByAllergens: "Filtrer les plats selon les allergènes",
     filterIngredientsByAllergens: "Filtrer les ingrédients selon les allergènes",
@@ -899,7 +920,10 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     noDishesWithSelectedFilters: "所选筛选条件下没有可用菜品。",
     filterAllergens: "筛选过敏原",
     filterMenu: "过敏原筛选",
-    filterPoke: "筛选 poke",
+    filterPoke: "过敏原筛选",
+    checkoutCustomerAllergensTitle: "过敏与不耐受",
+    checkoutCustomerAllergensLead: "请选择你敏感或过敏的过敏原，以便我们更好地照顾你的订单。",
+    checkoutCustomerAllergensSummary: "已声明过敏：{allergens}",
     allergensTitle: "过敏原",
     filterDishesByAllergens: "按过敏原筛选菜品",
     filterIngredientsByAllergens: "按过敏原筛选配料",
@@ -961,7 +985,11 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     noDishesWithSelectedFilters: "選択したフィルターに該当する料理はありません。",
     filterAllergens: "アレルゲンを絞り込む",
     filterMenu: "アレルゲンフィルター",
-    filterPoke: "ポケを絞り込む",
+    filterPoke: "アレルゲンフィルター",
+    checkoutCustomerAllergensTitle: "アレルギー・不耐症",
+    checkoutCustomerAllergensLead:
+      "敏感またはアレルギーのあるアレルゲンを選択してください。注文により配慮いたします。",
+    checkoutCustomerAllergensSummary: "申告されたアレルギー：{allergens}",
     allergensTitle: "アレルゲン",
     filterDishesByAllergens: "アレルゲンで料理を絞り込む",
     filterIngredientsByAllergens: "アレルゲンで具材を絞り込む",
@@ -1270,6 +1298,43 @@ function getTableGuestSessionStorageKey(scope: string) {
 
 function getTableGuestNameStorageKey(scope: string) {
   return `${TABLE_GUEST_NAME_PREFIX}${scope}`;
+}
+
+type PublicAllergenFiltersStorage = {
+  excludedAllergens: number[];
+  activeFilterTags: string[];
+};
+
+function readPublicFiltersFromStorage(): PublicAllergenFiltersStorage {
+  try {
+    const raw = window.localStorage.getItem(PUBLIC_FILTERS_STORAGE_KEY);
+    if (!raw) return { excludedAllergens: [], activeFilterTags: [] };
+    const parsed = JSON.parse(raw) as Partial<PublicAllergenFiltersStorage>;
+    const excludedAllergens = Array.isArray(parsed.excludedAllergens)
+      ? parsed.excludedAllergens
+          .map((value) => Number(value))
+          .filter((value) => Number.isFinite(value) && value >= 1 && value <= 14)
+          .sort((a, b) => a - b)
+      : [];
+    const activeFilterTags = Array.isArray(parsed.activeFilterTags)
+      ? parsed.activeFilterTags.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+      : [];
+    return { excludedAllergens, activeFilterTags };
+  } catch {
+    return { excludedAllergens: [], activeFilterTags: [] };
+  }
+}
+
+function formatAllergenCodesForNote(codes: number[]): string {
+  return codes
+    .slice()
+    .sort((a, b) => a - b)
+    .map((code) => {
+      const option = ALLERGEN_OPTIONS.find((entry) => entry.id === code);
+      const title = option?.title ?? DEFAULT_ALLERGEN_TITLES[code] ?? String(code);
+      return `${code} ${title}`;
+    })
+    .join(", ");
 }
 
 function readOrderItemsFromStorage(storageKey: string): Record<number, CartItem> {
@@ -2181,8 +2246,12 @@ export default function App() {
     nextBuilder: BuilderItem;
     draftSelectedByGroup: Record<number, Record<number, number>>;
   } | null>(null);
-  const [menuExcludedAllergens, setMenuExcludedAllergens] = useState<number[]>([]);
-  const [menuActiveFilterTags, setMenuActiveFilterTags] = useState<string[]>([]);
+  const [publicExcludedAllergens, setPublicExcludedAllergens] = useState<number[]>(
+    () => readPublicFiltersFromStorage().excludedAllergens
+  );
+  const [publicActiveFilterTags, setPublicActiveFilterTags] = useState<string[]>(
+    () => readPublicFiltersFromStorage().activeFilterTags
+  );
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
   const [editingItemId, setEditingItemId] = useState<number | null>(null);
   const [openedOrderIds, setOpenedOrderIds] = useState<number[]>(() => {
@@ -2225,8 +2294,6 @@ export default function App() {
 
   const [selectedBuilderId, setSelectedBuilderId] = useState<number | null>(null);
   const [pokeFlowStep, setPokeFlowStep] = useState(0);
-  const [pokeExcludedAllergens, setPokeExcludedAllergens] = useState<number[]>([]);
-  const [pokeActiveFilterTags, setPokeActiveFilterTags] = useState<string[]>([]);
   const [selectedByGroup, setSelectedByGroup] = useState<Record<number, Record<number, number>>>({});
   const [pokeLimitMessage, setPokeLimitMessage] = useState("");
   const [pokeAddedMessage, setPokeAddedMessage] = useState("");
@@ -2283,7 +2350,8 @@ export default function App() {
     last_name: "",
     phone: "",
     email: "",
-    order_note: ""
+    order_note: "",
+    customer_allergen_codes: [] as number[]
   });
   const [dynamicDescriptionMap, setDynamicDescriptionMap] = useState<Record<string, string>>({});
   const hasUnsavedAdminSettings = useMemo(() => {
@@ -3315,6 +3383,20 @@ export default function App() {
   }, [openedOrderIds]);
 
   useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        PUBLIC_FILTERS_STORAGE_KEY,
+        JSON.stringify({
+          excludedAllergens: publicExcludedAllergens,
+          activeFilterTags: publicActiveFilterTags
+        })
+      );
+    } catch {
+      // noop
+    }
+  }, [publicExcludedAllergens, publicActiveFilterTags]);
+
+  useEffect(() => {
     if (route === "/amministrazione") return;
     const intervalId = window.setInterval(() => {
       loadPublic().catch(() => {
@@ -3395,20 +3477,19 @@ export default function App() {
         .filter((rule) => rule.id),
     [appSettings.site.tag_rules]
   );
-  const menuPublicFilterCount = menuExcludedAllergens.length + menuActiveFilterTags.length;
-  const pokePublicFilterCount = pokeExcludedAllergens.length + pokeActiveFilterTags.length;
+  const publicFilterCount = publicExcludedAllergens.length + publicActiveFilterTags.length;
   const filteredMenuCategories = useMemo(() => {
     if (!menu) return [];
-    if (menuExcludedAllergens.length === 0 && menuActiveFilterTags.length === 0) return menu.categories;
+    if (publicExcludedAllergens.length === 0 && publicActiveFilterTags.length === 0) return menu.categories;
     return menu.categories
       .map((category) => ({
         ...category,
         items: category.items.filter((item) =>
-          menuItemVisibleInPublicFilters(item, menuExcludedAllergens, menuActiveFilterTags)
+          menuItemVisibleInPublicFilters(item, publicExcludedAllergens, publicActiveFilterTags)
         )
       }))
       .filter((category) => category.items.length > 0);
-  }, [menu, menuExcludedAllergens, menuActiveFilterTags]);
+  }, [menu, publicExcludedAllergens, publicActiveFilterTags]);
   const infoModalParsed = useMemo(() => {
     if (!infoModalItem) return { cleanName: "", allergens: null as string | null };
     return extractAllergenCodesFromName(infoModalItem.name);
@@ -3471,16 +3552,16 @@ export default function App() {
     const isBeverageGroup = pokeCurrentGroup.name.toLowerCase().includes("bevand");
     const sourceOptions = isBeverageGroup ? getBeverageOptions() : pokeCurrentGroup.options;
     const activeOptions = sourceOptions.filter((option) => !option.is_out_of_stock);
-    if (pokeExcludedAllergens.length === 0 && pokeActiveFilterTags.length === 0) return activeOptions;
+    if (publicExcludedAllergens.length === 0 && publicActiveFilterTags.length === 0) return activeOptions;
     return activeOptions.filter((option) => {
-      if (pokeExcludedAllergens.length > 0) {
+      if (publicExcludedAllergens.length > 0) {
         const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
-        if (optionAllergens.some((code) => pokeExcludedAllergens.includes(code))) return false;
+        if (optionAllergens.some((code) => publicExcludedAllergens.includes(code))) return false;
       }
-      return matchesAdditionalFilterTags(option.tag_ids, pokeActiveFilterTags);
+      return matchesAdditionalFilterTags(option.tag_ids, publicActiveFilterTags);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pokeCurrentGroup, pokeExcludedAllergens, pokeActiveFilterTags, menu]);
+  }, [pokeCurrentGroup, publicExcludedAllergens, publicActiveFilterTags, menu]);
 
   const selectedOptionsWithPrice = useMemo(() => {
     if (!selectedBuilder) return [] as BuilderItem["groups"][number]["options"];
@@ -3557,7 +3638,7 @@ export default function App() {
   }, [selectedGroups]);
 
   useEffect(() => {
-    if (!selectedBuilder || (pokeExcludedAllergens.length === 0 && pokeActiveFilterTags.length === 0)) return;
+    if (!selectedBuilder || (publicExcludedAllergens.length === 0 && publicActiveFilterTags.length === 0)) return;
     setSelectedByGroup((old) => {
       let changed = false;
       const next: Record<number, Record<number, number>> = {};
@@ -3568,11 +3649,11 @@ export default function App() {
           group.options
             .filter((option) => {
               if (option.is_out_of_stock) return false;
-              if (pokeExcludedAllergens.length > 0) {
+              if (publicExcludedAllergens.length > 0) {
                 const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
-                if (optionAllergens.some((code) => pokeExcludedAllergens.includes(code))) return false;
+                if (optionAllergens.some((code) => publicExcludedAllergens.includes(code))) return false;
               }
-              return matchesAdditionalFilterTags(option.tag_ids, pokeActiveFilterTags);
+              return matchesAdditionalFilterTags(option.tag_ids, publicActiveFilterTags);
             })
             .map((option) => option.id)
         );
@@ -3591,7 +3672,7 @@ export default function App() {
       });
       return changed ? next : old;
     });
-  }, [selectedBuilder, pokeExcludedAllergens, pokeActiveFilterTags]);
+  }, [selectedBuilder, publicExcludedAllergens, publicActiveFilterTags]);
   function getBuilderGroupLimit(item: BuilderItem, keyword: string) {
     const group = item.groups.find((g) => g.name.toLowerCase().includes(keyword));
     if (!group) return 0;
@@ -4424,7 +4505,7 @@ export default function App() {
   }
 
   function getMenuItemVariants(item: MenuItem) {
-    return filterMenuItemVariantsForAllergens(item, menuExcludedAllergens);
+    return filterMenuItemVariantsForAllergens(item, publicExcludedAllergens);
   }
 
   function getMenuItemQuantity(itemId: number) {
@@ -4461,9 +4542,9 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (menuExcludedAllergens.length === 0) return;
+    if (publicExcludedAllergens.length === 0) return;
     const pruneSelection = (item: MenuItem, selectedByVariantId: Record<number, Record<number, number>>) => {
-      const variants = filterMenuItemVariantsForAllergens(item, menuExcludedAllergens);
+      const variants = filterMenuItemVariantsForAllergens(item, publicExcludedAllergens);
       const nextSelected: Record<number, Record<number, number>> = {};
       variants.forEach((variant) => {
         const limits = getVariantLimits(variant);
@@ -4494,7 +4575,7 @@ export default function App() {
       const nextSelected = pruneSelection(old.menuItem, old.selectedByVariantId);
       return { ...old, selectedByVariantId: nextSelected };
     });
-  }, [menuExcludedAllergens]);
+  }, [publicExcludedAllergens]);
 
   function confirmMenuItemVariantSelection() {
     if (!menuItemVariantModal) return;
@@ -5492,9 +5573,18 @@ export default function App() {
     setSaving(true);
     try {
       const customerOrderNote = String(menuCheckoutForm.order_note || "").trim();
-      const orderNote = customerOrderNote
-        ? `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} alle ${pickupTimeLabel} | Note cliente: ${customerOrderNote}`
-        : `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} alle ${pickupTimeLabel}`;
+      const customerAllergenCodes = menuCheckoutForm.customer_allergen_codes.slice().sort((a, b) => a - b);
+      const customerAllergensLabel =
+        customerAllergenCodes.length > 0 ? formatAllergenCodesForNote(customerAllergenCodes) : "";
+      const pickupNote = `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} alle ${pickupTimeLabel}`;
+      const orderNoteParts = [pickupNote];
+      if (customerAllergensLabel) {
+        orderNoteParts.push(`Allergie cliente: ${customerAllergensLabel}`);
+      }
+      if (customerOrderNote) {
+        orderNoteParts.push(`Note cliente: ${customerOrderNote}`);
+      }
+      const orderNote = orderNoteParts.join(" | ");
       await publicApi.createOrder({
         source: "website",
         service_type: "pickup",
@@ -5513,6 +5603,7 @@ export default function App() {
           pickup_date: menuCheckoutForm.pickup_date,
           pickup_time: pickupTimeLabel,
           customer_note: customerOrderNote,
+          customer_allergen_codes: customerAllergenCodes,
           items: orderItemsList.map((item) => ({
             id: item.id,
             name: item.name,
@@ -5534,7 +5625,8 @@ export default function App() {
         last_name: "",
         phone: "",
         email: "",
-        order_note: ""
+        order_note: "",
+        customer_allergen_codes: []
       });
       await adminRefresh();
     } catch (e: unknown) {
@@ -7764,8 +7856,8 @@ export default function App() {
             aria-label={t("filterAllergens")}
           >
             <span className="allergen-side-tab-label">{t("filterMenu")}</span>
-            {menuPublicFilterCount > 0 && (
-              <span className="allergen-side-tab-badge">{menuPublicFilterCount}</span>
+            {publicFilterCount > 0 && (
+              <span className="allergen-side-tab-badge">{publicFilterCount}</span>
             )}
           </button>
 
@@ -7797,14 +7889,14 @@ export default function App() {
                 </div>
                 <div className="public-allergen-grid">
                   {ALLERGEN_OPTIONS.map((allergen) => {
-                    const selected = menuExcludedAllergens.includes(allergen.id);
+                    const selected = publicExcludedAllergens.includes(allergen.id);
                     return (
                       <button
                         key={`public-menu-allergen-${allergen.id}`}
                         type="button"
                         className={`public-allergen-option ${selected ? "selected" : ""}`.trim()}
                         onClick={() =>
-                          setMenuExcludedAllergens((old) =>
+                          setPublicExcludedAllergens((old) =>
                             old.includes(allergen.id)
                               ? old.filter((code) => code !== allergen.id)
                               : [...old, allergen.id].sort((a, b) => a - b)
@@ -7823,9 +7915,9 @@ export default function App() {
                 </div>
                 {renderAdditionalFiltersSection(
                   additionalFilterTagOptions,
-                  menuActiveFilterTags,
+                  publicActiveFilterTags,
                   (tagId) =>
-                    setMenuActiveFilterTags((old) =>
+                    setPublicActiveFilterTags((old) =>
                       old.includes(tagId) ? old.filter((entry) => entry !== tagId) : [...old, tagId]
                     ),
                   "public-menu",
@@ -7833,12 +7925,12 @@ export default function App() {
                   "dishesEntity"
                 )}
                 <div className="allergen-modal-footer">
-                  {menuPublicFilterCount > 0 && (
+                  {publicFilterCount > 0 && (
                     <button
                       className="plain-link"
                       onClick={() => {
-                        setMenuExcludedAllergens([]);
-                        setMenuActiveFilterTags([]);
+                        setPublicExcludedAllergens([]);
+                        setPublicActiveFilterTags([]);
                       }}
                     >
                       {t("showAllDishes")}
@@ -7864,8 +7956,8 @@ export default function App() {
             aria-label={t("filterMenu")}
           >
             <wa-icon name="filter" variant="solid" aria-hidden="true"></wa-icon>
-            {menuPublicFilterCount > 0 && (
-              <span className="poke-mobile-fab-badge">{menuPublicFilterCount}</span>
+            {publicFilterCount > 0 && (
+              <span className="poke-mobile-fab-badge">{publicFilterCount}</span>
             )}
           </button>
         </section>
@@ -7983,8 +8075,8 @@ export default function App() {
             aria-label={t("filterAllergens")}
           >
             <span className="allergen-side-tab-label">{t("filterPoke")}</span>
-            {pokePublicFilterCount > 0 && (
-              <span className="allergen-side-tab-badge">{pokePublicFilterCount}</span>
+            {publicFilterCount > 0 && (
+              <span className="allergen-side-tab-badge">{publicFilterCount}</span>
             )}
           </button>
 
@@ -8016,14 +8108,14 @@ export default function App() {
                 </div>
               <div className="public-allergen-grid">
                 {ALLERGEN_OPTIONS.map((allergen) => {
-                  const selected = pokeExcludedAllergens.includes(allergen.id);
+                  const selected = publicExcludedAllergens.includes(allergen.id);
                   return (
                     <button
                       key={`public-poke-allergen-${allergen.id}`}
                       type="button"
                       className={`public-allergen-option ${selected ? "selected" : ""}`.trim()}
                       onClick={() =>
-                        setPokeExcludedAllergens((old) =>
+                        setPublicExcludedAllergens((old) =>
                           old.includes(allergen.id)
                             ? old.filter((code) => code !== allergen.id)
                             : [...old, allergen.id].sort((a, b) => a - b)
@@ -8042,9 +8134,9 @@ export default function App() {
               </div>
               {renderAdditionalFiltersSection(
                 additionalFilterTagOptions,
-                pokeActiveFilterTags,
+                publicActiveFilterTags,
                 (tagId) =>
-                  setPokeActiveFilterTags((old) =>
+                  setPublicActiveFilterTags((old) =>
                     old.includes(tagId) ? old.filter((entry) => entry !== tagId) : [...old, tagId]
                   ),
                 "public-poke",
@@ -8052,12 +8144,12 @@ export default function App() {
                 "ingredientsEntity"
               )}
                 <div className="allergen-modal-footer">
-              {pokePublicFilterCount > 0 && (
+              {publicFilterCount > 0 && (
                   <button
                     className="plain-link"
                     onClick={() => {
-                      setPokeExcludedAllergens([]);
-                      setPokeActiveFilterTags([]);
+                      setPublicExcludedAllergens([]);
+                      setPublicActiveFilterTags([]);
                     }}
                   >
                     Mostra tutti gli ingredienti
@@ -8094,8 +8186,8 @@ export default function App() {
             aria-label={t("filterAllergens")}
           >
             <wa-icon name="filter" variant="solid" aria-hidden="true"></wa-icon>
-            {pokePublicFilterCount > 0 && (
-              <span className="poke-mobile-fab-badge">{pokePublicFilterCount}</span>
+            {publicFilterCount > 0 && (
+              <span className="poke-mobile-fab-badge">{publicFilterCount}</span>
             )}
           </button>
           <button
@@ -9098,6 +9190,38 @@ export default function App() {
                       )}
                     </div>
                   </div>
+                  <div className="checkout-customer-allergens">
+                    <h4>{t("checkoutCustomerAllergensTitle")}</h4>
+                    <p className="checkout-customer-allergens-lead">{t("checkoutCustomerAllergensLead")}</p>
+                    <p className="allergen-modal-disclaimer">{t("allergenFilterDisclaimer")}</p>
+                    <div className="public-allergen-grid checkout-customer-allergen-grid">
+                      {ALLERGEN_OPTIONS.map((allergen) => {
+                        const selected = menuCheckoutForm.customer_allergen_codes.includes(allergen.id);
+                        return (
+                          <button
+                            key={`checkout-customer-allergen-${allergen.id}`}
+                            type="button"
+                            className={`public-allergen-option ${selected ? "selected" : ""}`.trim()}
+                            onClick={() =>
+                              setMenuCheckoutForm((old) => ({
+                                ...old,
+                                customer_allergen_codes: old.customer_allergen_codes.includes(allergen.id)
+                                  ? old.customer_allergen_codes.filter((code) => code !== allergen.id)
+                                  : [...old.customer_allergen_codes, allergen.id].sort((a, b) => a - b)
+                              }))
+                            }
+                          >
+                            {allergen.icon_url ? (
+                              <img src={allergen.icon_url} alt={allergen.title} />
+                            ) : (
+                              <span className="allergen-fallback">{allergen.id}</span>
+                            )}
+                            <small>{allergen.id}. {allergen.title}</small>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </>
               )}
 
@@ -9108,6 +9232,13 @@ export default function App() {
                     {menuCheckoutForm.first_name} {menuCheckoutForm.last_name} - {menuCheckoutForm.phone} -{" "}
                     {menuCheckoutForm.email}
                   </p>
+                  {menuCheckoutForm.customer_allergen_codes.length > 0 && (
+                    <p>
+                      {t("checkoutCustomerAllergensSummary", {
+                        allergens: formatAllergenCodesForNote(menuCheckoutForm.customer_allergen_codes)
+                      })}
+                    </p>
+                  )}
                   <p>
                     {t("servicePickup", { pickup: pickupDateTimeLabel })}
                   </p>
