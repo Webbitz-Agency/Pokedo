@@ -7679,28 +7679,26 @@ export default function App() {
                         {item.image_url ? (
                             <img src={resolveMediaSrc(item.image_url)} alt={item.name} className="menu-dish-thumb-img" />
                         ) : (
-                          <span>IMG</span>
+                          <span className="menu-dish-thumb-fallback">IMG</span>
                         )}
+                      </button>
+                      <div className="menu-dish-content">
                         {(itemAdditionalFilterTags.length > 0 || itemChoiceAdditionalFilterTags.length > 0) && (
-                          <div className="menu-dish-filter-tags" aria-hidden="true">
+                          <div className="menu-dish-filter-labels" aria-hidden="true">
                             {itemAdditionalFilterTags.map((tag) => (
                               <span
-                                key={`menu-dish-filter-tag-${item.id}-${tag.id}`}
-                                className="menu-dish-filter-tag"
+                                key={`menu-dish-filter-label-${item.id}-${tag.id}`}
+                                className="menu-dish-filter-label"
+                                style={{ color: tag.color }}
                               >
-                                <span
-                                  className="public-allergen-tag-mark menu-dish-filter-tag-mark"
-                                  style={{ backgroundColor: tag.color }}
-                                >
-                                  {tag.name.trim().slice(0, 3)}
-                                </span>
+                                {tag.name.trim().slice(0, 3).toUpperCase()}
                               </span>
                             ))}
                             {itemChoiceAdditionalFilterTags.map((tag) => (
                               <span
-                                key={`menu-dish-filter-also-tag-${item.id}-${tag.id}`}
-                                className="menu-dish-filter-also-tag"
-                                style={{ backgroundColor: tag.color }}
+                                key={`menu-dish-filter-label-also-${item.id}-${tag.id}`}
+                                className="menu-dish-filter-label menu-dish-filter-label--also"
+                                style={{ color: tag.color }}
                               >
                                 {translateText(uiLanguage, "alsoFilterTag", {
                                   tag: tag.name.trim().slice(0, 3).toUpperCase()
@@ -7709,8 +7707,6 @@ export default function App() {
                             ))}
                           </div>
                         )}
-                      </button>
-                      <div className="menu-dish-content">
                         <div className="menu-dish-title-row">
                           <h5 className="menu-open-trigger" onClick={() => setInfoModalItem(item)}>
                             {parsed.cleanName}
