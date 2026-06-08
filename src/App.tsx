@@ -7269,11 +7269,45 @@ export default function App() {
               >
                 <div
                   id="home-hero-slide-1"
-                  className="hero-carousel-slide hero-carousel-slide--split"
+                  className="hero-carousel-slide hero-carousel-slide--bleed"
                   role="group"
                   aria-roledescription="slide"
                   aria-label="1 / 2"
                   aria-hidden={homeHeroSlide !== 0}
+                >
+                  <img
+                    className="hero-carousel-bleed-img"
+                    src={resolveMediaSrc(appSettings.site.home_hero_url || DEFAULT_APP_SETTINGS.site.home_hero_url)}
+                    alt=""
+                  />
+                  <div className="hero-carousel-bleed-scrim" aria-hidden="true" />
+                  <div className="hero-carousel-bleed-inner hero-carousel-bleed-inner--mirror">
+                    <p className="hero-carousel-slide2-lead fade-up">{t("homeHeroSlide2Title")}</p>
+                    <p className="hero-carousel-slide2-sub fade-up">{t("homeHeroSlide2Sub")}</p>
+                    <button
+                      type="button"
+                      className="menu-cta hero-carousel-cta hero-carousel-cta--menu fade-up home-blob-btn"
+                      onClick={goToMenuPage}
+                    >
+                      <span className="home-blob-btn__label">{t("goFullMenu")}</span>
+                      <span className="home-blob-btn__inner" aria-hidden="true">
+                        <span className="home-blob-btn__blobs">
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                        </span>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+                <div
+                  id="home-hero-slide-2"
+                  className="hero-carousel-slide hero-carousel-slide--split"
+                  role="group"
+                  aria-roledescription="slide"
+                  aria-label="2 / 2"
+                  aria-hidden={homeHeroSlide !== 1}
                 >
                   <div className="hero-slide-watermark" aria-hidden="true">
                     <img src="/immagini/decorazioni/hero.svg" alt="" />
@@ -7288,41 +7322,6 @@ export default function App() {
                         src={`${import.meta.env.BASE_URL}immagini/categorie/poke.svg`}
                         alt=""
                       />
-                      {/* Linea che collega i 5 pallini delle label di fase: un
-                          singolo `<path>` con un unico arco di
-                          circonferenza (comando SVG `A`) — stessa tecnica
-                          dasharray/dashoffset usata in ".poke-story-svg",
-                          ma su un path aperto invece che su un cerchio
-                          intero, per controllare con precisione il punto
-                          di partenza (base) e di arrivo (crunchy)
-                          dell'animazione.
-
-                          Geometria: arco con rx=ry=53.75 da (25, 7) a
-                          (25, 93), sweep-flag=0 → passa per il lato
-                          sinistro toccando i 5 pallini. Lunghezza ≈
-                          99.71 user units (`HERO_TRAIL_LENGTH` —
-                          costante calcolata analiticamente).
-
-                          Animazione tracciamento:
-                            stroke-dasharray = HERO_TRAIL_LENGTH
-                            stroke-dashoffset interpola da length → 0
-                          guidato da `heroTrailProgress` (RAF a 60Hz)
-                          → singola curva continua disegnata
-                          progressivamente.
-
-                          IMPORTANTE: il path NON usa `vector-effect:
-                          non-scaling-stroke`. Con preserveAspectRatio=
-                          "none" + non-scaling-stroke, dasharray viene
-                          interpretato in screen pixels mentre
-                          getTotalLength() ritorna user units →
-                          discrepanza che spezzava la linea in segmenti
-                          ripetuti. Senza quel vector-effect, dasharray e
-                          length sono entrambi in user units e
-                          combaciano.
-
-                          Stroke in tinta unita: stesso blu del titolo
-                          della hero (`--hero-graphic-blue` = #1e3a8a),
-                          definito direttamente nel CSS. */}
                       <svg
                         className="hero-poke-trail"
                         viewBox="0 0 100 100"
@@ -7346,10 +7345,6 @@ export default function App() {
                         { key: "salse", text: "Scegli le tue salse" },
                         { key: "crunchy", text: "Scegli i tuoi crunchy" }
                       ].map((phase, idx) => {
-                        // Una label si rivela quando la testa della linea
-                        // ha attraversato (in termini di arco) la y del
-                        // suo pallino. Vedi HERO_PHASE_PROGRESS_THRESHOLDS
-                        // per le soglie geometriche.
                         const revealed =
                           heroTrailProgress >=
                           HERO_PHASE_PROGRESS_THRESHOLDS[idx];
@@ -7377,40 +7372,6 @@ export default function App() {
                       onClick={() => goToPokePage()}
                     >
                       <span className="home-blob-btn__label">{t("createPoke")}</span>
-                      <span className="home-blob-btn__inner" aria-hidden="true">
-                        <span className="home-blob-btn__blobs">
-                          <span className="home-blob-btn__blob"></span>
-                          <span className="home-blob-btn__blob"></span>
-                          <span className="home-blob-btn__blob"></span>
-                          <span className="home-blob-btn__blob"></span>
-                        </span>
-                      </span>
-              </button>
-                  </div>
-                </div>
-                <div
-                  id="home-hero-slide-2"
-                  className="hero-carousel-slide hero-carousel-slide--bleed"
-                  role="group"
-                  aria-roledescription="slide"
-                  aria-label="2 / 2"
-                  aria-hidden={homeHeroSlide !== 1}
-                >
-                  <img
-                    className="hero-carousel-bleed-img"
-                    src={resolveMediaSrc(appSettings.site.home_hero_url || DEFAULT_APP_SETTINGS.site.home_hero_url)}
-                    alt=""
-                  />
-                  <div className="hero-carousel-bleed-scrim" aria-hidden="true" />
-                  <div className="hero-carousel-bleed-inner hero-carousel-bleed-inner--mirror">
-                    <p className="hero-carousel-slide2-lead fade-up">{t("homeHeroSlide2Title")}</p>
-                    <p className="hero-carousel-slide2-sub fade-up">{t("homeHeroSlide2Sub")}</p>
-                    <button
-                      type="button"
-                      className="menu-cta hero-carousel-cta hero-carousel-cta--menu fade-up home-blob-btn"
-                      onClick={goToMenuPage}
-                    >
-                      <span className="home-blob-btn__label">{t("goFullMenu")}</span>
                       <span className="home-blob-btn__inner" aria-hidden="true">
                         <span className="home-blob-btn__blobs">
                           <span className="home-blob-btn__blob"></span>
