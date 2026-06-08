@@ -1332,16 +1332,21 @@ function readPublicFiltersFromStorage(): PublicAllergenFiltersStorage {
   }
 }
 
-function formatAllergenCodesForNote(codes: number[]): string {
+function getAllergenTitleByCode(code: number): string {
+  const option = ALLERGEN_OPTIONS.find((entry) => entry.id === code);
+  return option?.title ?? DEFAULT_ALLERGEN_TITLES[code] ?? String(code);
+}
+
+function formatAllergenNames(codes: number[]): string {
   return codes
     .slice()
     .sort((a, b) => a - b)
-    .map((code) => {
-      const option = ALLERGEN_OPTIONS.find((entry) => entry.id === code);
-      const title = option?.title ?? DEFAULT_ALLERGEN_TITLES[code] ?? String(code);
-      return `${code} ${title}`;
-    })
-    .join(", ");
+    .map((code) => getAllergenTitleByCode(code))
+    .join(" ");
+}
+
+function formatAllergenCodesForNote(codes: number[]): string {
+  return formatAllergenNames(codes);
 }
 
 function readOrderItemsFromStorage(storageKey: string): Record<number, CartItem> {
@@ -5621,14 +5626,15 @@ export default function App() {
     try {
       const customerOrderNote = String(menuCheckoutForm.order_note || "").trim();
       const customerAllergenCodes = menuCheckoutForm.customer_allergen_codes.slice().sort((a, b) => a - b);
+      const customerAllergenLabels = customerAllergenCodes.map((code) => getAllergenTitleByCode(code));
       const customerAllergensLabel =
-        customerAllergenCodes.length > 0 ? formatAllergenCodesForNote(customerAllergenCodes) : "";
+        customerAllergenLabels.length > 0 ? customerAllergenLabels.join(" ") : "";
       const pickupNote = isPickupAsapSelected
         ? `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)}: ${pickupTimeLabel}`
         : `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} alle ${pickupTimeLabel}`;
       const orderNoteParts = [pickupNote];
       if (customerAllergensLabel) {
-        orderNoteParts.push(`Allergie cliente: ${customerAllergensLabel}`);
+        orderNoteParts.push(`Allergeni: ${customerAllergensLabel}`);
       }
       if (customerOrderNote) {
         orderNoteParts.push(`Note cliente: ${customerOrderNote}`);
@@ -5654,6 +5660,7 @@ export default function App() {
           pickup_asap: isPickupAsapSelected,
           customer_note: customerOrderNote,
           customer_allergen_codes: customerAllergenCodes,
+          customer_allergen_labels: customerAllergenLabels,
           items: orderItemsList.map((item) => ({
             id: item.id,
             name: item.name,
