@@ -2247,6 +2247,10 @@ select {
   color: #334155;
 }
 
+.checkout-time-selects-asap select {
+  min-width: 220px;
+}
+
 .checkout-order-list {
   margin-top: 6px;
 }

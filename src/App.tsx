@@ -230,9 +230,11 @@ type AppSettings = {
       color: string;
       additional_filter: boolean;
     }[];
+    pickup_asap_enabled: boolean;
     pickup_time_rule: {
       start_time: string;
       end_time: string;
+      interval_minutes: number;
     }[];
     orders_blocked: {
       enabled: boolean;
@@ -386,6 +388,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupDayHint: "Data preimpostata su oggi, modificabile",
     selectHour: "Seleziona ora",
     selectMinutes: "Seleziona minuti",
+    pickupAsapLabel: "Appena possibile",
     customerData: "Dati cliente",
     checkoutCustomerAllergensTitle: "Allergie e intolleranze",
     checkoutCustomerAllergensLead:
@@ -512,6 +515,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupDayHint: "Today by default, editable",
     selectHour: "Select hour",
     selectMinutes: "Select minutes",
+    pickupAsapLabel: "As soon as possible",
     customerData: "Customer details",
     checkoutCustomerAllergensTitle: "Allergies and intolerances",
     checkoutCustomerAllergensLead:
@@ -638,6 +642,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupDayHint: "Heute voreingestellt, änderbar",
     selectHour: "Stunde wählen",
     selectMinutes: "Minuten wählen",
+    pickupAsapLabel: "So schnell wie möglich",
     customerData: "Kundendaten",
     checkoutCustomerAllergensTitle: "Allergien und Unverträglichkeiten",
     checkoutCustomerAllergensLead:
@@ -764,6 +769,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupDayHint: "Fecha de hoy predefinida, editable",
     selectHour: "Selecciona hora",
     selectMinutes: "Selecciona minutos",
+    pickupAsapLabel: "Lo antes posible",
     customerData: "Datos del cliente",
     checkoutCustomerAllergensTitle: "Alergias e intolerancias",
     checkoutCustomerAllergensLead:
@@ -1203,6 +1209,7 @@ function getMinutesOfDayFromDate(date: Date): number {
 }
 
 const PICKUP_PREP_BUFFER_MINUTES = 10;
+const PICKUP_HOUR_ASAP_VALUE = "__asap__";
 
 function pokeOptionGridWidthCh(options: readonly { name: string; price?: number }[]): string {
   if (options.length === 0) return "26";
@@ -1680,10 +1687,12 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
     ],
     table_cover_rules: [],
     tag_rules: [],
+    pickup_asap_enabled: false,
     pickup_time_rule: [
       {
-      start_time: "12:00",
-      end_time: "14:00"
+        start_time: "12:00",
+        end_time: "14:00",
+        interval_minutes: 5
       }
     ],
     orders_blocked: {
@@ -1710,16 +1719,23 @@ function normalizeAppSettings(value: unknown): AppSettings {
     : pickupRuleRawSource && typeof pickupRuleRawSource === "object"
     ? [pickupRuleRawSource]
     : [];
+  const pickup_asap_enabled = Boolean((site as { pickup_asap_enabled?: unknown }).pickup_asap_enabled);
   const defaultPickupWindow = DEFAULT_APP_SETTINGS.site.pickup_time_rule[0];
+  const allowedPickupIntervals = new Set([5, 10, 15, 20, 30]);
   const pickup_time_rule_normalized = (() => {
     const cleaned = pickupRuleRawList
       .map((entry) => {
         const source = (entry ?? {}) as Record<string, unknown>;
         const start_time = String(source.start_time ?? "").trim();
         const end_time = String(source.end_time ?? "").trim();
+        const intervalRaw = Number(source.interval_minutes ?? defaultPickupWindow.interval_minutes);
+        const interval_minutes = allowedPickupIntervals.has(intervalRaw)
+          ? intervalRaw
+          : defaultPickupWindow.interval_minutes;
         return {
           start_time: /^\d{2}:\d{2}$/.test(start_time) ? start_time : defaultPickupWindow.start_time,
-          end_time: /^\d{2}:\d{2}$/.test(end_time) ? end_time : defaultPickupWindow.end_time
+          end_time: /^\d{2}:\d{2}$/.test(end_time) ? end_time : defaultPickupWindow.end_time,
+          interval_minutes
         };
       })
       .slice(0, 6);
@@ -1780,6 +1796,7 @@ function normalizeAppSettings(value: unknown): AppSettings {
       gallery_images: gallery_images.length > 0 ? gallery_images : [...DEFAULT_APP_SETTINGS.site.gallery_images],
       table_cover_rules,
       tag_rules,
+      pickup_asap_enabled,
       pickup_time_rule: pickup_time_rule_normalized,
       orders_blocked: {
         enabled: Boolean(ordersBlockedRaw.enabled),
@@ -3929,8 +3946,10 @@ export default function App() {
   }, [isTableOrderMode, tableGuestName, tableGuestCount, activeTableCoverRule]);
   const menuCheckoutProgress = useMemo(() => Math.min(100, (menuCheckoutStep / 4) * 100), [menuCheckoutStep]);
   const canGoStep2 = orderItemsList.length > 0;
+  const isPickupAsapSelected = menuCheckoutForm.pickup_hour === PICKUP_HOUR_ASAP_VALUE;
   const canGoStep3 =
-    menuCheckoutForm.pickup_date !== "" && menuCheckoutForm.pickup_hour !== "" && menuCheckoutForm.pickup_minute !== "";
+    menuCheckoutForm.pickup_date !== "" &&
+    (isPickupAsapSelected || (menuCheckoutForm.pickup_hour !== "" && menuCheckoutForm.pickup_minute !== ""));
   const phoneDigitsOnly = useMemo(
     () => menuCheckoutForm.phone.replace(/\D/g, ""),
     [menuCheckoutForm.phone]
@@ -3943,9 +3962,10 @@ export default function App() {
     isPhoneValid &&
     isEmailValid;
   const pickupTimeLabel = useMemo(() => {
+    if (menuCheckoutForm.pickup_hour === PICKUP_HOUR_ASAP_VALUE) return t("pickupAsapLabel");
     if (!menuCheckoutForm.pickup_hour || !menuCheckoutForm.pickup_minute) return "";
     return `${menuCheckoutForm.pickup_hour}:${menuCheckoutForm.pickup_minute}`;
-  }, [menuCheckoutForm.pickup_hour, menuCheckoutForm.pickup_minute]);
+  }, [menuCheckoutForm.pickup_hour, menuCheckoutForm.pickup_minute, t]);
   const pickupBaseSlots = useMemo(() => {
     const seen = new Set<number>();
     const slots: { hour: string; minute: string; minutes: number }[] = [];
@@ -3953,7 +3973,8 @@ export default function App() {
       const start = parseTimeToMinutes(window.start_time);
       const end = parseTimeToMinutes(window.end_time);
       if (start === null || end === null || start > end) continue;
-    for (let minutes = start; minutes <= end; minutes += 5) {
+      const step = Math.max(1, Number(window.interval_minutes) || 5);
+    for (let minutes = start; minutes <= end; minutes += step) {
         if (seen.has(minutes)) continue;
         seen.add(minutes);
       slots.push({
@@ -4023,6 +4044,14 @@ export default function App() {
   }, [pickupAllowedSlots, menuCheckoutForm.pickup_hour]);
   useEffect(() => {
     if (!menuCheckoutForm.pickup_hour) return;
+    if (menuCheckoutForm.pickup_hour === PICKUP_HOUR_ASAP_VALUE) {
+      if (!appSettings.site.pickup_asap_enabled) {
+        setMenuCheckoutForm((old) => ({ ...old, pickup_hour: "", pickup_minute: "" }));
+      } else if (menuCheckoutForm.pickup_minute) {
+        setMenuCheckoutForm((old) => ({ ...old, pickup_minute: "" }));
+      }
+      return;
+    }
     if (!pickupAllowedHours.includes(menuCheckoutForm.pickup_hour)) {
       setMenuCheckoutForm((old) => ({ ...old, pickup_hour: "", pickup_minute: "" }));
       return;
@@ -4030,7 +4059,13 @@ export default function App() {
     if (menuCheckoutForm.pickup_minute && !pickupAllowedMinutesForHour.includes(menuCheckoutForm.pickup_minute)) {
       setMenuCheckoutForm((old) => ({ ...old, pickup_minute: "" }));
     }
-  }, [menuCheckoutForm.pickup_hour, menuCheckoutForm.pickup_minute, pickupAllowedHours, pickupAllowedMinutesForHour]);
+  }, [
+    menuCheckoutForm.pickup_hour,
+    menuCheckoutForm.pickup_minute,
+    pickupAllowedHours,
+    pickupAllowedMinutesForHour,
+    appSettings.site.pickup_asap_enabled
+  ]);
   const pickupDateTimeLabel = useMemo(() => {
     if (!menuCheckoutForm.pickup_date || !pickupTimeLabel) return "";
     return `${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} ${pickupTimeLabel}`;
@@ -4275,9 +4310,11 @@ export default function App() {
     value:
       | string
       | string[]
+      | boolean
       | Record<string, string>
       | { id: number; name: string; start_time: string; end_time: string; cost_pp: number; active: boolean }[]
       | { id: number; name: string; color: string }[]
+      | { start_time: string; end_time: string; interval_minutes: number }[]
   ) {
     setSettingsForm((old) => {
       if (section === "activity") {
@@ -4337,6 +4374,15 @@ export default function App() {
           }
         };
       }
+      if (field === "pickup_asap_enabled") {
+        return {
+          ...old,
+          site: {
+            ...old.site,
+            pickup_asap_enabled: Boolean(value)
+          }
+        };
+      }
       if (field === "pickup_time_rule") {
         return {
           ...old,
@@ -4345,6 +4391,7 @@ export default function App() {
             pickup_time_rule: value as {
               start_time: string;
               end_time: string;
+              interval_minutes: number;
             }[]
           }
         };
@@ -5576,7 +5623,9 @@ export default function App() {
       const customerAllergenCodes = menuCheckoutForm.customer_allergen_codes.slice().sort((a, b) => a - b);
       const customerAllergensLabel =
         customerAllergenCodes.length > 0 ? formatAllergenCodesForNote(customerAllergenCodes) : "";
-      const pickupNote = `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} alle ${pickupTimeLabel}`;
+      const pickupNote = isPickupAsapSelected
+        ? `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)}: ${pickupTimeLabel}`
+        : `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} alle ${pickupTimeLabel}`;
       const orderNoteParts = [pickupNote];
       if (customerAllergensLabel) {
         orderNoteParts.push(`Allergie cliente: ${customerAllergensLabel}`);
@@ -5602,6 +5651,7 @@ export default function App() {
           },
           pickup_date: menuCheckoutForm.pickup_date,
           pickup_time: pickupTimeLabel,
+          pickup_asap: isPickupAsapSelected,
           customer_note: customerOrderNote,
           customer_allergen_codes: customerAllergenCodes,
           items: orderItemsList.map((item) => ({
@@ -9105,7 +9155,7 @@ export default function App() {
                     />
                     <small>{t("pickupDayHint")}</small>
                   </div>
-                  <div className="checkout-time-selects">
+                  <div className={`checkout-time-selects${isPickupAsapSelected ? " checkout-time-selects-asap" : ""}`}>
                     <select
                       value={menuCheckoutForm.pickup_hour}
                       onChange={(e) =>
@@ -9117,24 +9167,31 @@ export default function App() {
                       }
                     >
                       <option value="">{t("selectHour")}</option>
+                      {appSettings.site.pickup_asap_enabled ? (
+                        <option value={PICKUP_HOUR_ASAP_VALUE}>{t("pickupAsapLabel")}</option>
+                      ) : null}
                       {pickupAllowedHours.map((hour) => (
                         <option key={hour} value={hour}>
                           {hour}
                         </option>
                       ))}
                     </select>
-                    <span>:</span>
-                    <select
-                      value={menuCheckoutForm.pickup_minute}
-                      onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, pickup_minute: e.target.value }))}
-                    >
-                      <option value="">{t("selectMinutes")}</option>
-                      {pickupAllowedMinutesForHour.map((minute) => (
-                        <option key={minute} value={minute}>
-                          {minute}
-                        </option>
-                      ))}
-                    </select>
+                    {!isPickupAsapSelected ? (
+                      <>
+                        <span>:</span>
+                        <select
+                          value={menuCheckoutForm.pickup_minute}
+                          onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, pickup_minute: e.target.value }))}
+                        >
+                          <option value="">{t("selectMinutes")}</option>
+                          {pickupAllowedMinutesForHour.map((minute) => (
+                            <option key={minute} value={minute}>
+                              {minute}
+                            </option>
+                          ))}
+                        </select>
+                      </>
+                    ) : null}
                   </div>
                 </>
               )}
