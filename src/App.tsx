@@ -3117,7 +3117,13 @@ export default function App() {
     order_note: "",
     customer_allergen_codes: [] as number[]
   });
-  const [dynamicDescriptionMap, setDynamicDescriptionMap] = useState<Record<string, string>>({});
+  const [dynamicDescriptionMap, setDynamicDescriptionMap] = useState<Record<string, string>>(() => {
+    try {
+      const raw = window.localStorage.getItem("pokedo_translation_cache");
+      if (raw) return JSON.parse(raw) as Record<string, string>;
+    } catch { /* ignore */ }
+    return {};
+  });
   const hasUnsavedAdminSettings = useMemo(() => {
     if (adminRole !== "tenant") return false;
     const draft = normalizeAppSettings(settingsForm);
@@ -3441,7 +3447,6 @@ export default function App() {
 
   useEffect(() => {
     if (uiLanguage === "it") {
-      setDynamicDescriptionMap({});
       return;
     }
     const targetLanguage: "en" | "de" | "es" | "fr" | "zh" | "ja" =
@@ -3494,19 +3499,16 @@ export default function App() {
         setDynamicDescriptionMap((old) => {
           const next = { ...old };
           textsToTranslate.forEach((source) => {
-            next[`${uiLanguage}::${source}`] = String(translations[source] ?? source);
+            const translated = String(translations[source] ?? "").trim();
+            if (translated && translated !== source) {
+              next[`${uiLanguage}::${source}`] = translated;
+            }
           });
+          try { window.localStorage.setItem("pokedo_translation_cache", JSON.stringify(next)); } catch { /* ignore */ }
           return next;
         });
       } catch {
-        if (cancelled) return;
-        setDynamicDescriptionMap((old) => {
-          const next = { ...old };
-          textsToTranslate.forEach((source) => {
-            next[`${uiLanguage}::${source}`] = source;
-          });
-          return next;
-        });
+        // On failure, do NOT cache anything — allow retry on next language change
       }
     })();
 
@@ -8516,7 +8518,7 @@ export default function App() {
                 <div className="menu-dishes-grid">
                   {category.items.map((item) => {
                         const parsed = extractAllergenCodesFromName(item.name);
-                        const baseDescription = translateDescription(item.description) || "Descrizione disponibile in sala.";
+                        const baseDescription = translateDescription(item.description) || t("descriptionAvailableInStore");
                         const finalDescription = parsed.allergens
                           ? `${baseDescription} Allergeni: ${parsed.allergens}.`
                           : baseDescription;
