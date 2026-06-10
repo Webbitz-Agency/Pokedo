@@ -447,7 +447,73 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     editProduct: "Modifica prodotto",
     saveChanges: "Salva modifiche",
     pokeAddedToOrder: "Poke aggiunta all'ordine.",
-    orderSendError: "Errore invio ordine"
+    orderSendError: "Errore invio ordine",
+    dishes: "Piatti",
+    tableWelcome: "Benvenuto da Pokedo!",
+    tableGuestsPresent: "Presenti al tavolo: {guests}. Inserisci le persone di questo dispositivo.",
+    tableGuestsEmpty: "Inserisci quante persone stanno ordinando da questo dispositivo e i loro nomi.",
+    tableGuestCount: "Numero persone (dispositivo)",
+    tableGuestName: "Nome per questo ordine",
+    tableGuestNamePlaceholder: "Il tuo nome",
+    tableCoverPre: "Coperto attivo ora:",
+    tableCoverPerPerson: "a persona",
+    tableDeviceTotal: "Totale stimato dispositivo:",
+    tableConfirmName: "Conferma nome",
+    tableUnavailable: "Tavolo non disponibile",
+    tableClosed1: "Questo tavolo è stato chiuso dal personale.",
+    tableClosed2: "Se si tratta di un errore recati in cassa.",
+    tableClosed3: "Altrimenti ti ringraziamo e ti auguriamo una buona giornata!",
+    tableClosedTeam: "Il Team Pokedo",
+    tableBackToSite: "Torna al sito",
+    changeLanguage: "Cambia lingua",
+    pokeSummaryTitle: "Riepilogo poke",
+    closePokeSummary: "Chiudi riepilogo poke",
+    statFreshIngredients: "Ingredienti freschi",
+    statTakeaway: "Asporto",
+    statTakeawaySub: "e ordini da tavolo",
+    statPoke: "Pokè",
+    statPokeSub: "come vuoi te",
+    statLocationSub: "ti aspettiamo",
+    pokeStoryEyebrow: "La nostra filosofia",
+    pokeStoryHeadline: "La pokè come vuoi te.",
+    pokeStoryMobileHint: "Clicca la bowl per creare la tua poke",
+    pokeStoryCompositionAria: "Composizione poke",
+    openDetails: "Apri dettagli {pct} {name}",
+    closeDetails: "Chiudi dettagli",
+    pokeStoryDetailAria: "Dettaglio {name}",
+    pokeStoryBaseDesc: "Scegli la base che più ti piace",
+    pokeStoryBaseDetails: "Riso sushi, riso venere, insalata o mix: la struttura principale della tua bowl.",
+    pokeStoryProteinsDesc: "Fonti proteiche di qualità",
+    pokeStoryProteinsDetails: "Salmone, tonno, pollo o alternative veggie: la parte proteica che dà equilibrio e gusto.",
+    pokeStoryGreenDesc: "Verdure fresche di stagione",
+    pokeStoryGreenDetails: "Verdure e ingredienti freschi per volume, colore e una bowl sempre bilanciata.",
+    pokeStoryCrunchyDesc: "Il tocco croccante finale",
+    pokeStoryCrunchyDetails: "Semi e topping croccanti: il dettaglio finale che completa consistenza e sapore.",
+    heroPhaseBase: "Scegli la tua base",
+    heroPhaseProteins: "Scegli le tue proteine",
+    heroPhaseGreen: "Scegli i tuoi green",
+    heroPhasesSauces: "Scegli le tue salse",
+    heroPhaseCrunchy: "Scegli i tuoi crunchy",
+    pokeExtraPromptTitle: "Vuoi aggiungere {phase} extra?",
+    pokeExtraPromptSub: "Puoi sempre aggiungerli dal riepilogo del tuo poké.",
+    pokeExtraNo: "No, grazie",
+    pokeExtraYes: "Sì, aggiungi",
+    firstNamePlaceholder: "Nome",
+    lastNamePlaceholder: "Cognome",
+    phonePlaceholder: "Telefono",
+    variantRequired: "Obbligatorio · Max 1",
+    variantOptional: "Facoltativo · Max 1",
+    variantSelectMore1: "Seleziona ancora 1 opzione",
+    variantSelectMoreN: "Seleziona ancora {n} opzioni",
+    pokeMissingTitle: "Manca qualcosa per completare il poke",
+    decreaseQty: "Diminuisci quantità",
+    increaseQty: "Aumenta quantità",
+    closeAlert: "Chiudi avviso",
+    closeOrder: "Chiudi ordine",
+    removeProduct: "Rimuovi prodotto",
+    goToMenu: "Vai al menu",
+    orderNextStepNote: "*Nella fase successiva potrai controllare e modificare i piatti selezionati se hai sbagliato qualcosa",
+    composePokeAria: "Componi il tuo pokè"
   },
   en: {
     home: "Home",
@@ -574,7 +640,74 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     editProduct: "Edit product",
     saveChanges: "Save changes",
     pokeAddedToOrder: "Poke added to order.",
-    orderSendError: "Order submission error"
+    orderSendError: "Order submission error",
+    cancel: "Cancel",
+    dishes: "Dishes",
+    tableWelcome: "Welcome to Pokedo!",
+    tableGuestsPresent: "At the table: {guests}. Enter the people ordering from this device.",
+    tableGuestsEmpty: "Enter how many people are ordering from this device and their names.",
+    tableGuestCount: "Number of people (device)",
+    tableGuestName: "Name for this order",
+    tableGuestNamePlaceholder: "Your name",
+    tableCoverPre: "Cover charge active:",
+    tableCoverPerPerson: "per person",
+    tableDeviceTotal: "Estimated device total:",
+    tableConfirmName: "Confirm name",
+    tableUnavailable: "Table unavailable",
+    tableClosed1: "This table has been closed by the staff.",
+    tableClosed2: "If this is a mistake, please go to the cashier.",
+    tableClosed3: "Otherwise, thank you and have a great day!",
+    tableClosedTeam: "The Pokedo Team",
+    tableBackToSite: "Back to site",
+    changeLanguage: "Change language",
+    pokeSummaryTitle: "Poke summary",
+    closePokeSummary: "Close poke summary",
+    statFreshIngredients: "Fresh ingredients",
+    statTakeaway: "Takeaway",
+    statTakeawaySub: "and dine-in orders",
+    statPoke: "Poké",
+    statPokeSub: "just how you like",
+    statLocationSub: "we are waiting for you",
+    pokeStoryEyebrow: "Our philosophy",
+    pokeStoryHeadline: "The poké just the way you want it.",
+    pokeStoryMobileHint: "Tap the bowl to build your poke",
+    pokeStoryCompositionAria: "Poke composition",
+    openDetails: "Open details {pct} {name}",
+    closeDetails: "Close details",
+    pokeStoryDetailAria: "{name} detail",
+    pokeStoryBaseDesc: "Choose the base you love",
+    pokeStoryBaseDetails: "Sushi rice, black rice, salad or mix: the main structure of your bowl.",
+    pokeStoryProteinsDesc: "Quality protein sources",
+    pokeStoryProteinsDetails: "Salmon, tuna, chicken or veggie alternatives: the protein that brings balance and taste.",
+    pokeStoryGreenDesc: "Fresh seasonal vegetables",
+    pokeStoryGreenDetails: "Fresh vegetables and ingredients for volume, colour and a perfectly balanced bowl.",
+    pokeStoryCrunchyDesc: "The final crunchy touch",
+    pokeStoryCrunchyDetails: "Seeds and crunchy toppings: the finishing detail that completes texture and flavour.",
+    heroPhaseBase: "Choose your base",
+    heroPhaseProteins: "Choose your proteins",
+    heroPhaseGreen: "Choose your greens",
+    heroPhasesSauces: "Choose your sauces",
+    heroPhaseCrunchy: "Choose your crunchies",
+    pokeExtraPromptTitle: "Would you like to add extra {phase}?",
+    pokeExtraPromptSub: "You can always add them from your poke summary.",
+    pokeExtraNo: "No, thanks",
+    pokeExtraYes: "Yes, add",
+    firstNamePlaceholder: "First name",
+    lastNamePlaceholder: "Last name",
+    phonePlaceholder: "Phone",
+    variantRequired: "Required · Max 1",
+    variantOptional: "Optional · Max 1",
+    variantSelectMore1: "Select 1 more option",
+    variantSelectMoreN: "Select {n} more options",
+    pokeMissingTitle: "Something is missing to complete the poke",
+    decreaseQty: "Decrease quantity",
+    increaseQty: "Increase quantity",
+    closeAlert: "Close alert",
+    closeOrder: "Close order",
+    removeProduct: "Remove product",
+    goToMenu: "Go to menu",
+    orderNextStepNote: "*In the next step you can review and edit the selected dishes",
+    composePokeAria: "Build your poké"
   },
   de: {
     home: "Startseite",
@@ -701,7 +834,74 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     editProduct: "Produkt bearbeiten",
     saveChanges: "Änderungen speichern",
     pokeAddedToOrder: "Poke zur Bestellung hinzugefügt.",
-    orderSendError: "Fehler beim Senden der Bestellung"
+    orderSendError: "Fehler beim Senden der Bestellung",
+    cancel: "Abbrechen",
+    dishes: "Gerichte",
+    tableWelcome: "Willkommen bei Pokedo!",
+    tableGuestsPresent: "Am Tisch: {guests}. Gib die Personen dieses Geräts ein.",
+    tableGuestsEmpty: "Gib an, wie viele Personen von diesem Gerät bestellen, und deren Namen.",
+    tableGuestCount: "Personenanzahl (Gerät)",
+    tableGuestName: "Name für diese Bestellung",
+    tableGuestNamePlaceholder: "Dein Name",
+    tableCoverPre: "Aktives Gedeck:",
+    tableCoverPerPerson: "pro Person",
+    tableDeviceTotal: "Geschätzter Geräte-Gesamtbetrag:",
+    tableConfirmName: "Name bestätigen",
+    tableUnavailable: "Tisch nicht verfügbar",
+    tableClosed1: "Dieser Tisch wurde vom Personal geschlossen.",
+    tableClosed2: "Bei einem Fehler wende dich bitte an die Kasse.",
+    tableClosed3: "Ansonsten vielen Dank und einen schönen Tag!",
+    tableClosedTeam: "Das Pokedo-Team",
+    tableBackToSite: "Zurück zur Website",
+    changeLanguage: "Sprache ändern",
+    pokeSummaryTitle: "Poké-Übersicht",
+    closePokeSummary: "Poké-Übersicht schließen",
+    statFreshIngredients: "Frische Zutaten",
+    statTakeaway: "Zum Mitnehmen",
+    statTakeawaySub: "und Tischbestellungen",
+    statPoke: "Poké",
+    statPokeSub: "ganz nach deinem Geschmack",
+    statLocationSub: "wir freuen uns auf dich",
+    pokeStoryEyebrow: "Unsere Philosophie",
+    pokeStoryHeadline: "Dein Poké, ganz nach dir.",
+    pokeStoryMobileHint: "Tippe auf die Bowl, um dein Poké zu erstellen",
+    pokeStoryCompositionAria: "Poké-Zusammensetzung",
+    openDetails: "Details öffnen {pct} {name}",
+    closeDetails: "Details schließen",
+    pokeStoryDetailAria: "Details zu {name}",
+    pokeStoryBaseDesc: "Wähle deine Lieblingsbasis",
+    pokeStoryBaseDetails: "Sushi-Reis, schwarzer Reis, Salat oder Mix: die Hauptstruktur deiner Bowl.",
+    pokeStoryProteinsDesc: "Hochwertige Proteinquellen",
+    pokeStoryProteinsDetails: "Lachs, Thunfisch, Hühnchen oder vegane Alternativen: das Protein für Balance und Geschmack.",
+    pokeStoryGreenDesc: "Frisches Saisongemüse",
+    pokeStoryGreenDetails: "Frisches Gemüse und Zutaten für Volumen, Farbe und eine ausgewogene Bowl.",
+    pokeStoryCrunchyDesc: "Der knusprige Abschluss",
+    pokeStoryCrunchyDetails: "Samen und knusprige Toppings: das letzte Detail, das Konsistenz und Geschmack vervollständigt.",
+    heroPhaseBase: "Wähle deine Basis",
+    heroPhaseProteins: "Wähle deine Proteine",
+    heroPhaseGreen: "Wähle dein Gemüse",
+    heroPhasesSauces: "Wähle deine Saucen",
+    heroPhaseCrunchy: "Wähle dein Knuspriges",
+    pokeExtraPromptTitle: "Möchtest du {phase} als Extra hinzufügen?",
+    pokeExtraPromptSub: "Du kannst sie jederzeit aus der Poké-Übersicht hinzufügen.",
+    pokeExtraNo: "Nein, danke",
+    pokeExtraYes: "Ja, hinzufügen",
+    firstNamePlaceholder: "Vorname",
+    lastNamePlaceholder: "Nachname",
+    phonePlaceholder: "Telefon",
+    variantRequired: "Pflichtfeld · Max 1",
+    variantOptional: "Optional · Max 1",
+    variantSelectMore1: "Wähle noch 1 Option",
+    variantSelectMoreN: "Wähle noch {n} Optionen",
+    pokeMissingTitle: "Für das Poké fehlt noch etwas",
+    decreaseQty: "Menge verringern",
+    increaseQty: "Menge erhöhen",
+    closeAlert: "Hinweis schließen",
+    closeOrder: "Bestellung schließen",
+    removeProduct: "Produkt entfernen",
+    goToMenu: "Zum Menü",
+    orderNextStepNote: "*Im nächsten Schritt kannst du die ausgewählten Gerichte prüfen und anpassen",
+    composePokeAria: "Dein Poké zusammenstellen"
   },
   es: {
     home: "Inicio",
@@ -828,7 +1028,74 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     editProduct: "Editar producto",
     saveChanges: "Guardar cambios",
     pokeAddedToOrder: "Poke añadido al pedido.",
-    orderSendError: "Error al enviar el pedido"
+    orderSendError: "Error al enviar el pedido",
+    cancel: "Cancelar",
+    dishes: "Platos",
+    tableWelcome: "¡Bienvenido a Pokedo!",
+    tableGuestsPresent: "En la mesa: {guests}. Introduce las personas de este dispositivo.",
+    tableGuestsEmpty: "Introduce cuántas personas están pidiendo desde este dispositivo y sus nombres.",
+    tableGuestCount: "Número de personas (dispositivo)",
+    tableGuestName: "Nombre para este pedido",
+    tableGuestNamePlaceholder: "Tu nombre",
+    tableCoverPre: "Cubierto activo:",
+    tableCoverPerPerson: "por persona",
+    tableDeviceTotal: "Total estimado (dispositivo):",
+    tableConfirmName: "Confirmar nombre",
+    tableUnavailable: "Mesa no disponible",
+    tableClosed1: "Esta mesa ha sido cerrada por el personal.",
+    tableClosed2: "Si es un error, dirígete a caja.",
+    tableClosed3: "Si no, ¡gracias y que tengas un buen día!",
+    tableClosedTeam: "El equipo Pokedo",
+    tableBackToSite: "Volver al sitio",
+    changeLanguage: "Cambiar idioma",
+    pokeSummaryTitle: "Resumen poké",
+    closePokeSummary: "Cerrar resumen poké",
+    statFreshIngredients: "Ingredientes frescos",
+    statTakeaway: "Para llevar",
+    statTakeawaySub: "y pedidos en sala",
+    statPoke: "Poké",
+    statPokeSub: "como tú quieras",
+    statLocationSub: "te esperamos",
+    pokeStoryEyebrow: "Nuestra filosofía",
+    pokeStoryHeadline: "El poké como tú quieras.",
+    pokeStoryMobileHint: "Toca el bowl para crear tu poké",
+    pokeStoryCompositionAria: "Composición del poké",
+    openDetails: "Abrir detalles {pct} {name}",
+    closeDetails: "Cerrar detalles",
+    pokeStoryDetailAria: "Detalle de {name}",
+    pokeStoryBaseDesc: "Elige la base que más te guste",
+    pokeStoryBaseDetails: "Arroz sushi, arroz negro, ensalada o mix: la estructura principal de tu bowl.",
+    pokeStoryProteinsDesc: "Fuentes proteicas de calidad",
+    pokeStoryProteinsDetails: "Salmón, atún, pollo o alternativas veggie: la proteína que aporta equilibrio y sabor.",
+    pokeStoryGreenDesc: "Verduras frescas de temporada",
+    pokeStoryGreenDetails: "Verduras e ingredientes frescos para volumen, color y un bowl siempre equilibrado.",
+    pokeStoryCrunchyDesc: "El toque crujiente final",
+    pokeStoryCrunchyDetails: "Semillas y toppings crujientes: el detalle final que completa textura y sabor.",
+    heroPhaseBase: "Elige tu base",
+    heroPhaseProteins: "Elige tus proteínas",
+    heroPhaseGreen: "Elige tus verduras",
+    heroPhasesSauces: "Elige tus salsas",
+    heroPhaseCrunchy: "Elige tu crujiente",
+    pokeExtraPromptTitle: "¿Quieres añadir {phase} extra?",
+    pokeExtraPromptSub: "Siempre puedes añadirlos desde el resumen de tu poké.",
+    pokeExtraNo: "No, gracias",
+    pokeExtraYes: "Sí, añadir",
+    firstNamePlaceholder: "Nombre",
+    lastNamePlaceholder: "Apellido",
+    phonePlaceholder: "Teléfono",
+    variantRequired: "Obligatorio · Max 1",
+    variantOptional: "Opcional · Max 1",
+    variantSelectMore1: "Selecciona 1 opción más",
+    variantSelectMoreN: "Selecciona {n} opciones más",
+    pokeMissingTitle: "Falta algo para completar el poké",
+    decreaseQty: "Disminuir cantidad",
+    increaseQty: "Aumentar cantidad",
+    closeAlert: "Cerrar aviso",
+    closeOrder: "Cerrar pedido",
+    removeProduct: "Eliminar producto",
+    goToMenu: "Ir al menú",
+    orderNextStepNote: "*En el siguiente paso podrás revisar y modificar los platos seleccionados",
+    composePokeAria: "Compón tu poké"
   },
   fr: {
     home: "Accueil",
@@ -844,12 +1111,69 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     noDrinksSelected: "Aucune boisson sélectionnée",
     drinkSelectedOne: "boisson sélectionnée",
     drinkSelectedMany: "boissons sélectionnées",
+    cancel: "Annuler",
+    dishes: "Plats",
+    heroKicker: "Pokedo Experience",
+    heroTitle: "La nouvelle façon de commander ton poké, sur place ou à emporter.",
+    heroSubtitle: "Interface claire, sélection guidée et toutes les informations transparentes.",
+    goFullMenu: "Voir le menu complet",
+    aboutKicker: "Qui sommes-nous",
+    aboutTitle: "Notre philosophie dans chaque bowl",
+    aboutEyebrow: "Bar à poké contemporain",
+    aboutHighlight: "Des ingrédients vrais, une expérience digitale parfaite.",
+    aboutBody1: "Pokedo allie fraîcheur, créativité et rapidité. Chaque étape est claire et chaque commande simple.",
+    aboutBody2: "Que ce soit pour un déjeuner ou un dîner entre amis, compose ton bowl en quelques clics et choisis sur place ou à emporter.",
     callUs: "Appelle-nous",
-    homeHeroSlide1Lead: "Compose ton bowl sur place ou à emporter.",
-    homeHeroSlide2Title: "Le menu complet, numérique et toujours à jour.",
-    homeHeroSlide2Sub:
-      "Catégories, allergènes et plats avec des prix clairs : parcours tout le menu Pokedo avant de commander sur place ou à emporter.",
+    dishesKicker: "Nos plats",
+    dishesTitle: "Explore toutes les catégories du menu",
+    viewAllMenu: "Voir tout le menu",
+    galleryKicker: "Galerie",
+    galleryTitle: "Vis l'ambiance du restaurant",
+    visitKicker: "Viens nous voir",
+    visitTitle: "On t'attend au restaurant !",
+    visitBody: "Réserve ou demande des informations par téléphone.",
+    currentPhase: "Étape actuelle",
+    prevPhase: "Étape précédente",
+    nextPhase: "Étape suivante",
+    selectedMax: "Sélectionnés {selected} / Max {max}",
+    minPart: " (Min {min})",
+    included: "Inclus",
+    extra: "Extra",
+    nonePrefix: "Aucun",
+    add: "Ajouter",
+    back: "Retour",
+    next: "Suivant",
+    addToOrder: "Ajouter à la commande",
+    viewOrder: "Voir la commande",
+    yourOrder: "Ta commande",
+    orderEmpty: "Aucun élément ajouté.",
+    remove: "Supprimer",
+    total: "Total",
+    orderSent: "Commande envoyée avec succès",
+    orderSentSub: "Ta commande est arrivée en cuisine. Dans quelques secondes tu peux en passer une nouvelle.",
+    pickupCheckoutTitle: "Finaliser la commande",
+    confirmDishes: "Confirmer les plats",
+    emptyOrder: "Ta commande est vide.",
+    backToMenu: "Retour au menu",
+    pickupOnlyTitle: "Retrait à emporter",
+    pickupOnlyHint: "Cette commande est uniquement à emporter. Choisis l'heure de retrait.",
+    pickupDay: "Jour de retrait",
+    pickupDayHint: "Aujourd'hui par défaut, modifiable",
+    selectHour: "Choisir l'heure",
+    selectMinutes: "Choisir les minutes",
+    pickupAsapLabel: "Dès que possible",
+    customerData: "Coordonnées",
+    phoneInvalid: "Entre un numéro de téléphone à 10 chiffres",
+    emailInvalid: "Entre un email valide (ex. nom@domaine.fr)",
+    finalSummary: "Récapitulatif final",
+    servicePickup: "Service : À emporter (Retrait {pickup})",
+    phase_size: "Taille",
     size_pick_cta: "Choisir",
+    phase_base: "Base",
+    phase_proteins: "Protéines",
+    phase_green: "Légumes",
+    phase_sauces: "Sauces",
+    phase_crunchy: "Croustillant",
     additionalFiltersAria: "Filtres supplémentaires",
     additionalFiltersKicker: "Filtres supplémentaires",
     dishesEntity: "les plats",
@@ -896,7 +1220,72 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     editProduct: "Modifier le produit",
     saveChanges: "Enregistrer les modifications",
     pokeAddedToOrder: "Poke ajouté à la commande.",
-    orderSendError: "Erreur lors de l'envoi de la commande"
+    orderSendError: "Erreur lors de l'envoi de la commande",
+    tableWelcome: "Bienvenue chez Pokedo !",
+    tableGuestsPresent: "Présents à la table : {guests}. Entre les personnes de cet appareil.",
+    tableGuestsEmpty: "Entre le nombre de personnes qui commandent depuis cet appareil et leurs prénoms.",
+    tableGuestCount: "Nombre de personnes (appareil)",
+    tableGuestName: "Prénom pour cette commande",
+    tableGuestNamePlaceholder: "Ton prénom",
+    tableCoverPre: "Couvert actif :",
+    tableCoverPerPerson: "par personne",
+    tableDeviceTotal: "Total estimé (appareil) :",
+    tableConfirmName: "Confirmer le prénom",
+    tableUnavailable: "Table non disponible",
+    tableClosed1: "Cette table a été fermée par le personnel.",
+    tableClosed2: "S'il s'agit d'une erreur, rendez-vous à la caisse.",
+    tableClosed3: "Sinon, merci et bonne journée !",
+    tableClosedTeam: "L'équipe Pokedo",
+    tableBackToSite: "Retour au site",
+    changeLanguage: "Changer de langue",
+    pokeSummaryTitle: "Récap poké",
+    closePokeSummary: "Fermer le récap poké",
+    statFreshIngredients: "Ingrédients frais",
+    statTakeaway: "À emporter",
+    statTakeawaySub: "et commandes en salle",
+    statPoke: "Poké",
+    statPokeSub: "comme tu veux",
+    statLocationSub: "on t'attend",
+    pokeStoryEyebrow: "Notre philosophie",
+    pokeStoryHeadline: "Le poké comme tu veux.",
+    pokeStoryMobileHint: "Clique sur le bowl pour créer ton poké",
+    pokeStoryCompositionAria: "Composition du poké",
+    openDetails: "Ouvrir détails {pct} {name}",
+    closeDetails: "Fermer les détails",
+    pokeStoryDetailAria: "Détail {name}",
+    pokeStoryBaseDesc: "Choisis la base qui te plaît",
+    pokeStoryBaseDetails: "Riz sushi, riz noir, salade ou mix : la structure principale de ton bowl.",
+    pokeStoryProteinsDesc: "Sources protéinées de qualité",
+    pokeStoryProteinsDetails: "Saumon, thon, poulet ou alternatives veggie : la protéine qui apporte équilibre et goût.",
+    pokeStoryGreenDesc: "Légumes frais de saison",
+    pokeStoryGreenDetails: "Légumes et ingrédients frais pour le volume, la couleur et un bowl toujours équilibré.",
+    pokeStoryCrunchyDesc: "La touche croquante finale",
+    pokeStoryCrunchyDetails: "Graines et toppings croustillants : le dernier détail qui complète texture et saveur.",
+    heroPhaseBase: "Choisis ta base",
+    heroPhaseProteins: "Choisis tes protéines",
+    heroPhaseGreen: "Choisis tes légumes",
+    heroPhasesSauces: "Choisis tes sauces",
+    heroPhaseCrunchy: "Choisis tes croustillants",
+    pokeExtraPromptTitle: "Veux-tu ajouter {phase} en extra ?",
+    pokeExtraPromptSub: "Tu peux toujours les ajouter depuis le récap de ton poké.",
+    pokeExtraNo: "Non, merci",
+    pokeExtraYes: "Oui, ajouter",
+    firstNamePlaceholder: "Prénom",
+    lastNamePlaceholder: "Nom",
+    phonePlaceholder: "Téléphone",
+    variantRequired: "Obligatoire · Max 1",
+    variantOptional: "Facultatif · Max 1",
+    variantSelectMore1: "Sélectionne encore 1 option",
+    variantSelectMoreN: "Sélectionne encore {n} options",
+    pokeMissingTitle: "Il manque quelque chose pour compléter le poké",
+    decreaseQty: "Diminuer la quantité",
+    increaseQty: "Augmenter la quantité",
+    closeAlert: "Fermer l'alerte",
+    closeOrder: "Fermer la commande",
+    removeProduct: "Supprimer le produit",
+    goToMenu: "Aller au menu",
+    orderNextStepNote: "*À l'étape suivante tu pourras vérifier et modifier les plats sélectionnés si tu as fait une erreur",
+    composePokeAria: "Compose ton poké"
   },
   zh: {
     home: "首页",
@@ -912,11 +1301,69 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     noDrinksSelected: "未选择饮品",
     drinkSelectedOne: "份饮品已选",
     drinkSelectedMany: "份饮品已选",
+    cancel: "取消",
+    dishes: "菜品",
+    heroKicker: "Pokedo Experience",
+    heroTitle: "全新点餐方式，堂食或外带随你选。",
+    heroSubtitle: "界面简洁，引导选择，信息一目了然。",
+    goFullMenu: "查看完整菜单",
+    aboutKicker: "关于我们",
+    aboutTitle: "每一碗都承载我们的理念",
+    aboutEyebrow: "现代波奇吧",
+    aboutHighlight: "真实食材，完美数字体验。",
+    aboutBody1: "Pokedo 融合新鲜、创意与速度。每一步清晰，每笔订单简单。",
+    aboutBody2: "无论午餐还是朋友聚会，几次点击就能搭配好你的碗，随心选择堂食或外带。",
     callUs: "联系我们",
-    homeHeroSlide1Lead: "在店享用或外带，随心搭配你的碗。",
-    homeHeroSlide2Title: "完整电子菜单，实时更新。",
-    homeHeroSlide2Sub: "分类、过敏原与价格一目了然：堂食或外带前先浏览 Pokedo 全部菜品。",
+    dishesKicker: "我们的菜品",
+    dishesTitle: "探索所有菜单分类",
+    viewAllMenu: "查看全部菜单",
+    galleryKicker: "画廊",
+    galleryTitle: "感受餐厅氛围",
+    visitKicker: "来拜访我们",
+    visitTitle: "欢迎光临！",
+    visitBody: "电话预订或咨询。",
+    currentPhase: "当前步骤",
+    prevPhase: "上一步",
+    nextPhase: "下一步",
+    selectedMax: "已选 {selected} / 最多 {max}",
+    minPart: "（最少 {min}）",
+    included: "已包含",
+    extra: "额外",
+    nonePrefix: "无",
+    add: "添加",
+    back: "返回",
+    next: "下一步",
+    addToOrder: "加入订单",
+    viewOrder: "查看订单",
+    yourOrder: "您的订单",
+    orderEmpty: "未添加任何商品。",
+    remove: "删除",
+    total: "总计",
+    orderSent: "订单发送成功",
+    orderSentSub: "您的订单已到达厨房，稍后可再下一单。",
+    pickupCheckoutTitle: "完成订单",
+    confirmDishes: "确认菜品",
+    emptyOrder: "您的订单为空。",
+    backToMenu: "返回菜单",
+    pickupOnlyTitle: "外带自取",
+    pickupOnlyHint: "此订单仅限外带自取，请选择取餐时间。",
+    pickupDay: "取餐日期",
+    pickupDayHint: "默认今天，可修改",
+    selectHour: "选择小时",
+    selectMinutes: "选择分钟",
+    pickupAsapLabel: "尽快",
+    customerData: "客户信息",
+    phoneInvalid: "请输入 10 位电话号码",
+    emailInvalid: "请输入有效的电子邮件（如 name@domain.com）",
+    finalSummary: "最终确认",
+    servicePickup: "服务：外带（取餐 {pickup}）",
+    phase_size: "份量",
     size_pick_cta: "选择",
+    phase_base: "底料",
+    phase_proteins: "蛋白质",
+    phase_green: "蔬菜",
+    phase_sauces: "酱汁",
+    phase_crunchy: "脆料",
     additionalFiltersAria: "附加筛选",
     additionalFiltersKicker: "附加筛选",
     dishesEntity: "菜品",
@@ -961,7 +1408,72 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     editProduct: "修改商品",
     saveChanges: "保存修改",
     pokeAddedToOrder: "Poke 已加入订单。",
-    orderSendError: "提交订单时出错"
+    orderSendError: "提交订单时出错",
+    tableWelcome: "欢迎来到 Pokedo！",
+    tableGuestsPresent: "桌上已有：{guests}。请输入本设备的用餐人数。",
+    tableGuestsEmpty: "请输入从本设备点餐的人数和姓名。",
+    tableGuestCount: "用餐人数（本设备）",
+    tableGuestName: "本次订单姓名",
+    tableGuestNamePlaceholder: "您的姓名",
+    tableCoverPre: "当前餐位费：",
+    tableCoverPerPerson: "每位",
+    tableDeviceTotal: "本设备预估总计：",
+    tableConfirmName: "确认姓名",
+    tableUnavailable: "桌位不可用",
+    tableClosed1: "该桌位已由工作人员关闭。",
+    tableClosed2: "如有问题，请前往收银台。",
+    tableClosed3: "感谢光临，祝您愉快！",
+    tableClosedTeam: "Pokedo 团队",
+    tableBackToSite: "返回网站",
+    changeLanguage: "切换语言",
+    pokeSummaryTitle: "波奇摘要",
+    closePokeSummary: "关闭波奇摘要",
+    statFreshIngredients: "新鲜食材",
+    statTakeaway: "外带",
+    statTakeawaySub: "及堂食点餐",
+    statPoke: "波奇",
+    statPokeSub: "随心搭配",
+    statLocationSub: "欢迎光临",
+    pokeStoryEyebrow: "我们的理念",
+    pokeStoryHeadline: "属于你的波奇。",
+    pokeStoryMobileHint: "点击碗图开始创建你的波奇",
+    pokeStoryCompositionAria: "波奇组合",
+    openDetails: "打开详情 {pct} {name}",
+    closeDetails: "关闭详情",
+    pokeStoryDetailAria: "{name} 详情",
+    pokeStoryBaseDesc: "选择你喜欢的底料",
+    pokeStoryBaseDetails: "寿司米、黑米、沙拉或混合：你的碗的主结构。",
+    pokeStoryProteinsDesc: "优质蛋白质来源",
+    pokeStoryProteinsDetails: "三文鱼、金枪鱼、鸡肉或素食选择：带来均衡与美味的蛋白质。",
+    pokeStoryGreenDesc: "应季新鲜蔬菜",
+    pokeStoryGreenDetails: "新鲜蔬菜和配料，增加体积、色彩，让碗永远均衡。",
+    pokeStoryCrunchyDesc: "最后的脆爽点缀",
+    pokeStoryCrunchyDetails: "种子和脆爽配料：完善口感和风味的最后一笔。",
+    heroPhaseBase: "选择你的底料",
+    heroPhaseProteins: "选择你的蛋白质",
+    heroPhaseGreen: "选择你的蔬菜",
+    heroPhasesSauces: "选择你的酱汁",
+    heroPhaseCrunchy: "选择你的脆料",
+    pokeExtraPromptTitle: "想额外添加 {phase} 吗？",
+    pokeExtraPromptSub: "你随时可以从波奇摘要中添加。",
+    pokeExtraNo: "不，谢谢",
+    pokeExtraYes: "是的，添加",
+    firstNamePlaceholder: "名",
+    lastNamePlaceholder: "姓",
+    phonePlaceholder: "电话",
+    variantRequired: "必选 · 最多 1 个",
+    variantOptional: "可选 · 最多 1 个",
+    variantSelectMore1: "再选 1 个选项",
+    variantSelectMoreN: "再选 {n} 个选项",
+    pokeMissingTitle: "波奇还缺少一些东西",
+    decreaseQty: "减少数量",
+    increaseQty: "增加数量",
+    closeAlert: "关闭提示",
+    closeOrder: "关闭订单",
+    removeProduct: "移除商品",
+    goToMenu: "前往菜单",
+    orderNextStepNote: "*下一步你可以检查并修改已选菜品",
+    composePokeAria: "搭配你的波奇"
   },
   ja: {
     home: "ホーム",
@@ -977,11 +1489,69 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     noDrinksSelected: "ドリンク未選択",
     drinkSelectedOne: "ドリンクを選択",
     drinkSelectedMany: "ドリンクを選択",
+    cancel: "キャンセル",
+    dishes: "料理",
+    heroKicker: "Pokedo Experience",
+    heroTitle: "新しいポケの注文体験—店内でもテイクアウトでも。",
+    heroSubtitle: "シンプルなインターフェース、ガイド付き選択、わかりやすい情報。",
+    goFullMenu: "全メニューを見る",
+    aboutKicker: "私たちについて",
+    aboutTitle: "すべてのボウルに込めた哲学",
+    aboutEyebrow: "現代的なポケバー",
+    aboutHighlight: "本物の食材、完璧なデジタル体験。",
+    aboutBody1: "Pokedo は鮮度・創造性・スピードを融合します。各ステップが明確で、注文がシンプルです。",
+    aboutBody2: "ランチでも友人との夕食でも、数クリックでボウルを作れます。",
     callUs: "電話する",
-    homeHeroSlide1Lead: "店内でもテイクアウトでも、自分好みのボウルを。",
-    homeHeroSlide2Title: "フルメニューをデジタルで、いつでも最新に。",
-    homeHeroSlide2Sub: "カテゴリ・アレルゲン・価格が明確。店内・テイクアウトの前に Pokedo のメニューをじっくりチェック。",
+    dishesKicker: "私たちの料理",
+    dishesTitle: "すべてのメニューカテゴリを探る",
+    viewAllMenu: "全メニューを見る",
+    galleryKicker: "ギャラリー",
+    galleryTitle: "レストランの雰囲気を体感",
+    visitKicker: "お越しください",
+    visitTitle: "レストランでお待ちしています。",
+    visitBody: "お電話で予約・お問い合わせを。",
+    currentPhase: "現在のステップ",
+    prevPhase: "前のステップ",
+    nextPhase: "次のステップ",
+    selectedMax: "選択済み {selected} / 最大 {max}",
+    minPart: "（最小 {min}）",
+    included: "含む",
+    extra: "エクストラ",
+    nonePrefix: "なし",
+    add: "追加",
+    back: "戻る",
+    next: "次へ",
+    addToOrder: "注文に追加",
+    viewOrder: "注文を確認",
+    yourOrder: "あなたの注文",
+    orderEmpty: "何も追加されていません。",
+    remove: "削除",
+    total: "合計",
+    orderSent: "注文を送信しました",
+    orderSentSub: "注文がキッチンに届きました。しばらくしてから新しい注文ができます。",
+    pickupCheckoutTitle: "注文を確定",
+    confirmDishes: "料理を確認",
+    emptyOrder: "注文が空です。",
+    backToMenu: "メニューに戻る",
+    pickupOnlyTitle: "テイクアウト受け取り",
+    pickupOnlyHint: "この注文はテイクアウトのみです。受け取り時間を選択してください。",
+    pickupDay: "受け取り日",
+    pickupDayHint: "今日がデフォルト、変更可能",
+    selectHour: "時間を選択",
+    selectMinutes: "分を選択",
+    pickupAsapLabel: "できるだけ早く",
+    customerData: "お客様情報",
+    phoneInvalid: "10桁の電話番号を入力してください",
+    emailInvalid: "有効なメールアドレスを入力してください（例：name@domain.com）",
+    finalSummary: "最終確認",
+    servicePickup: "サービス：テイクアウト（受け取り {pickup}）",
+    phase_size: "サイズ",
     size_pick_cta: "選ぶ",
+    phase_base: "ベース",
+    phase_proteins: "プロテイン",
+    phase_green: "グリーン",
+    phase_sauces: "ソース",
+    phase_crunchy: "クランチー",
     additionalFiltersAria: "追加フィルター",
     additionalFiltersKicker: "追加フィルター",
     dishesEntity: "料理",
@@ -1028,7 +1598,72 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     editProduct: "商品を編集",
     saveChanges: "変更を保存",
     pokeAddedToOrder: "ポケを注文に追加しました。",
-    orderSendError: "注文送信エラー"
+    orderSendError: "注文送信エラー",
+    tableWelcome: "Pokedo へようこそ！",
+    tableGuestsPresent: "テーブルにいる方：{guests}。このデバイスの人数を入力してください。",
+    tableGuestsEmpty: "このデバイスから注文する人数とお名前を入力してください。",
+    tableGuestCount: "人数（このデバイス）",
+    tableGuestName: "この注文のお名前",
+    tableGuestNamePlaceholder: "お名前",
+    tableCoverPre: "現在のカバーチャージ：",
+    tableCoverPerPerson: "お一人様",
+    tableDeviceTotal: "デバイス合計（概算）：",
+    tableConfirmName: "名前を確認",
+    tableUnavailable: "テーブルを利用できません",
+    tableClosed1: "このテーブルはスタッフによって閉鎖されました。",
+    tableClosed2: "間違いの場合はレジにお越しください。",
+    tableClosed3: "ご利用ありがとうございました。良い一日をお過ごしください！",
+    tableClosedTeam: "Pokedo チーム",
+    tableBackToSite: "サイトへ戻る",
+    changeLanguage: "言語を変更",
+    pokeSummaryTitle: "ポケ内容",
+    closePokeSummary: "ポケ内容を閉じる",
+    statFreshIngredients: "新鮮食材",
+    statTakeaway: "テイクアウト",
+    statTakeawaySub: "・店内注文",
+    statPoke: "ポケ",
+    statPokeSub: "お好みで",
+    statLocationSub: "お待ちしています",
+    pokeStoryEyebrow: "私たちの哲学",
+    pokeStoryHeadline: "あなただけのポケを。",
+    pokeStoryMobileHint: "ボウルをタップしてポケを作ろう",
+    pokeStoryCompositionAria: "ポケの構成",
+    openDetails: "詳細を開く {pct} {name}",
+    closeDetails: "詳細を閉じる",
+    pokeStoryDetailAria: "{name} の詳細",
+    pokeStoryBaseDesc: "お好みのベースを選んでください",
+    pokeStoryBaseDetails: "寿司ライス、黒米、サラダ、またはミックス：ボウルのメイン構造です。",
+    pokeStoryProteinsDesc: "質の高いタンパク源",
+    pokeStoryProteinsDetails: "サーモン、マグロ、チキン、またはヴィーガン代替：バランスと美味しさをもたらすタンパク質。",
+    pokeStoryGreenDesc: "旬の新鮮野菜",
+    pokeStoryGreenDetails: "ボリューム・彩り・バランスのための新鮮野菜と食材。",
+    pokeStoryCrunchyDesc: "最後のクランチ仕上げ",
+    pokeStoryCrunchyDetails: "シードとクリスピートッピング：食感と風味を完成させる最後の一手。",
+    heroPhaseBase: "ベースを選ぶ",
+    heroPhaseProteins: "プロテインを選ぶ",
+    heroPhaseGreen: "グリーンを選ぶ",
+    heroPhasesSauces: "ソースを選ぶ",
+    heroPhaseCrunchy: "クランチーを選ぶ",
+    pokeExtraPromptTitle: "{phase} をエクストラで追加しますか？",
+    pokeExtraPromptSub: "ポケのまとめからいつでも追加できます。",
+    pokeExtraNo: "いいえ、結構です",
+    pokeExtraYes: "はい、追加する",
+    firstNamePlaceholder: "名",
+    lastNamePlaceholder: "姓",
+    phonePlaceholder: "電話番号",
+    variantRequired: "必須 · 最大 1",
+    variantOptional: "任意 · 最大 1",
+    variantSelectMore1: "あと 1 つ選択してください",
+    variantSelectMoreN: "あと {n} つ選択してください",
+    pokeMissingTitle: "ポケを完成させるためにいくつか足りません",
+    decreaseQty: "数量を減らす",
+    increaseQty: "数量を増やす",
+    closeAlert: "アラートを閉じる",
+    closeOrder: "注文を閉じる",
+    removeProduct: "商品を削除",
+    goToMenu: "メニューへ",
+    orderNextStepNote: "*次のステップで選択した料理を確認・修正できます",
+    composePokeAria: "ポケを作る"
   }
 };
 
@@ -1544,6 +2179,113 @@ const DEFAULT_ALLERGEN_TITLES: Record<number, string> = {
   13: "Anidride solforosa e solfati",
   14: "Uova e derivati"
 };
+
+const ALLERGEN_TITLES_I18N: Partial<Record<UiLanguage, Record<number, string>>> = {
+  en: {
+    1: "Gluten-containing cereals",
+    2: "Crustaceans",
+    3: "Fish",
+    4: "Peanuts",
+    5: "Soybeans",
+    6: "Milk and dairy",
+    7: "Tree nuts",
+    8: "Molluscs",
+    9: "Sesame",
+    10: "Lupin",
+    11: "Mustard",
+    12: "Celery",
+    13: "Sulphur dioxide and sulphites",
+    14: "Eggs and egg products"
+  },
+  de: {
+    1: "Glutenhaltiges Getreide",
+    2: "Krebstiere",
+    3: "Fisch",
+    4: "Erdnüsse",
+    5: "Soja",
+    6: "Milch und Milchprodukte",
+    7: "Schalenfrüchte",
+    8: "Weichtiere",
+    9: "Sesam",
+    10: "Lupinen",
+    11: "Senf",
+    12: "Sellerie",
+    13: "Schwefeldioxid und Sulfite",
+    14: "Eier und Eiprodukte"
+  },
+  es: {
+    1: "Cereales con gluten",
+    2: "Crustáceos",
+    3: "Pescado",
+    4: "Cacahuetes",
+    5: "Soja",
+    6: "Leche y derivados",
+    7: "Frutos de cáscara",
+    8: "Moluscos",
+    9: "Sésamo",
+    10: "Altramuces",
+    11: "Mostaza",
+    12: "Apio",
+    13: "Dióxido de azufre y sulfitos",
+    14: "Huevos y derivados"
+  },
+  fr: {
+    1: "Céréales contenant du gluten",
+    2: "Crustacés",
+    3: "Poisson",
+    4: "Arachides",
+    5: "Soja",
+    6: "Lait et produits laitiers",
+    7: "Fruits à coque",
+    8: "Mollusques",
+    9: "Sésame",
+    10: "Lupin",
+    11: "Moutarde",
+    12: "Céleri",
+    13: "Dioxyde de soufre et sulfites",
+    14: "Œufs et ovoproduits"
+  },
+  zh: {
+    1: "含麸质谷物",
+    2: "甲壳类",
+    3: "鱼类",
+    4: "花生",
+    5: "大豆",
+    6: "牛奶及乳制品",
+    7: "坚果",
+    8: "软体动物",
+    9: "芝麻",
+    10: "羽扇豆",
+    11: "芥末",
+    12: "芹菜",
+    13: "二氧化硫和亚硫酸盐",
+    14: "鸡蛋及蛋制品"
+  },
+  ja: {
+    1: "グルテン含有穀物",
+    2: "甲殻類",
+    3: "魚類",
+    4: "落花生",
+    5: "大豆",
+    6: "牛乳・乳製品",
+    7: "ナッツ類",
+    8: "軟体動物",
+    9: "ごま",
+    10: "ルピナス",
+    11: "マスタード",
+    12: "セロリ",
+    13: "二酸化硫黄・亜硫酸塩",
+    14: "卵・卵製品"
+  }
+};
+
+function getAllergenDisplayTitle(code: number, language: UiLanguage): string {
+  if (language !== "it") {
+    const langTitles = ALLERGEN_TITLES_I18N[language];
+    if (langTitles?.[code]) return langTitles[code];
+  }
+  return getAllergenTitleByCode(code);
+}
 
 const ALLERGEN_ICON_MODULES = import.meta.glob("../IconeAllergeni/*.png", {
   eager: true,
@@ -3860,42 +4602,41 @@ export default function App() {
     [orderItemsList]
   );
   const pokeStorySegments = useMemo(
-    () =>
-      [
-        {
-          idx: 0,
-          color: "#2563eb",
-          pct: "40%",
-          name: "Base",
-          desc: "Scegli la base che piu ti piace",
-          details: "Riso sushi, riso venere, insalata o mix: la struttura principale della tua bowl."
-        },
-        {
-          idx: 1,
-          color: "#f59e0b",
-          pct: "30%",
-          name: "Proteine",
-          desc: "Fonti proteiche di qualita",
-          details: "Salmone, tonno, pollo o alternative veggie: la parte proteica che da equilibrio e gusto."
-        },
-        {
-          idx: 2,
-          color: "#22c55e",
-          pct: "25%",
-          name: "Green",
-          desc: "Verdure fresche di stagione",
-          details: "Verdure e ingredienti freschi per volume, colore e una bowl sempre bilanciata."
-        },
-        {
-          idx: 3,
-          color: "#ef4444",
-          pct: "5%",
-          name: "Crunchy",
-          desc: "Il tocco croccante finale",
-          details: "Semi e topping croccanti: il dettaglio finale che completa consistenza e sapore."
-        }
-      ] as const,
-    []
+    () => [
+      {
+        idx: 0,
+        color: "#2563eb",
+        pct: "40%",
+        name: phaseLabelMap.base,
+        desc: translateText(uiLanguage, "pokeStoryBaseDesc"),
+        details: translateText(uiLanguage, "pokeStoryBaseDetails")
+      },
+      {
+        idx: 1,
+        color: "#f59e0b",
+        pct: "30%",
+        name: phaseLabelMap.proteine,
+        desc: translateText(uiLanguage, "pokeStoryProteinsDesc"),
+        details: translateText(uiLanguage, "pokeStoryProteinsDetails")
+      },
+      {
+        idx: 2,
+        color: "#22c55e",
+        pct: "25%",
+        name: phaseLabelMap.green,
+        desc: translateText(uiLanguage, "pokeStoryGreenDesc"),
+        details: translateText(uiLanguage, "pokeStoryGreenDetails")
+      },
+      {
+        idx: 3,
+        color: "#ef4444",
+        pct: "5%",
+        name: phaseLabelMap.crunchy,
+        desc: translateText(uiLanguage, "pokeStoryCrunchyDesc"),
+        details: translateText(uiLanguage, "pokeStoryCrunchyDetails")
+      }
+    ],
+    [uiLanguage, phaseLabelMap]
   );
   const pokeStoryLeftSegments = useMemo(() => pokeStorySegments.filter((seg) => seg.idx >= 2), [pokeStorySegments]);
   const pokeStoryRightSegments = useMemo(() => pokeStorySegments.filter((seg) => seg.idx <= 1), [pokeStorySegments]);
@@ -7034,13 +7775,13 @@ export default function App() {
             className="poke-story-modal-card"
             role="dialog"
             aria-modal="true"
-            aria-label={`Dettaglio ${activePokeStorySegment.name}`}
+            aria-label={t("pokeStoryDetailAria", { name: activePokeStorySegment.name })}
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               className="poke-story-modal-close"
-              aria-label="Chiudi dettagli"
+              aria-label={t("closeDetails")}
               onClick={() => setPokeStoryInfoModalOpen(null)}
             >
               <i className="fa-solid fa-xmark" aria-hidden="true"></i>
@@ -7081,13 +7822,13 @@ export default function App() {
         <div className="overlay modal-center" onClick={(e) => e.stopPropagation()}>
           <article className="info-modal table-guest-modal">
             <span className="table-guest-badge">Tavolo {tableOrderNumber}</span>
-            <h3>Benvenuto da Pokedo!</h3>
+            <h3>{t("tableWelcome")}</h3>
             {tableGuestsList.length > 0 ? (
               <p>
-                Presenti al tavolo: <strong>{tableGuestsList.join(", ")}</strong>. Inserisci le persone di questo dispositivo.
+                {t("tableGuestsPresent", { guests: tableGuestsList.join(", ") })}
               </p>
             ) : (
-              <p>Inserisci quante persone stanno ordinando da questo dispositivo e i loro nomi.</p>
+              <p>{t("tableGuestsEmpty")}</p>
             )}
             <form
               className="admin-form"
@@ -7097,7 +7838,7 @@ export default function App() {
               }}
             >
               <label className="field-label settings-field-wide">
-                <span>Numero persone (dispositivo)</span>
+                <span>{t("tableGuestCount")}</span>
                 <SmartNumberInput
                   min={1}
                   max={30}
@@ -7106,18 +7847,18 @@ export default function App() {
                 />
               </label>
               <label className="field-label settings-field-wide">
-                <span>Nome per questo ordine</span>
+                <span>{t("tableGuestName")}</span>
               <input
                 autoFocus
-                placeholder="Il tuo nome"
+                placeholder={t("tableGuestNamePlaceholder")}
                 value={tableGuestInput}
                 onChange={(e) => setTableGuestInput(e.target.value)}
               />
               </label>
               {activeTableCoverRule && (
                 <p className="table-cover-preview">
-                  Coperto attivo ora: <strong>{activeTableCoverRule.name}</strong> ({formatCurrency(activeTableCoverRule.cost_pp)} a persona).
-                  Totale stimato dispositivo:{" "}
+                  {t("tableCoverPre")} <strong>{activeTableCoverRule.name}</strong> ({formatCurrency(activeTableCoverRule.cost_pp)} {t("tableCoverPerPerson")}).
+                  {" "}{t("tableDeviceTotal")}{" "}
                   <strong>{formatCurrency(activeTableCoverRule.cost_pp * tableGuestCount)}</strong>.
                 </p>
               )}
@@ -7126,7 +7867,7 @@ export default function App() {
                 type="submit"
                 disabled={saving || !tableGuestInput.trim()}
               >
-                Conferma nome
+                {t("tableConfirmName")}
               </button>
             </form>
           </article>
@@ -7137,19 +7878,19 @@ export default function App() {
         <div className="overlay modal-center" onClick={(e) => e.stopPropagation()}>
           <article className="info-modal table-guest-modal">
             <span className="table-guest-badge">Tavolo {tableOrderNumber}</span>
-            <h3>Tavolo non disponibile</h3>
+            <h3>{t("tableUnavailable")}</h3>
             <p>
-              Questo tavolo e stato chiuso dal personale.
+              {t("tableClosed1")}
               <br />
-              Se si tratta di un errore recati in cassa.
+              {t("tableClosed2")}
               <br />
-              Altrimenti ti ringraziamo e ti auguriamo una buona giornata!
+              {t("tableClosed3")}
               <br />
-              <small>Il Team Pokedo</small>
+              <small>{t("tableClosedTeam")}</small>
             </p>
             <div className="admin-modal-actions">
               <button className="cta" onClick={() => leaveClosedTable("home")}>
-                Torna al sito
+                {t("tableBackToSite")}
               </button>
             </div>
           </article>
@@ -7161,7 +7902,7 @@ export default function App() {
             className="language-fab-main"
             onClick={() => setLanguageMenuOpen((prev) => !prev)}
             aria-expanded={languageMenuOpen}
-            aria-label="Cambia lingua"
+            aria-label={t("changeLanguage")}
           >
             {uiLanguage === "it"
               ? "🇮🇹"
@@ -7210,19 +7951,19 @@ export default function App() {
           onClick={() => setMobilePokeSummarySheetOpen(true)}
           type="button"
         >
-          Riepilogo poke
+          {t("pokeSummaryTitle")}
         </button>
       )}
       {route === "/crea-la-tua-poke" && isTableOrderMode && mobilePokeSummarySheetOpen && (
         <div className="mobile-poke-summary-overlay" onClick={() => setMobilePokeSummarySheetOpen(false)}>
           <section className="mobile-poke-summary-sheet" onClick={(e) => e.stopPropagation()}>
             <header className="mobile-poke-summary-head">
-              <h4>Riepilogo poke</h4>
+              <h4>{t("pokeSummaryTitle")}</h4>
               <button
                 type="button"
                 className="mobile-poke-summary-close"
                 onClick={() => setMobilePokeSummarySheetOpen(false)}
-                aria-label="Chiudi riepilogo poke"
+                aria-label={t("closePokeSummary")}
               >
                 <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
               </button>
@@ -7339,11 +8080,11 @@ export default function App() {
                         />
                       </svg>
                       {[
-                        { key: "base", text: "Scegli la tua base" },
-                        { key: "proteine", text: "Scegli le tue proteine" },
-                        { key: "green", text: "Scegli i tuoi green" },
-                        { key: "salse", text: "Scegli le tue salse" },
-                        { key: "crunchy", text: "Scegli i tuoi crunchy" }
+                        { key: "base", textKey: "heroPhaseBase" },
+                        { key: "proteine", textKey: "heroPhaseProteins" },
+                        { key: "green", textKey: "heroPhaseGreen" },
+                        { key: "salse", textKey: "heroPhasesSauces" },
+                        { key: "crunchy", textKey: "heroPhaseCrunchy" }
                       ].map((phase, idx) => {
                         const revealed =
                           heroTrailProgress >=
@@ -7357,7 +8098,7 @@ export default function App() {
                               (revealed ? " is-revealed" : "")
                             }
                           >
-                            {phase.text}
+                            {t(phase.textKey)}
                           </span>
                         );
                       })}
@@ -7404,22 +8145,22 @@ export default function App() {
               <div className="container hero-stats-inner">
                 <div className="hero-stat-item">
                   <strong>100%</strong>
-                  <span>Ingredienti freschi</span>
+                  <span>{t("statFreshIngredients")}</span>
                 </div>
                 <div className="hero-stat-divider"></div>
                 <div className="hero-stat-item">
-                  <strong>Asporto</strong>
-                  <span>e ordini da tavolo</span>
+                  <strong>{t("statTakeaway")}</strong>
+                  <span>{t("statTakeawaySub")}</span>
                 </div>
                 <div className="hero-stat-divider"></div>
                 <div className="hero-stat-item">
-                  <strong>Pokè</strong>
-                  <span>come vuoi te</span>
+                  <strong>{t("statPoke")}</strong>
+                  <span>{t("statPokeSub")}</span>
                 </div>
                 <div className="hero-stat-divider"></div>
                 <div className="hero-stat-item">
                   <strong>San Miniato (PI)</strong>
-                  <span>ti aspettiamo</span>
+                  <span>{t("statLocationSub")}</span>
                 </div>
               </div>
             </div>
@@ -7468,8 +8209,8 @@ export default function App() {
             <div className="poke-story-sticky">
               {/* Title block — sticks near navbar */}
               <div className="poke-story-text-block">
-                <p className="poke-story-eyebrow">La nostra filosofia</p>
-                <h2 className="poke-story-headline">La pokè come vuoi te.</h2>
+                <p className="poke-story-eyebrow">{t("pokeStoryEyebrow")}</p>
+                <h2 className="poke-story-headline">{t("pokeStoryHeadline")}</h2>
             </div>
               {/* 3-column layout: left labels | circle | right labels */}
               <div className="poke-story-visual">
@@ -7492,7 +8233,7 @@ export default function App() {
 
                 {/* CENTER: Circle + SVG ring */}
                 <div className="poke-story-ring-and-mobile-cards">
-                  <div className="poke-story-mobile-cards" aria-label="Composizione poke">
+                  <div className="poke-story-mobile-cards" aria-label={t("pokeStoryCompositionAria")}>
                     {pokeStorySegments.map((seg) => (
                       <button
                         key={`mobile-poke-card-${seg.idx}`}
@@ -7501,7 +8242,7 @@ export default function App() {
                         data-mobile-card-label={seg.idx}
                         onClick={() => setPokeStoryInfoModalOpen(seg.idx)}
                         style={{ ['--mobile-card-accent' as string]: seg.color }}
-                        aria-label={`Apri dettagli ${seg.pct} ${seg.name}`}
+                        aria-label={t("openDetails", { pct: seg.pct, name: seg.name })}
                       >
                         <span className="poke-story-mobile-card-info" aria-hidden="true">
                           <i className="fa-solid fa-circle-info"></i>
@@ -7519,7 +8260,7 @@ export default function App() {
                     className="poke-story-circle-hit"
                   role="button"
                   tabIndex={0}
-                    aria-label="Componi il tuo pokè"
+                    aria-label={t("composePokeAria")}
                     onClick={() => goToPokePage()}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -7534,7 +8275,7 @@ export default function App() {
                     />
                     <div className="poke-story-circle-glass" aria-hidden="true">
                       <span className="poke-story-circle-glass-label">
-                        Componi il tuo pokè
+                        {t("composePokeAria")}
                       </span>
                     </div>
                   </div>
@@ -7563,7 +8304,7 @@ export default function App() {
                       transform="rotate(252,280,280)" />
                     </svg>
                   </div>
-                  <p className="poke-story-mobile-hint">Clicca la bowl per creare la tua poke</p>
+                  <p className="poke-story-mobile-hint">{t("pokeStoryMobileHint")}</p>
                 </div>
 
                 {/* RIGHT: Base + Proteine */}
@@ -7847,11 +8588,11 @@ export default function App() {
                           </button>
                         ) : (
                           <div className="dish-qty-controls">
-                            <button className="qty-text-action" onClick={() => updateDishQty(item, -1)} aria-label="Diminuisci quantità">
+                            <button className="qty-text-action" onClick={() => updateDishQty(item, -1)} aria-label={t("decreaseQty")}>
                               -
                             </button>
                             <span>{getMenuItemQuantity(item.id)}</span>
-                            <button className="qty-text-action" onClick={() => updateDishQty(item, 1)} aria-label="Aumenta quantità">
+                            <button className="qty-text-action" onClick={() => updateDishQty(item, 1)} aria-label={t("increaseQty")}>
                               +
                             </button>
                           </div>
@@ -7922,11 +8663,11 @@ export default function App() {
                         }
                       >
                         {allergen.icon_url ? (
-                          <img src={allergen.icon_url} alt={allergen.title} />
+                          <img src={allergen.icon_url} alt={getAllergenDisplayTitle(allergen.id, uiLanguage)} />
                         ) : (
                           <span className="allergen-fallback">{allergen.id}</span>
                         )}
-                        <small>{allergen.id}. {allergen.title}</small>
+                        <small>{allergen.id}. {getAllergenDisplayTitle(allergen.id, uiLanguage)}</small>
                       </button>
                     );
                   })}
@@ -8141,11 +8882,11 @@ export default function App() {
                       }
                     >
                       {allergen.icon_url ? (
-                        <img src={allergen.icon_url} alt={allergen.title} />
+                        <img src={allergen.icon_url} alt={getAllergenDisplayTitle(allergen.id, uiLanguage)} />
                       ) : (
                         <span className="allergen-fallback">{allergen.id}</span>
                       )}
-                        <small>{allergen.id}. {allergen.title}</small>
+                        <small>{allergen.id}. {getAllergenDisplayTitle(allergen.id, uiLanguage)}</small>
                     </button>
                   );
                 })}
@@ -8393,7 +9134,7 @@ export default function App() {
                               <span
                                 className="chip-qty-pill"
                                 role="group"
-                                aria-label={`Quantità ${optionQty}`}
+                                aria-label={t("increaseQty") + " " + optionQty}
                                 onClick={(e) => e.stopPropagation()}
                                 onKeyDown={(e) => e.stopPropagation()}
                               >
@@ -8404,7 +9145,7 @@ export default function App() {
                                         e.stopPropagation();
                                         decrementOption(pokeCurrentGroup.id, option.id);
                                       }}
-                                  aria-label="Diminuisci quantità"
+                                  aria-label={t("decreaseQty")}
                                     >
                                   −
                                     </button>
@@ -8416,7 +9157,7 @@ export default function App() {
                                         e.stopPropagation();
                                         incrementOption(pokeCurrentGroup, option);
                                       }}
-                                  aria-label="Aumenta quantità"
+                                  aria-label={t("increaseQty")}
                                     >
                                       +
                                     </button>
@@ -8500,7 +9241,7 @@ export default function App() {
                                     <span
                                       className="chip-qty-pill"
                                       role="group"
-                                      aria-label={`Quantità ${optionQty}`}
+                                      aria-label={t("increaseQty") + " " + optionQty}
                                       onClick={(e) => {
                                         e.stopPropagation();
                                       }}
@@ -8515,7 +9256,7 @@ export default function App() {
                                         e.stopPropagation();
                                         decrementOption(pokeCurrentGroup.id, option.id);
                                       }}
-                                        aria-label="Diminuisci quantità"
+                                        aria-label={t("decreaseQty")}
                                     >
                                         −
                                     </button>
@@ -8527,7 +9268,7 @@ export default function App() {
                                         e.stopPropagation();
                                         incrementOption(pokeCurrentGroup, option);
                                       }}
-                                        aria-label="Aumenta quantità"
+                                        aria-label={t("increaseQty")}
                                     >
                                       +
                                     </button>
@@ -8624,7 +9365,7 @@ export default function App() {
                       pokeLimitTimerRef.current = null;
                       setPokeLimitMessage("");
                     }}
-                    aria-label="Chiudi avviso"
+                    aria-label={t("closeAlert")}
                   >
                     <wa-icon name="xmark" variant="solid" aria-hidden="true" />
                   </button>
@@ -8641,7 +9382,7 @@ export default function App() {
                       pokeActionTimerRef.current = null;
                       setPokeActionMessage("");
                     }}
-                    aria-label="Chiudi avviso"
+                    aria-label={t("closeAlert")}
                   >
                     <wa-icon name="xmark" variant="solid" aria-hidden="true" />
                   </button>
@@ -8665,10 +9406,10 @@ export default function App() {
                 aria-labelledby="poke-extra-prompt-title"
               >
                 <h3 id="poke-extra-prompt-title" className="poke-extra-prompt-title">
-                  Vuoi aggiungere {pokeExtraPrompt.phaseLabel.toLowerCase()} extra?
+                  {t("pokeExtraPromptTitle", { phase: pokeExtraPrompt.phaseLabel.toLowerCase() })}
                 </h3>
                 <p className="poke-extra-prompt-sub">
-                  Puoi sempre aggiungerli dal riepilogo del tuo poké.
+                  {t("pokeExtraPromptSub")}
                 </p>
                 <div className="poke-extra-prompt-actions">
                   <button
@@ -8676,7 +9417,7 @@ export default function App() {
                     className="poke-extra-prompt-btn poke-extra-prompt-btn--no"
                     onClick={() => confirmPokeExtraPrompt(false)}
                   >
-                    No, grazie
+                    {t("pokeExtraNo")}
                   </button>
                   <button
                     type="button"
@@ -8684,7 +9425,7 @@ export default function App() {
                     onClick={() => confirmPokeExtraPrompt(true)}
                     autoFocus
                   >
-                    Sì, aggiungi
+                    {t("pokeExtraYes")}
                   </button>
                 </div>
               </div>
@@ -8703,7 +9444,7 @@ export default function App() {
           >
             <div className="order-drawer-head">
               <h4>{t("yourOrder")}</h4>
-              <button className="order-drawer-close" onClick={closeOrderDrawer} aria-label="Chiudi ordine">
+              <button className="order-drawer-close" onClick={closeOrderDrawer} aria-label={t("closeOrder")}>
                 <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
               </button>
             </div>
@@ -8769,7 +9510,7 @@ export default function App() {
                                     +
                                   </button>
                                 </div>
-                                <button className="order-remove-btn" onClick={() => removeFromOrder(item.id)} aria-label="Rimuovi prodotto">
+                                <button className="order-remove-btn" onClick={() => removeFromOrder(item.id)} aria-label={t("removeProduct")}>
                                   {t("remove")}
                                 </button>
                               </div>
@@ -8808,7 +9549,7 @@ export default function App() {
                           <button className="order-edit-btn" onClick={() => openOrderItemEdit(item)}>
                             Modifica
                           </button>
-                          <button className="order-remove-btn" onClick={() => removeFromOrder(item.id)} aria-label="Rimuovi prodotto">
+                          <button className="order-remove-btn" onClick={() => removeFromOrder(item.id)} aria-label={t("removeProduct")}>
                             {t("remove")}
                           </button>
                         </div>
@@ -8841,7 +9582,7 @@ export default function App() {
                 </div>
                 {!isTableOrderMode && (
                   <p className="order-next-step-note">
-                    *Nella fase successiva potrai controllare e modificare i piatti selezionati se hai sbagliato qualcosa
+                    {t("orderNextStepNote")}
                   </p>
                 )}
               </>
@@ -8882,7 +9623,7 @@ export default function App() {
                   <span
                     className="chip-qty-pill"
                     role="group"
-                    aria-label={`Quantità ${optionQty}`}
+                    aria-label={t("increaseQty") + " " + optionQty}
                     onClick={(e) => e.stopPropagation()}
                     onKeyDown={(e) => e.stopPropagation()}
                   >
@@ -8893,7 +9634,7 @@ export default function App() {
                         e.stopPropagation();
                         updateDrinkSelection(option.id, -1);
                       }}
-                      aria-label="Diminuisci quantità"
+                      aria-label={t("decreaseQty")}
                     >
                       −
                     </button>
@@ -8905,7 +9646,7 @@ export default function App() {
                         e.stopPropagation();
                         updateDrinkSelection(option.id, 1);
                       }}
-                      aria-label="Aumenta quantità"
+                      aria-label={t("increaseQty")}
                     >
                       +
                     </button>
@@ -9169,18 +9910,18 @@ export default function App() {
                   <h3>{t("customerData")}</h3>
                   <div className="form-grid">
                     <input
-                      placeholder="Nome"
+                      placeholder={t("firstNamePlaceholder")}
                       value={menuCheckoutForm.first_name}
                       onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, first_name: e.target.value }))}
                     />
                     <input
-                      placeholder="Cognome"
+                      placeholder={t("lastNamePlaceholder")}
                       value={menuCheckoutForm.last_name}
                       onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, last_name: e.target.value }))}
                     />
                     <div className="form-field">
                     <input
-                      placeholder="Telefono"
+                      placeholder={t("phonePlaceholder")}
                         type="tel"
                         inputMode="numeric"
                         autoComplete="tel"
@@ -9237,11 +9978,11 @@ export default function App() {
                             }
                           >
                             {allergen.icon_url ? (
-                              <img src={allergen.icon_url} alt={allergen.title} />
+                              <img src={allergen.icon_url} alt={getAllergenDisplayTitle(allergen.id, uiLanguage)} />
                             ) : (
                               <span className="allergen-fallback">{allergen.id}</span>
                             )}
-                            <small>{allergen.id}. {allergen.title}</small>
+                            <small>{allergen.id}. {getAllergenDisplayTitle(allergen.id, uiLanguage)}</small>
                           </button>
                         );
                       })}
@@ -9424,12 +10165,12 @@ export default function App() {
                   {infoModalAllergens.map((allergen) => (
                     <div key={`info-modal-allergen-${allergen.id}`} className="info-modal-allergen-item">
                       {allergen.icon_url ? (
-                        <img src={allergen.icon_url} alt={allergen.title} />
+                        <img src={allergen.icon_url} alt={getAllergenDisplayTitle(allergen.id, uiLanguage)} />
                       ) : (
                         <span className="allergen-fallback">{allergen.id}</span>
                       )}
                       <small>
-                        {allergen.id}. {allergen.title}
+                        {allergen.id}. {getAllergenDisplayTitle(allergen.id, uiLanguage)}
                       </small>
                     </div>
                   ))}
@@ -9492,13 +10233,13 @@ export default function App() {
                     <small className="admin-item-variant-public-limits">
                       {isMulti ? (
                         <>
-                          Selezionati {totalSelected} / Max {limits.max}
-                          {limits.min > 0 && limits.min !== limits.max && ` (Min ${limits.min})`}
+                          {t("selectedMax", { selected: String(totalSelected), max: String(limits.max) })}
+                          {limits.min > 0 && limits.min !== limits.max && t("minPart", { min: String(limits.min) })}
                         </>
                       ) : limits.min > 0 ? (
-                        <>Obbligatorio · Max 1</>
+                        <>{t("variantRequired")}</>
                       ) : (
-                        <>Facoltativo · Max 1</>
+                        <>{t("variantOptional")}</>
                       )}
                     </small>
                   </div>
@@ -9506,8 +10247,8 @@ export default function App() {
                     <span className="admin-item-variant-public-status is-missing">
                       <wa-icon name="triangle-exclamation" variant="solid" aria-hidden="true"></wa-icon>
                       {limits.min - totalSelected === 1
-                        ? "Seleziona ancora 1 opzione"
-                        : `Seleziona ancora ${limits.min - totalSelected} opzioni`}
+                        ? t("variantSelectMore1")
+                        : t("variantSelectMoreN", { n: String(limits.min - totalSelected) })}
                     </span>
                   )}
                   <div
@@ -9604,7 +10345,7 @@ export default function App() {
                                     e.stopPropagation();
                                     handleDecrement();
                                   }}
-                                  aria-label="Diminuisci quantità"
+                                  aria-label={t("decreaseQty")}
                                 >
                                   −
                         </button>
@@ -9617,7 +10358,7 @@ export default function App() {
                                     if (qty >= limits.max || remainingSlots <= 0) return;
                                     if (isMulti) handleIncrement();
                                   }}
-                                  aria-label="Aumenta quantità"
+                                  aria-label={t("increaseQty")}
                                   disabled={!isMulti || qty >= limits.max || remainingSlots <= 0}
                                 >
                                   +
@@ -9663,15 +10404,15 @@ export default function App() {
                       <span
                         key={`public-variant-allergen-${allergen.id}`}
                         className="public-variant-allergen-chip"
-                        title={`${allergen.id}. ${allergen.title}`}
+                        title={`${allergen.id}. ${getAllergenDisplayTitle(allergen.id, uiLanguage)}`}
                       >
                         {allergen.icon_url ? (
-                          <img src={allergen.icon_url} alt={allergen.title} />
+                          <img src={allergen.icon_url} alt={getAllergenDisplayTitle(allergen.id, uiLanguage)} />
                         ) : (
                           <span className="public-variant-allergen-chip__fallback">{allergen.id}</span>
                         )}
                         <small>
-                          {allergen.id}. {allergen.title}
+                          {allergen.id}. {getAllergenDisplayTitle(allergen.id, uiLanguage)}
                         </small>
                       </span>
               ))}
@@ -9869,7 +10610,7 @@ export default function App() {
                                         e.stopPropagation();
                                         handleDecrement();
                                       }}
-                                      aria-label="Diminuisci quantità"
+                                      aria-label={t("decreaseQty")}
                                     >
                                       −
                             </button>
@@ -9882,7 +10623,7 @@ export default function App() {
                                         if (qty >= limits.max || remainingSlots <= 0) return;
                                         if (isMulti) handleIncrement();
                                       }}
-                                      aria-label="Aumenta quantità"
+                                      aria-label={t("increaseQty")}
                                       disabled={!isMulti || qty >= limits.max || remainingSlots <= 0}
                                     >
                                       +
@@ -9928,15 +10669,15 @@ export default function App() {
                           <span
                             key={`edit-variant-allergen-${allergen.id}`}
                             className="public-variant-allergen-chip"
-                            title={`${allergen.id}. ${allergen.title}`}
+                            title={`${allergen.id}. ${getAllergenDisplayTitle(allergen.id, uiLanguage)}`}
                           >
                             {allergen.icon_url ? (
-                              <img src={allergen.icon_url} alt={allergen.title} />
+                              <img src={allergen.icon_url} alt={getAllergenDisplayTitle(allergen.id, uiLanguage)} />
                             ) : (
                               <span className="public-variant-allergen-chip__fallback">{allergen.id}</span>
                             )}
                             <small>
-                              {allergen.id}. {allergen.title}
+                              {allergen.id}. {getAllergenDisplayTitle(allergen.id, uiLanguage)}
                             </small>
                           </span>
                   ))}
@@ -10017,14 +10758,14 @@ export default function App() {
                   <div className="order-edit-poke-alert" role="alert">
                     <wa-icon name="triangle-exclamation" variant="solid" aria-hidden="true"></wa-icon>
                     <div className="order-edit-poke-alert-body">
-                      <strong>Manca qualcosa per completare il poke</strong>
+                      <strong>{t("pokeMissingTitle")}</strong>
                       <ul>
                         {invalidGroupLabels.map((entry, idx) => (
                           <li key={`order-edit-alert-${idx}`}>
                             <span className="order-edit-poke-alert-phase">{entry.label}:</span>{" "}
                             {entry.status === "missing"
-                              ? `aggiungi ${entry.delta} ${entry.delta === 1 ? "ingrediente" : "ingredienti"}`
-                              : `rimuovi ${entry.delta} ${entry.delta === 1 ? "ingrediente" : "ingredienti"}`}
+                              ? t("variantSelectMoreN", { n: String(entry.delta) })
+                              : t("variantSelectMoreN", { n: String(entry.delta) })}
                           </li>
                         ))}
                       </ul>
@@ -10222,8 +10963,8 @@ export default function App() {
                   </span>
                 </span>
               </a>
-              <button className="menu-cta menu-cta-outline-white home-blob-btn" onClick={goToMenuPage}>
-                <span className="home-blob-btn__label">Vai al menu</span>
+                <button className="menu-cta menu-cta-outline-white home-blob-btn" onClick={goToMenuPage}>
+                <span className="home-blob-btn__label">{t("goToMenu")}</span>
                 <span className="home-blob-btn__inner" aria-hidden="true">
                   <span className="home-blob-btn__blobs">
                     <span className="home-blob-btn__blob"></span>
