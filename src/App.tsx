@@ -3517,6 +3517,75 @@ export default function App() {
     };
   }, [uiLanguage, menu, home, pokeRules]);
 
+  // Pre-fetch translations for all non-Italian languages in the background so
+  // language switches are instant. Runs 2s after content loads; skips texts already cached.
+  useEffect(() => {
+    if (!menu || !home) return;
+
+    const ALL_LANGS: Array<"en" | "de" | "es" | "fr" | "zh" | "ja"> = ["en", "de", "es", "fr", "zh", "ja"];
+
+    const uniqueTexts = new Set<string>();
+    (home?.categories ?? []).forEach((cat: any) => {
+      const d = String(cat?.description ?? "").trim();
+      if (d && d.length <= 1000) uniqueTexts.add(d);
+    });
+    (menu?.categories ?? []).forEach((cat) => {
+      const d = String(cat?.description ?? "").trim();
+      if (d && d.length <= 1000) uniqueTexts.add(d);
+      cat.items.forEach((item) => {
+        const id = String(item?.description ?? "").trim();
+        if (id && id.length <= 1000) uniqueTexts.add(id);
+      });
+    });
+    (pokeRules?.builder_items ?? []).forEach((bi) => {
+      bi.groups.forEach((g) => {
+        const gd = String(g?.description ?? "").trim();
+        if (gd && gd.length <= 1000) uniqueTexts.add(gd);
+      });
+    });
+
+    const allTexts = Array.from(uniqueTexts);
+    if (allTexts.length === 0) return;
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      for (const lang of ALL_LANGS) {
+        if (cancelled) break;
+        // Read latest cache from localStorage to avoid redundant fetches
+        let existingCache: Record<string, string> = {};
+        try {
+          const raw = window.localStorage.getItem("pokedo_translation_cache");
+          if (raw) existingCache = JSON.parse(raw) as Record<string, string>;
+        } catch { /* ignore */ }
+        const missing = allTexts.filter((text) => !existingCache[`${lang}::${text}`]);
+        if (missing.length === 0) continue;
+        try {
+          const response = await publicApi.translateBatch({ target_language: lang, texts: missing });
+          if (cancelled) break;
+          const translations = (response?.translations ?? {}) as Record<string, string>;
+          setDynamicDescriptionMap((old) => {
+            const next = { ...old };
+            missing.forEach((source) => {
+              const translated = String(translations[source] ?? "").trim();
+              if (translated && translated !== source) {
+                next[`${lang}::${source}`] = translated;
+              }
+            });
+            try { window.localStorage.setItem("pokedo_translation_cache", JSON.stringify(next)); } catch { /* ignore */ }
+            return next;
+          });
+        } catch { /* silent — on error skip this language */ }
+        // Small delay between languages to be gentle with the API
+        await new Promise<void>((res) => setTimeout(res, 400));
+      }
+    }, 2000);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [menu, home, pokeRules]);
+
   async function loadPublic() {
     const [homeData, menuData, rulesData, settingsData] = await Promise.all([
       publicApi.getHomeContent(),
