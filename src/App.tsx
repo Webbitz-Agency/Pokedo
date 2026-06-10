@@ -3476,10 +3476,20 @@ export default function App() {
       });
     });
     (pokeRules?.builder_items ?? []).forEach((builderItem) => {
+      const builderName = String(builderItem?.name ?? "").trim();
+      if (builderName) uniqueTexts.add(builderName);
       builderItem.groups.forEach((group) => {
         const groupDescription = String(group?.description ?? "").trim();
         if (groupDescription) uniqueTexts.add(groupDescription);
+        (group.options ?? []).forEach((option) => {
+          const optName = String(option?.name ?? "").trim();
+          if (optName) uniqueTexts.add(optName);
+        });
       });
+    });
+    (appSettings.site.tag_rules ?? []).forEach((rule: { name: string }) => {
+      const tagName = String(rule?.name ?? "").trim();
+      if (tagName) uniqueTexts.add(tagName);
     });
 
     const textsToTranslate = Array.from(uniqueTexts).filter(
@@ -3515,7 +3525,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [uiLanguage, menu, home, pokeRules]);
+  }, [uiLanguage, menu, home, pokeRules, appSettings]);
 
   // Pre-fetch translations for all non-Italian languages in the background so
   // language switches are instant. Runs 2s after content loads; skips texts already cached.
@@ -3538,10 +3548,20 @@ export default function App() {
       });
     });
     (pokeRules?.builder_items ?? []).forEach((bi) => {
+      const biName = String(bi?.name ?? "").trim();
+      if (biName && biName.length <= 1000) uniqueTexts.add(biName);
       bi.groups.forEach((g) => {
         const gd = String(g?.description ?? "").trim();
         if (gd && gd.length <= 1000) uniqueTexts.add(gd);
+        (g.options ?? []).forEach((option) => {
+          const optName = String(option?.name ?? "").trim();
+          if (optName && optName.length <= 1000) uniqueTexts.add(optName);
+        });
       });
+    });
+    (appSettings.site.tag_rules ?? []).forEach((rule: { name: string }) => {
+      const tagName = String(rule?.name ?? "").trim();
+      if (tagName && tagName.length <= 1000) uniqueTexts.add(tagName);
     });
 
     const allTexts = Array.from(uniqueTexts);
@@ -3584,7 +3604,7 @@ export default function App() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [menu, home, pokeRules]);
+  }, [menu, home, pokeRules, appSettings]);
 
   async function loadPublic() {
     const [homeData, menuData, rulesData, settingsData] = await Promise.all([
@@ -9124,7 +9144,7 @@ export default function App() {
                                 </div>
                                 <div className="size-card-content">
                                   <div className="size-card-head">
-                                    <h4 className="size-card-title">{item.name}</h4>
+                                    <h4 className="size-card-title">{translateDescription(item.name)}</h4>
                                   </div>
                                   <p className="size-card-ingredients-text">
                                     {getBuilderGroupLimit(item, "base")} {t("phase_base")} - {item.included_proteins} {t("phase_proteins")} -{" "}
@@ -9198,7 +9218,7 @@ export default function App() {
                               >
                           <span className="option-chip-label">
                             {option.price > 0 ? <OptionSurchargeCrownIcon /> : null}
-                            {option.name}
+                            {translateDescription(option.name)}
                           </span>
                           <div className="option-chip-trailing">
                             {optionQty > 0 ? (
@@ -9266,7 +9286,7 @@ export default function App() {
                                       className="poke-phase-tag-separator__pill"
                                       style={{ borderColor: group.color, color: group.color } as CSSProperties}
                                     >
-                                      {group.name}
+                                      {translateDescription(group.name)}
                                     </span>
                                   ) : (
                                     <span className="poke-phase-tag-separator__pill is-empty" aria-hidden="true" />
@@ -9305,7 +9325,7 @@ export default function App() {
                               >
                                 <span className="option-chip-label">
                                   <OptionSurchargeCrownIcon />
-                                  {option.name}
+                                  {translateDescription(option.name)}
                                 </span>
                                 <div className="option-chip-trailing">
                                   {optionQty > 0 ? (
