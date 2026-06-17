@@ -174,7 +174,7 @@ type AdminTable = {
   occupied?: boolean;
   active_session_id?: number | null;
 };
-type Route = "/" | "/menu" | "/crea-la-tua-poke" | "/completa-ordine" | "/amministrazione";
+type Route = "/" | "/menu" | "/crea-la-tua-poke" | "/completa-ordine" | "/amministrazione" | "/totem";
 type AdminTab = "panoramica" | "ordini" | "menu" | "poke" | "tavoli" | "impostazioni";
 type ProviderAdminTab = "panoramica" | "clienti" | "fatturazione" | "messaggi";
 type ProviderClientListItem = {
@@ -1866,6 +1866,7 @@ function detectRoute(pathOrPathname: string): Route {
   if (pathname.startsWith("/amministrazione")) return "/amministrazione";
   if (pathname.startsWith("/crea-la-tua-poke")) return "/crea-la-tua-poke";
   if (pathname.startsWith("/completa-ordine")) return "/completa-ordine";
+  if (pathname.startsWith("/totem")) return "/totem";
   if (pathname.startsWith("/menu")) return "/menu";
   return "/";
 }
@@ -2880,6 +2881,17 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [homeHeroSlide, setHomeHeroSlide] = useState(0);
   const [saving, setSaving] = useState(false);
+
+  // ── Totem mode ──────────────────────────────────────────────────────────────
+  const [isTotemLoggedIn, setIsTotemLoggedIn] = useState<boolean>(() => {
+    try { return window.sessionStorage.getItem("pokedo_totem_auth") === "1"; } catch { return false; }
+  });
+  const [totemPasswordInput, setTotemPasswordInput] = useState("");
+  const [totemLoginError, setTotemLoginError] = useState("");
+  const [totemLoginBusy, setTotemLoginBusy] = useState(false);
+  const [totemOrderSuccess, setTotemOrderSuccess] = useState(false);
+  // ────────────────────────────────────────────────────────────────────────────
+
   const [adminLoggedIn, setAdminLoggedIn] = useState(
     (typeof window !== "undefined" ? window.location.pathname.startsWith("/amministrazione") : false) &&
       Boolean(getAdminToken())
@@ -3757,7 +3769,8 @@ export default function App() {
       (route === "/" && (!home || !menu)) ||
       (route === "/menu" && !menu) ||
       (route === "/crea-la-tua-poke" && (!menu || !pokeRules)) ||
-      (isAdminPath && adminLoggedIn && (adminRole === "provider" ? false : !menu));
+      (isAdminPath && adminLoggedIn && (adminRole === "provider" ? false : !menu)) ||
+      (route === "/totem" && isTotemLoggedIn && !menu);
 
     setLoading(shouldBlockLoading);
     setError(null);
@@ -3848,6 +3861,24 @@ export default function App() {
     }, 160);
     return () => window.clearTimeout(timeout);
   }, [loading, route, navigationTick]);
+
+  // Totem routing guard: if logged in and on /totem route, redirect to menu.
+  // If logged in and on homepage, redirect to menu (homepage blocked in totem mode).
+  useEffect(() => {
+    if (!isTotemLoggedIn) return;
+    if (route === "/totem") { goTo("/menu"); return; }
+    if (route === "/") { goTo("/menu"); return; }
+  }, [isTotemLoggedIn, route]);
+
+  // After a totem order succeeds, reset to menu after 5 seconds.
+  useEffect(() => {
+    if (!totemOrderSuccess) return;
+    const timer = window.setTimeout(() => {
+      setTotemOrderSuccess(false);
+      goTo("/menu");
+    }, 5000);
+    return () => window.clearTimeout(timer);
+  }, [totemOrderSuccess]);
 
   useEffect(() => {
     if (route !== "/crea-la-tua-poke") return;
@@ -6451,6 +6482,79 @@ export default function App() {
     }
   }
 
+  async function submitTotemLogin() {
+    const pw = totemPasswordInput.trim();
+    if (!pw) return;
+    setTotemLoginBusy(true);
+    setTotemLoginError("");
+    try {
+      await publicApi.validateTotem({ password: pw });
+      try { window.sessionStorage.setItem("pokedo_totem_auth", "1"); } catch { /* noop */ }
+      setIsTotemLoggedIn(true);
+      setTotemPasswordInput("");
+      goTo("/totem/menu");
+    } catch (e: unknown) {
+      setTotemLoginError(e instanceof Error ? e.message : "Password non valida");
+    } finally {
+      setTotemLoginBusy(false);
+    }
+  }
+
+  async function submitTotemOrder() {
+    if (orderItemsList.length === 0) return;
+    const firstName = menuCheckoutForm.first_name.trim();
+    const lastName = menuCheckoutForm.last_name.trim();
+    const customerName = `${firstName} ${lastName}`.trim();
+    if (!customerName) return;
+    setSaving(true);
+    try {
+      const customerAllergenCodes = menuCheckoutForm.customer_allergen_codes.slice().sort((a, b) => a - b);
+      const customerAllergenLabels = customerAllergenCodes.map((code) => getAllergenTitleByCode(code));
+      const allergensNote = customerAllergenLabels.length > 0 ? `Allergeni: ${customerAllergenLabels.join(" ")}` : "";
+      await publicApi.createOrder({
+        source: "totem",
+        service_type: "totem",
+        customer_name: customerName,
+        table_number: null,
+        note: allergensNote || undefined,
+        total_price: orderTotalAmount,
+        payload: {
+          type: "totem_order",
+          contact: { first_name: firstName, last_name: lastName },
+          customer_allergen_codes: customerAllergenCodes,
+          customer_allergen_labels: customerAllergenLabels,
+          items: orderItemsList.map((item) => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            unit_price: item.price,
+            details: item.details ?? []
+          }))
+        }
+      });
+      setOrderItems({});
+      resetBuilder();
+      setOrderOpen(false);
+      setOrderClosing(false);
+      setMenuCheckoutForm({
+        first_name: "",
+        last_name: "",
+        phone: "",
+        email: "",
+        pickup_date: "",
+        pickup_hour: "",
+        pickup_minute: "",
+        order_note: "",
+        customer_allergen_codes: []
+      });
+      setTotemOrderSuccess(true);
+    } catch (e: unknown) {
+      showSettingsNotice("error", e instanceof Error ? e.message : "Errore invio ordine totem");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function submitCheckoutOrder() {
     if (orderItemsList.length === 0) return;
     const customerName = `${menuCheckoutForm.first_name} ${menuCheckoutForm.last_name}`.trim();
@@ -8087,6 +8191,56 @@ export default function App() {
       )}
       {error && <div className="container state error">{error}</div>}
 
+      {/* ── Totem login screen ─────────────────────────────────────────────── */}
+      {route === "/totem" && !isTotemLoggedIn && (
+        <div className="totem-login-screen">
+          <div className="totem-login-card">
+            <div className="totem-login-logo">
+              {appSettings.activity.logo_url ? (
+                <img src={resolveMediaSrc(appSettings.activity.logo_url)} alt={appSettings.activity.business_name} className="totem-login-logo-img" />
+              ) : (
+                <span className="totem-login-brand">{appSettings.activity.business_name || "Pokedo"}</span>
+              )}
+            </div>
+            <h2 className="totem-login-title">Accesso Totem</h2>
+            <p className="totem-login-sub">Inserisci la password per attivare il totem di ordinazione.</p>
+            <form
+              className="totem-login-form"
+              onSubmit={(e) => { e.preventDefault(); void submitTotemLogin(); }}
+            >
+              <input
+                type="password"
+                className="totem-login-input"
+                placeholder="Password"
+                value={totemPasswordInput}
+                onChange={(e) => setTotemPasswordInput(e.target.value)}
+                autoFocus
+              />
+              {totemLoginError && <p className="totem-login-error">{totemLoginError}</p>}
+              <button
+                type="submit"
+                className="totem-login-btn"
+                disabled={totemLoginBusy || !totemPasswordInput.trim()}
+              >
+                {totemLoginBusy ? "Accesso…" : "Entra"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Totem order success overlay ───────────────────────────────────── */}
+      {totemOrderSuccess && (
+        <div className="totem-order-success-overlay">
+          <div className="totem-order-success-card">
+            <div className="totem-order-success-icon" aria-hidden="true">✓</div>
+            <h2>Ordine inviato!</h2>
+            <p>Il tuo ordine è stato ricevuto ed è in preparazione.</p>
+            <p className="totem-order-success-reset">Torna al menù tra pochi secondi…</p>
+          </div>
+        </div>
+      )}
+
       {!loading && !error && route === "/" && home && menu && (
         <>
           <section
@@ -8503,7 +8657,27 @@ export default function App() {
       )}
 
       {!loading && !error && route === "/menu" && menu && (
-        <section className="menu-page">
+        <section className={`menu-page${isTotemLoggedIn ? " menu-page--totem" : ""}`}>
+          {isTotemLoggedIn && (
+            <nav className="totem-category-sidebar" aria-label="Categorie menu">
+              <ul className="totem-category-sidebar__list">
+                {(menu.categories ?? []).filter((cat: any) => !cat.hidden).map((cat: any) => (
+                  <li key={cat.id}>
+                    <button
+                      type="button"
+                      className="totem-category-sidebar__btn"
+                      onClick={() => {
+                        const el = document.getElementById(`menu-category-${cat.id}`);
+                        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }}
+                    >
+                      {cat.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
           <div className="menu-fish-bg" aria-hidden="true">
             {Array.from({ length: 200 }).map((_, lane) => (
               <div
@@ -8598,7 +8772,7 @@ export default function App() {
 
           <div className="container section-padding menu-categories-block">
             {filteredMenuCategories.map((category) => (
-              <section key={category.id} id={slug(category.name)} className="menu-category-section">
+              <section key={category.id} id={`menu-category-${category.id}`} className="menu-category-section">
                 <header className="section-title centered menu-category-title">
                   <p className="section-kicker">{t("menu")}</p>
                   <h3>{category.name}</h3>
@@ -9823,7 +9997,82 @@ export default function App() {
         );
       })()}
 
-      {!loading && !error && route === "/completa-ordine" && (
+      {/* ── Totem inline checkout (without pickup time/contact details) ─── */}
+      {!loading && !error && route === "/completa-ordine" && isTotemLoggedIn && (
+        <section className="checkout-page checkout-page--totem">
+          <div className="checkout-hero">
+            <div className="container">
+              <p className="section-kicker">Totem</p>
+              <h2>Riepilogo ordine</h2>
+            </div>
+          </div>
+          <div className="container section-padding checkout-flow">
+            <article className="card checkout-step-card">
+              {orderItemsList.length === 0 ? (
+                <div className="empty-checkout">
+                  <p>{t("emptyOrder")}</p>
+                  <button className="menu-cta" onClick={goToMenuPage}>{t("backToMenu")}</button>
+                </div>
+              ) : (
+                <>
+                  <div className="order-list checkout-order-list">
+                    {orderItemsList.map((item) => (
+                      <div key={item.id} className="order-row">
+                        <div className="order-row-main">
+                          <div className="order-row-head">
+                            <strong>{item.name}</strong>
+                            <span className="order-row-price">{formatCurrency(item.price * item.quantity)}</span>
+                          </div>
+                          <p>{formatCurrency(item.price)} x {item.quantity}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="order-total">
+                    <strong>{t("total")}</strong>
+                    <strong>{formatCurrency(orderTotalAmount)}</strong>
+                  </div>
+                  <div className="totem-checkout-name-form">
+                    <h3>Il tuo nome</h3>
+                    <div className="checkout-name-row">
+                      <label className="field-label">
+                        <span>{t("firstName")}</span>
+                        <input
+                          type="text"
+                          placeholder={t("firstNamePlaceholder")}
+                          value={menuCheckoutForm.first_name}
+                          onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, first_name: e.target.value }))}
+                        />
+                      </label>
+                      <label className="field-label">
+                        <span>{t("lastName")}</span>
+                        <input
+                          type="text"
+                          placeholder={t("lastNamePlaceholder")}
+                          value={menuCheckoutForm.last_name}
+                          onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, last_name: e.target.value }))}
+                        />
+                      </label>
+                    </div>
+                    <button
+                      className="cta checkout-submit-btn"
+                      disabled={saving || !menuCheckoutForm.first_name.trim() || !menuCheckoutForm.last_name.trim()}
+                      onClick={() => void submitTotemOrder()}
+                    >
+                      {saving ? "Invio…" : "Invia ordine"}
+                    </button>
+                    <button className="checkout-back-btn" onClick={goToMenuPage} disabled={saving}>
+                      {t("backToMenu")}
+                    </button>
+                  </div>
+                </>
+              )}
+            </article>
+          </div>
+        </section>
+      )}
+
+      {!loading && !error && route === "/completa-ordine" && !isTotemLoggedIn && (
         <section className="checkout-page">
           <div className="checkout-hero">
             <div className="container">

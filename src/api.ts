@@ -327,6 +327,11 @@ export const publicApi = {
     request("/api/public/orders", {
       method: "POST",
       body: JSON.stringify(payload)
+    }),
+  validateTotem: (payload: { password: string }) =>
+    request("/api/public/totem/validate", {
+      method: "POST",
+      body: JSON.stringify(payload)
     })
 };
 
