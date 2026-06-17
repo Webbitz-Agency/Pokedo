@@ -14025,7 +14025,18 @@ table button:hover {
 
 /* Menu page totem layout — sidebar fixed, content offset */
 .menu-page--totem {
-  padding-left: 230px;
+  padding-left: 230px; /* push content past the fixed sidebar */
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Override the global .container which uses 100vw — in totem mode
+   the available width is (viewport - 230px sidebar), so subtract it
+   plus 24px breathing room on each side */
+.menu-page--totem .container {
+  width: min(1220px, calc(100vw - 230px - 48px));
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .totem-category-sidebar {
@@ -14034,14 +14045,14 @@ table button:hover {
   left: 0;
   height: calc(100vh - 76px);
   width: 230px;
-  background: #0f172a;
+  background: linear-gradient(160deg, #1e3a8a 0%, #2563eb 100%);
   overflow-y: auto;
   z-index: 200;
   padding: 16px 12px;
   display: flex;
   flex-direction: column;
   gap: 0;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 4px 0 24px rgba(37, 99, 235, 0.35);
 }
 
 .totem-category-sidebar__list {
@@ -14057,10 +14068,10 @@ table button:hover {
   display: block;
   width: 100%;
   padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 10px;
-  color: #cbd5e1;
+  color: #e0eaff;
   font-size: 13px;
   font-weight: 600;
   text-align: left;
@@ -14070,8 +14081,8 @@ table button:hover {
 }
 
 .totem-category-sidebar__btn:hover {
-  background: rgba(244, 63, 94, 0.2);
-  border-color: rgba(244, 63, 94, 0.5);
+  background: rgba(186, 230, 253, 0.25);
+  border-color: #7dd3fc;
   color: #fff;
   transform: translateX(2px);
 }
