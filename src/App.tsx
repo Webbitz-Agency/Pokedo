@@ -7823,7 +7823,7 @@ export default function App() {
         isTableOrderMode ? " table-order-mode" : ""
       }`.trim()}
     >
-      <header className="topbar">
+      <header className={`topbar${isTotemLoggedIn ? " topbar--totem" : ""}`}>
         <div className="container topbar-content">
             <>
               <button className="brand plain" onClick={() => (isTableOrderMode ? goToMenuPage() : goTo("/"))}>
