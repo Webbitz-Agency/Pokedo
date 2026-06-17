@@ -14024,10 +14024,6 @@ table button:hover {
 }
 
 /* Menu page totem layout — sidebar fixed, content offset */
-.topbar--totem {
-  padding-left: 230px !important;
-}
-
 .menu-page--totem {
   padding-left: 230px;
 }

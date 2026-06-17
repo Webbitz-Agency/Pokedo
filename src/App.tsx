@@ -3862,12 +3862,11 @@ export default function App() {
     return () => window.clearTimeout(timeout);
   }, [loading, route, navigationTick]);
 
-  // Totem routing guard: if logged in and on /totem route, redirect to menu.
-  // If logged in and on homepage, redirect to menu (homepage blocked in totem mode).
+  // Block homepage in totem mode — redirect to /totem
   useEffect(() => {
-    if (!isTotemLoggedIn) return;
-    if (route === "/totem") { goTo("/menu"); return; }
-    if (route === "/") { goTo("/menu"); return; }
+    if (isTotemLoggedIn && route === "/") {
+      goTo("/totem");
+    }
   }, [isTotemLoggedIn, route]);
 
   // After a totem order succeeds, reset to menu after 5 seconds.
@@ -3875,7 +3874,7 @@ export default function App() {
     if (!totemOrderSuccess) return;
     const timer = window.setTimeout(() => {
       setTotemOrderSuccess(false);
-      goTo("/menu");
+      goTo("/totem");
     }, 5000);
     return () => window.clearTimeout(timer);
   }, [totemOrderSuccess]);
@@ -5012,6 +5011,10 @@ export default function App() {
       }
       const search = code ? `?code=${encodeURIComponent(code)}` : "";
       goTo(`/tavolo/${encodeURIComponent(tableOrderNumber)}${search}`);
+      return;
+    }
+    if (isTotemLoggedIn) {
+      goTo("/totem");
       return;
     }
     goTo("/menu");
@@ -6492,7 +6495,7 @@ export default function App() {
       try { window.sessionStorage.setItem("pokedo_totem_auth", "1"); } catch { /* noop */ }
       setIsTotemLoggedIn(true);
       setTotemPasswordInput("");
-      goTo("/totem/menu");
+      // Stay at /totem — the menu renders here now
     } catch (e: unknown) {
       setTotemLoginError(e instanceof Error ? e.message : "Password non valida");
     } finally {
@@ -7823,7 +7826,7 @@ export default function App() {
         isTableOrderMode ? " table-order-mode" : ""
       }`.trim()}
     >
-      <header className={`topbar${isTotemLoggedIn ? " topbar--totem" : ""}`}>
+      <header className="topbar">
         <div className="container topbar-content">
             <>
               <button className="brand plain" onClick={() => (isTableOrderMode ? goToMenuPage() : goTo("/"))}>
@@ -8656,9 +8659,10 @@ export default function App() {
         </>
       )}
 
-      {!loading && !error && route === "/menu" && menu && (
-        <section className={`menu-page${isTotemLoggedIn ? " menu-page--totem" : ""}`}>
-          {isTotemLoggedIn && (
+      {!loading && !error && (route === "/menu" || (route === "/totem" && isTotemLoggedIn)) && menu && (
+        <section className={`menu-page${route === "/totem" ? " menu-page--totem" : ""}`}>
+          {/* Sidebar only in totem mode */}
+          {route === "/totem" && (
             <nav className="totem-category-sidebar" aria-label="Categorie menu">
               <ul className="totem-category-sidebar__list">
                 {(menu.categories ?? []).filter((cat: any) => !cat.hidden).map((cat: any) => (
