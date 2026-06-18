@@ -9111,7 +9111,7 @@ export default function App() {
           {/* ── Allergen side tab ── */}
           <button
             type="button"
-            className="allergen-side-tab"
+            className={`allergen-side-tab${isTotemLoggedIn ? " allergen-side-tab--totem" : ""}`}
             onClick={() => setPokeAllergenAccordionOpen(true)}
             aria-label={t("filterAllergens")}
           >
@@ -11336,7 +11336,7 @@ export default function App() {
         </section>
       )}
 
-      {!isTableOrderMode && (
+      {!isTableOrderMode && !isTotemLoggedIn && (
         <footer className="site-footer">
           <div className="container footer-grid">
             <div>

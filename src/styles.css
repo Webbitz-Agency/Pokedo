@@ -14150,3 +14150,18 @@ table button:hover {
 .checkout-page--totem .checkout-back-btn:hover {
   border-color: #94a3b8;
 }
+
+/* In totem mode the allergen tab must move to the RIGHT side,
+   stacked above the resoconto tab so the left sidebar doesn't cover it */
+.allergen-side-tab--totem {
+  left: auto;
+  right: 0;
+  top: calc(50% - 90px); /* above the resoconto tab */
+  transform: translateY(-50%) translateX(50%);
+  /* mirror padding so the visible portion is on the right */
+  padding: 20px 44px 20px 14px;
+}
+
+.allergen-side-tab--totem:hover {
+  transform: translateY(-50%) translateX(30%);
+}
