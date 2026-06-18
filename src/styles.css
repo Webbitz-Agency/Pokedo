@@ -14041,14 +14041,16 @@ table button:hover {
 
 .totem-category-sidebar {
   position: fixed;
-  top: 76px; /* below the sticky topbar */
+  top: 0;           /* start from the very top */
   left: 0;
-  height: calc(100vh - 76px);
+  height: 100vh;
   width: 230px;
   background: linear-gradient(160deg, #1e3a8a 0%, #2563eb 100%);
   overflow-y: auto;
-  z-index: 55; /* below topbar (z-index: 60) so navbar stays on top */
-  padding: 16px 12px;
+  z-index: 55; /* below topbar (z-index: 60) — navbar covers the top portion */
+  /* push list content below the navbar (76px height + 1px border) */
+  padding: 0 12px;
+  padding-top: calc(76px + 1px + 16px);
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -14130,11 +14132,6 @@ table button:hover {
   gap: 12px;
 }
 
-.checkout-page--totem .checkout-submit-btn {
-  width: 100%;
-  padding: 16px;
-  font-size: 18px;
-}
 
 .checkout-page--totem .checkout-back-btn {
   display: block;

@@ -10120,7 +10120,8 @@ export default function App() {
                       />
                     </div>
                     <button
-                      className="cta checkout-submit-btn"
+                      className="cta big"
+                      style={{ width: "100%", marginTop: "8px" }}
                       disabled={saving || !menuCheckoutForm.first_name.trim() || !menuCheckoutForm.last_name.trim()}
                       onClick={() => void submitTotemOrder()}
                     >
