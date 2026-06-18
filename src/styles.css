@@ -14091,7 +14091,32 @@ table button:hover {
   transform: scale(0.97);
 }
 
-/* Totem checkout */
+/* Totem poke builder layout */
+.poke-builder-page--totem {
+  padding-left: 230px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.poke-builder-page--totem .container {
+  width: min(1220px, calc(100vw - 230px - 48px));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Totem checkout layout */
+.checkout-page--totem {
+  padding-left: 230px;
+  box-sizing: border-box;
+}
+
+.checkout-page--totem .container {
+  width: min(900px, calc(100vw - 230px - 48px));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Totem checkout form */
 .checkout-page--totem .totem-checkout-name-form {
   margin-top: 24px;
   display: flex;

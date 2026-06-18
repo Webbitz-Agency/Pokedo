@@ -174,7 +174,7 @@ type AdminTable = {
   occupied?: boolean;
   active_session_id?: number | null;
 };
-type Route = "/" | "/menu" | "/crea-la-tua-poke" | "/completa-ordine" | "/amministrazione" | "/totem";
+type Route = "/" | "/menu" | "/crea-la-tua-poke" | "/completa-ordine" | "/amministrazione" | "/totem" | "/totem/crea-la-tua-poke" | "/totem/completa-ordine";
 type AdminTab = "panoramica" | "ordini" | "menu" | "poke" | "tavoli" | "impostazioni";
 type ProviderAdminTab = "panoramica" | "clienti" | "fatturazione" | "messaggi";
 type ProviderClientListItem = {
@@ -1864,9 +1864,11 @@ function detectRoute(pathOrPathname: string): Route {
     return "/menu";
   }
   if (pathname.startsWith("/amministrazione")) return "/amministrazione";
+  if (pathname.startsWith("/totem/crea-la-tua-poke")) return "/totem/crea-la-tua-poke";
+  if (pathname.startsWith("/totem/completa-ordine")) return "/totem/completa-ordine";
+  if (pathname.startsWith("/totem")) return "/totem";
   if (pathname.startsWith("/crea-la-tua-poke")) return "/crea-la-tua-poke";
   if (pathname.startsWith("/completa-ordine")) return "/completa-ordine";
-  if (pathname.startsWith("/totem")) return "/totem";
   if (pathname.startsWith("/menu")) return "/menu";
   return "/";
 }
@@ -2438,7 +2440,7 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
     pickup_asap_enabled: false,
     pickup_time_rule: [
       {
-        start_time: "12:00",
+      start_time: "12:00",
         end_time: "14:00",
         interval_minutes: 5
       }
@@ -3496,7 +3498,7 @@ export default function App() {
         (group.options ?? []).forEach((option) => {
           const optName = String(option?.name ?? "").trim();
           if (optName) uniqueTexts.add(optName);
-        });
+      });
       });
     });
     (appSettings.site.tag_rules ?? []).forEach((rule: { name: string }) => {
@@ -3595,8 +3597,8 @@ export default function App() {
           const response = await publicApi.translateBatch({ target_language: lang, texts: missing });
           if (cancelled) break;
           const translations = (response?.translations ?? {}) as Record<string, string>;
-          setDynamicDescriptionMap((old) => {
-            const next = { ...old };
+        setDynamicDescriptionMap((old) => {
+          const next = { ...old };
             missing.forEach((source) => {
               const translated = String(translations[source] ?? "").trim();
               if (translated && translated !== source) {
@@ -3604,8 +3606,8 @@ export default function App() {
               }
             });
             try { window.localStorage.setItem("pokedo_translation_cache", JSON.stringify(next)); } catch { /* ignore */ }
-            return next;
-          });
+          return next;
+        });
         } catch { /* silent — on error skip this language */ }
         // Small delay between languages to be gentle with the API
         await new Promise<void>((res) => setTimeout(res, 400));
@@ -3769,8 +3771,9 @@ export default function App() {
       (route === "/" && (!home || !menu)) ||
       (route === "/menu" && !menu) ||
       (route === "/crea-la-tua-poke" && (!menu || !pokeRules)) ||
+      (route === "/totem/crea-la-tua-poke" && (!menu || !pokeRules)) ||
       (isAdminPath && adminLoggedIn && (adminRole === "provider" ? false : !menu)) ||
-      (route === "/totem" && isTotemLoggedIn && !menu);
+      ((route === "/totem" || route === "/totem/completa-ordine") && isTotemLoggedIn && !menu);
 
     setLoading(shouldBlockLoading);
     setError(null);
@@ -3880,7 +3883,7 @@ export default function App() {
   }, [totemOrderSuccess]);
 
   useEffect(() => {
-    if (route !== "/crea-la-tua-poke") return;
+    if (route !== "/crea-la-tua-poke" && route !== "/totem/crea-la-tua-poke") return;
     const params = new URLSearchParams(window.location.search);
     const sizeParam = params.get("size");
     if (!sizeParam) {
@@ -4440,7 +4443,7 @@ export default function App() {
     if (publicExcludedAllergens.length === 0 && publicActiveFilterTags.length === 0) return activeOptions;
     return activeOptions.filter((option) => {
       if (publicExcludedAllergens.length > 0) {
-        const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
+      const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
         if (optionAllergens.some((code) => publicExcludedAllergens.includes(code))) return false;
       }
       return matchesAdditionalFilterTags(option.tag_ids, publicActiveFilterTags);
@@ -4535,7 +4538,7 @@ export default function App() {
             .filter((option) => {
               if (option.is_out_of_stock) return false;
               if (publicExcludedAllergens.length > 0) {
-                const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
+              const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
                 if (optionAllergens.some((code) => publicExcludedAllergens.includes(code))) return false;
               }
               return matchesAdditionalFilterTags(option.tag_ids, publicActiveFilterTags);
@@ -5041,12 +5044,13 @@ export default function App() {
       return;
     }
     const search = sizeId !== undefined ? `?size=${encodeURIComponent(String(sizeId))}` : "";
-    goTo(`/crea-la-tua-poke${search}`);
+    const base = isTotemLoggedIn ? "/totem/crea-la-tua-poke" : "/crea-la-tua-poke";
+    goTo(`${base}${search}`);
   }
 
   useEffect(() => {
     if (!appSettings.site.orders_blocked.enabled) return;
-    if (route !== "/crea-la-tua-poke" && route !== "/completa-ordine") return;
+    if (route !== "/crea-la-tua-poke" && route !== "/completa-ordine" && route !== "/totem/crea-la-tua-poke" && route !== "/totem/completa-ordine") return;
     setOrdersBlockedModalOpen(true);
     goTo(isTableOrderMode && tableOrderNumber ? `/tavolo/${encodeURIComponent(tableOrderNumber)}` : "/");
   }, [appSettings.site.orders_blocked.enabled, route, isTableOrderMode, tableOrderNumber]);
@@ -6385,7 +6389,7 @@ export default function App() {
     setMenuCheckoutStep(1);
     setMenuCheckoutMessage("");
     setMenuCheckoutCompleted(false);
-    goTo("/completa-ordine");
+    goTo(isTotemLoggedIn ? "/totem/completa-ordine" : "/completa-ordine");
   }
 
   async function submitTableOrder() {
@@ -6642,7 +6646,7 @@ export default function App() {
     setPokeLimitMessage("");
     setPokeAddedMessage("");
     setPokeActionMessage("");
-    if (source === "manual" && route === "/crea-la-tua-poke") {
+    if (source === "manual" && (route === "/crea-la-tua-poke" || route === "/totem/crea-la-tua-poke")) {
       const url = new URL(window.location.href);
       url.searchParams.set("size", String(itemId));
       if (tableOrderNumber) {
@@ -8232,6 +8236,36 @@ export default function App() {
         </div>
       )}
 
+      {/* ── Totem global sidebar — shown on all /totem/* routes ─────────── */}
+      {isTotemLoggedIn && menu && (route === "/totem" || route === "/totem/crea-la-tua-poke" || route === "/totem/completa-ordine") && (
+        <nav className="totem-category-sidebar" aria-label="Categorie menu">
+          <ul className="totem-category-sidebar__list">
+            {(menu.categories ?? []).filter((cat: any) => !cat.hidden).map((cat: any) => (
+              <li key={cat.id}>
+                <button
+                  type="button"
+                  className="totem-category-sidebar__btn"
+                  onClick={() => {
+                    if (route !== "/totem") {
+                      goTo("/totem");
+                      setTimeout(() => {
+                        const el = document.getElementById(`menu-category-${cat.id}`);
+                        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }, 300);
+                    } else {
+                      const el = document.getElementById(`menu-category-${cat.id}`);
+                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                  }}
+                >
+                  {cat.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+
       {/* ── Totem order success overlay ───────────────────────────────────── */}
       {totemOrderSuccess && (
         <div className="totem-order-success-overlay">
@@ -8287,7 +8321,7 @@ export default function App() {
                           <span className="home-blob-btn__blob"></span>
                         </span>
                       </span>
-                    </button>
+              </button>
                   </div>
                 </div>
                 <div
@@ -8661,27 +8695,6 @@ export default function App() {
 
       {!loading && !error && (route === "/menu" || (route === "/totem" && isTotemLoggedIn)) && menu && (
         <section className={`menu-page${route === "/totem" ? " menu-page--totem" : ""}`}>
-          {/* Sidebar only in totem mode */}
-          {route === "/totem" && (
-            <nav className="totem-category-sidebar" aria-label="Categorie menu">
-              <ul className="totem-category-sidebar__list">
-                {(menu.categories ?? []).filter((cat: any) => !cat.hidden).map((cat: any) => (
-                  <li key={cat.id}>
-                    <button
-                      type="button"
-                      className="totem-category-sidebar__btn"
-                      onClick={() => {
-                        const el = document.getElementById(`menu-category-${cat.id}`);
-                        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                      }}
-                    >
-                      {cat.name}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
           <div className="menu-fish-bg" aria-hidden="true">
             {Array.from({ length: 200 }).map((_, lane) => (
               <div
@@ -8905,7 +8918,7 @@ export default function App() {
                       {t("selectAllergensToExcludeFromMenu")}
                     </p>
                     <p className="allergen-modal-disclaimer">{t("allergenFilterDisclaimer")}</p>
-                  </div>
+          </div>
                   <button
                     type="button"
                     className="allergen-modal-close"
@@ -8991,8 +9004,8 @@ export default function App() {
         </section>
       )}
 
-      {!loading && !error && route === "/crea-la-tua-poke" && menu && (
-        <section className="poke-builder-page">
+      {!loading && !error && (route === "/crea-la-tua-poke" || route === "/totem/crea-la-tua-poke") && menu && (
+        <section className={`poke-builder-page${route === "/totem/crea-la-tua-poke" ? " poke-builder-page--totem" : ""}`}>
           <div className="poke-builder-fish-bg" aria-hidden="true">
             {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((lane) => (
               <div
@@ -10002,7 +10015,7 @@ export default function App() {
       })()}
 
       {/* ── Totem inline checkout (without pickup time/contact details) ─── */}
-      {!loading && !error && route === "/completa-ordine" && isTotemLoggedIn && (
+      {!loading && !error && (route === "/completa-ordine" || route === "/totem/completa-ordine") && isTotemLoggedIn && (
         <section className="checkout-page checkout-page--totem">
           <div className="checkout-hero">
             <div className="container">
@@ -10231,18 +10244,18 @@ export default function App() {
                     </select>
                     {!isPickupAsapSelected ? (
                       <>
-                        <span>:</span>
-                        <select
-                          value={menuCheckoutForm.pickup_minute}
-                          onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, pickup_minute: e.target.value }))}
-                        >
-                          <option value="">{t("selectMinutes")}</option>
-                          {pickupAllowedMinutesForHour.map((minute) => (
-                            <option key={minute} value={minute}>
-                              {minute}
-                            </option>
-                          ))}
-                        </select>
+                    <span>:</span>
+                    <select
+                      value={menuCheckoutForm.pickup_minute}
+                      onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, pickup_minute: e.target.value }))}
+                    >
+                      <option value="">{t("selectMinutes")}</option>
+                      {pickupAllowedMinutesForHour.map((minute) => (
+                        <option key={minute} value={minute}>
+                          {minute}
+                        </option>
+                      ))}
+                    </select>
                       </>
                     ) : null}
                   </div>
