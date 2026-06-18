@@ -14047,7 +14047,7 @@ table button:hover {
   width: 230px;
   background: linear-gradient(160deg, #1e3a8a 0%, #2563eb 100%);
   overflow-y: auto;
-  z-index: 200;
+  z-index: 55; /* below topbar (z-index: 60) so navbar stays on top */
   padding: 16px 12px;
   display: flex;
   flex-direction: column;
@@ -14137,18 +14137,22 @@ table button:hover {
 }
 
 .checkout-page--totem .checkout-back-btn {
+  display: block;
+  width: 100%;
   background: transparent;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border: 0;
   padding: 12px;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
+  font-weight: 600;
   color: #64748b;
-  transition: border-color 0.15s;
+  text-align: center;
+  transition: color 0.15s;
 }
 
 .checkout-page--totem .checkout-back-btn:hover {
-  border-color: #94a3b8;
+  color: #1d4ed8;
+  text-decoration: underline;
 }
 
 /* In totem mode the side tabs are replaced by navbar buttons — hide them */

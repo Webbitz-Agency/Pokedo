@@ -10106,33 +10106,25 @@ export default function App() {
                     <strong>{formatCurrency(orderTotalAmount)}</strong>
                   </div>
                   <div className="totem-checkout-name-form">
-                    <h3>Il tuo nome</h3>
-                    <div className="checkout-name-row">
-                      <label className="field-label">
-                        <span>{t("firstName")}</span>
-                        <input
-                          type="text"
-                          placeholder={t("firstNamePlaceholder")}
-                          value={menuCheckoutForm.first_name}
-                          onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, first_name: e.target.value }))}
-                        />
-                      </label>
-                      <label className="field-label">
-                        <span>{t("lastName")}</span>
-                        <input
-                          type="text"
-                          placeholder={t("lastNamePlaceholder")}
-                          value={menuCheckoutForm.last_name}
-                          onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, last_name: e.target.value }))}
-                        />
-                      </label>
+                    <h3>{t("customerData")}</h3>
+                    <div className="form-grid">
+                      <input
+                        placeholder={t("firstNamePlaceholder")}
+                        value={menuCheckoutForm.first_name}
+                        onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, first_name: e.target.value }))}
+                      />
+                      <input
+                        placeholder={t("lastNamePlaceholder")}
+                        value={menuCheckoutForm.last_name}
+                        onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, last_name: e.target.value }))}
+                      />
                     </div>
                     <button
                       className="cta checkout-submit-btn"
                       disabled={saving || !menuCheckoutForm.first_name.trim() || !menuCheckoutForm.last_name.trim()}
                       onClick={() => void submitTotemOrder()}
                     >
-                      {saving ? "Invio…" : "Invia ordine"}
+                      {saving ? t("sending") : t("sendOrder")}
                     </button>
                     <button className="checkout-back-btn" onClick={goToMenuPage} disabled={saving}>
                       {t("backToMenu")}
@@ -11350,7 +11342,7 @@ export default function App() {
         );
       })()}
 
-      {!isTableOrderMode && (
+      {!isTableOrderMode && !isTotemLoggedIn && (
         <section className="final-cta-fullbleed">
           <div className="container final-cta-inner">
             <div className="final-cta-text">
