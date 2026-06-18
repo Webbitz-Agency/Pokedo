@@ -14151,17 +14151,25 @@ table button:hover {
   border-color: #94a3b8;
 }
 
-/* In totem mode the allergen tab must move to the RIGHT side,
-   stacked above the resoconto tab so the left sidebar doesn't cover it */
+/* In totem mode the side tabs are replaced by navbar buttons — hide them */
 .allergen-side-tab--totem {
-  left: auto;
-  right: 0;
-  top: calc(50% - 90px); /* above the resoconto tab */
-  transform: translateY(-50%) translateX(50%);
-  /* mirror padding so the visible portion is on the right */
-  padding: 20px 44px 20px 14px;
+  display: none !important;
 }
 
-.allergen-side-tab--totem:hover {
-  transform: translateY(-50%) translateX(30%);
+/* Inline badge for totem nav buttons */
+.order-badge--inline {
+  position: relative;
+  top: -1px;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
 }

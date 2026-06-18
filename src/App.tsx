@@ -7842,50 +7842,104 @@ export default function App() {
               </button>
               {tableTopbarMessage && <p className="table-topbar-message">{tableTopbarMessage}</p>}
               <nav className="main-nav">
-                {!isTableOrderMode && (
-                  <button
-                    className={`nav-link-btn ${route === "/" ? "active" : ""}`.trim()}
-                    onClick={() => goTo("/")}
-                  >
-                    {t("home")}
-                  </button>
-                )}
-                <button
-                  className={`nav-link-btn ${route === "/menu" ? "active" : ""}`.trim()}
-                  onClick={goToMenuPage}
-                >
-                  {t("menu")}
-                </button>
-              <button className="cta home-blob-btn" onClick={() => goToPokePage()}>
-                <span className="home-blob-btn__label">{t("createPoke")}</span>
-                <span className="home-blob-btn__inner" aria-hidden="true">
-                  <span className="home-blob-btn__blobs">
-                    <span className="home-blob-btn__blob"></span>
-                    <span className="home-blob-btn__blob"></span>
-                    <span className="home-blob-btn__blob"></span>
-                    <span className="home-blob-btn__blob"></span>
-                  </span>
-                </span>
-                </button>
-                <button
-                  className={`order-icon-btn ${isTableOrderMode ? "table-mobile-cart-btn" : ""}`.trim()}
-                  onClick={() => (orderOpen ? closeOrderDrawer() : openOrderDrawer())}
-                  aria-label={t("openOrder")}
-                >
-                  <wa-icon name="clipboard" variant="regular" aria-hidden="true"></wa-icon>
-                  {orderCount > 0 && <span className="order-badge">{orderCount}</span>}
-                </button>
-                {!isTableOrderMode && (
-                  <button
-                    className={`mobile-menu-toggle ${mobileMenuOpen ? "active" : ""}`.trim()}
-                    onClick={() => setMobileMenuOpen((old) => !old)}
-                  aria-label={mobileMenuOpen ? t("closeMobileMenu") : t("openMobileMenu")}
-                    aria-expanded={mobileMenuOpen}
-                  aria-controls="mobile-nav-sheet"
-                  >
-                  <i className={`fa-solid ${mobileMenuOpen ? "fa-xmark" : "fa-bars"}`.trim()} aria-hidden="true"></i>
-                    {orderCount > 0 && <span className="order-badge">{orderCount}</span>}
-                  </button>
+                {isTotemLoggedIn ? (
+                  <>
+                    {/* Totem nav: replace Home/Menu with Filtro allergeni + Resoconto */}
+                    <button
+                      className="nav-link-btn"
+                      onClick={() => {
+                        if (route === "/totem/crea-la-tua-poke") {
+                          setPokeAllergenAccordionOpen(true);
+                        } else {
+                          setMenuAllergenAccordionOpen(true);
+                        }
+                      }}
+                    >
+                      <wa-icon name="filter" variant="solid" aria-hidden="true" style={{ marginRight: "6px" } as React.CSSProperties}></wa-icon>
+                      {t("filterAllergens")}
+                    </button>
+                    <button
+                      className="nav-link-btn"
+                      onClick={() => {
+                        if (route === "/totem/crea-la-tua-poke") {
+                          setPokeSummaryModalOpen(true);
+                        } else {
+                          orderOpen ? closeOrderDrawer() : openOrderDrawer();
+                        }
+                      }}
+                    >
+                      <wa-icon name="bowl-rice" variant="solid" aria-hidden="true" style={{ marginRight: "6px" } as React.CSSProperties}></wa-icon>
+                      {t("orderSummaryPokeTab")}
+                      {orderCount > 0 && <span className="order-badge order-badge--inline">{orderCount}</span>}
+                    </button>
+                    <button className="cta home-blob-btn" onClick={() => goToPokePage()}>
+                      <span className="home-blob-btn__label">{t("createPoke")}</span>
+                      <span className="home-blob-btn__inner" aria-hidden="true">
+                        <span className="home-blob-btn__blobs">
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                        </span>
+                      </span>
+                    </button>
+                    <button
+                      className="order-icon-btn"
+                      onClick={() => (orderOpen ? closeOrderDrawer() : openOrderDrawer())}
+                      aria-label={t("openOrder")}
+                    >
+                      <wa-icon name="clipboard" variant="regular" aria-hidden="true"></wa-icon>
+                      {orderCount > 0 && <span className="order-badge">{orderCount}</span>}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {!isTableOrderMode && (
+                      <button
+                        className={`nav-link-btn ${route === "/" ? "active" : ""}`.trim()}
+                        onClick={() => goTo("/")}
+                      >
+                        {t("home")}
+                      </button>
+                    )}
+                    <button
+                      className={`nav-link-btn ${route === "/menu" ? "active" : ""}`.trim()}
+                      onClick={goToMenuPage}
+                    >
+                      {t("menu")}
+                    </button>
+                    <button className="cta home-blob-btn" onClick={() => goToPokePage()}>
+                      <span className="home-blob-btn__label">{t("createPoke")}</span>
+                      <span className="home-blob-btn__inner" aria-hidden="true">
+                        <span className="home-blob-btn__blobs">
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                          <span className="home-blob-btn__blob"></span>
+                        </span>
+                      </span>
+                    </button>
+                    <button
+                      className={`order-icon-btn ${isTableOrderMode ? "table-mobile-cart-btn" : ""}`.trim()}
+                      onClick={() => (orderOpen ? closeOrderDrawer() : openOrderDrawer())}
+                      aria-label={t("openOrder")}
+                    >
+                      <wa-icon name="clipboard" variant="regular" aria-hidden="true"></wa-icon>
+                      {orderCount > 0 && <span className="order-badge">{orderCount}</span>}
+                    </button>
+                    {!isTableOrderMode && (
+                      <button
+                        className={`mobile-menu-toggle ${mobileMenuOpen ? "active" : ""}`.trim()}
+                        onClick={() => setMobileMenuOpen((old) => !old)}
+                        aria-label={mobileMenuOpen ? t("closeMobileMenu") : t("openMobileMenu")}
+                        aria-expanded={mobileMenuOpen}
+                        aria-controls="mobile-nav-sheet"
+                      >
+                        <i className={`fa-solid ${mobileMenuOpen ? "fa-xmark" : "fa-bars"}`.trim()} aria-hidden="true"></i>
+                        {orderCount > 0 && <span className="order-badge">{orderCount}</span>}
+                      </button>
+                    )}
+                  </>
                 )}
               </nav>
             </>
@@ -9208,16 +9262,18 @@ export default function App() {
             </ModalPortal>
               )}
 
-          {/* ── Order summary side tab (right) ── */}
-          <button
-            type="button"
-            className="order-summary-side-tab"
-            onClick={() => setPokeSummaryModalOpen(true)}
-            aria-label={t("orderSummaryPokeTab")}
-          >
-            <span className="order-summary-side-tab-label">{t("orderSummaryPokeTab")}</span>
-            {orderCount > 0 && <span className="order-summary-side-tab-badge">{orderCount}</span>}
-          </button>
+          {/* ── Order summary side tab (right) — hidden in totem (button is in navbar) ── */}
+          {!isTotemLoggedIn && (
+            <button
+              type="button"
+              className="order-summary-side-tab"
+              onClick={() => setPokeSummaryModalOpen(true)}
+              aria-label={t("orderSummaryPokeTab")}
+            >
+              <span className="order-summary-side-tab-label">{t("orderSummaryPokeTab")}</span>
+              {orderCount > 0 && <span className="order-summary-side-tab-badge">{orderCount}</span>}
+            </button>
+          )}
 
           {/* ── Mobile FABs (bottom-right): filtri + resoconto poké ── */}
           <button
