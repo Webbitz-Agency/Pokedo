@@ -2892,6 +2892,8 @@ export default function App() {
   const [totemLoginError, setTotemLoginError] = useState("");
   const [totemLoginBusy, setTotemLoginBusy] = useState(false);
   const [totemOrderSuccess, setTotemOrderSuccess] = useState(false);
+  const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | null>(null);
+  const [totemKbCaps, setTotemKbCaps] = useState(true);
   // ────────────────────────────────────────────────────────────────────────────
 
   const [adminLoggedIn, setAdminLoggedIn] = useState(
@@ -6489,6 +6491,24 @@ export default function App() {
     }
   }
 
+  const TOTEM_KB_ROWS = [
+    ["Q","W","E","R","T","Y","U","I","O","P"],
+    ["A","S","D","F","G","H","J","K","L"],
+    ["Z","X","C","V","B","N","M"],
+  ];
+
+  function handleTotemKey(key: string) {
+    if (!totemKbField) return;
+    setMenuCheckoutForm((old) => {
+      const cur: string = old[totemKbField as keyof typeof old] as string ?? "";
+      if (key === "⌫") return { ...old, [totemKbField]: cur.slice(0, -1) };
+      if (key === " ") return { ...old, [totemKbField]: cur + " " };
+      const ch = totemKbCaps ? key.toUpperCase() : key.toLowerCase();
+      return { ...old, [totemKbField]: cur + ch };
+    });
+    if (!totemKbCaps) setTotemKbCaps(false);
+  }
+
   async function submitTotemLogin() {
     const pw = totemPasswordInput.trim();
     if (!pw) return;
@@ -8320,6 +8340,58 @@ export default function App() {
         </nav>
       )}
 
+      {/* ── Totem virtual keyboard ───────────────────────────────────────── */}
+      {isTotemLoggedIn && totemKbField && (
+        <div className="totem-keyboard">
+          {TOTEM_KB_ROWS.map((row, ri) => (
+            <div key={ri} className="totem-keyboard__row">
+              {row.map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  className="totem-keyboard__key"
+                  onPointerDown={(e) => { e.preventDefault(); handleTotemKey(totemKbCaps ? k.toUpperCase() : k.toLowerCase()); }}
+                >
+                  {totemKbCaps ? k.toUpperCase() : k.toLowerCase()}
+                </button>
+              ))}
+              {ri === 2 && (
+                <button
+                  type="button"
+                  className="totem-keyboard__key totem-keyboard__key--wide"
+                  onPointerDown={(e) => { e.preventDefault(); handleTotemKey("⌫"); }}
+                >
+                  ⌫
+                </button>
+              )}
+            </div>
+          ))}
+          <div className="totem-keyboard__row">
+            <button
+              type="button"
+              className="totem-keyboard__key totem-keyboard__key--caps"
+              onPointerDown={(e) => { e.preventDefault(); setTotemKbCaps((c) => !c); }}
+            >
+              {totemKbCaps ? "⇧ MAIUSC" : "⇧ minusc"}
+            </button>
+            <button
+              type="button"
+              className="totem-keyboard__key totem-keyboard__key--space"
+              onPointerDown={(e) => { e.preventDefault(); handleTotemKey(" "); }}
+            >
+              SPAZIO
+            </button>
+            <button
+              type="button"
+              className="totem-keyboard__key totem-keyboard__key--ok"
+              onPointerDown={(e) => { e.preventDefault(); setTotemKbField(null); }}
+            >
+              OK ✓
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Totem order success overlay ───────────────────────────────────── */}
       {totemOrderSuccess && (
         <div className="totem-order-success-overlay">
@@ -10111,12 +10183,16 @@ export default function App() {
                       <input
                         placeholder={t("firstNamePlaceholder")}
                         value={menuCheckoutForm.first_name}
-                        onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, first_name: e.target.value }))}
+                        readOnly
+                        className={totemKbField === "first_name" ? "totem-kb-active-input" : ""}
+                        onPointerDown={(e) => { e.preventDefault(); setTotemKbField("first_name"); setTotemKbCaps(true); }}
                       />
                       <input
                         placeholder={t("lastNamePlaceholder")}
                         value={menuCheckoutForm.last_name}
-                        onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, last_name: e.target.value }))}
+                        readOnly
+                        className={totemKbField === "last_name" ? "totem-kb-active-input" : ""}
+                        onPointerDown={(e) => { e.preventDefault(); setTotemKbField("last_name"); setTotemKbCaps(true); }}
                       />
                     </div>
                     <button

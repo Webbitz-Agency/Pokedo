@@ -14157,6 +14157,81 @@ table button:hover {
   display: none !important;
 }
 
+/* ── Totem virtual keyboard ─────────────────────────────────────────────── */
+.totem-keyboard {
+  position: fixed;
+  bottom: 0;
+  left: 230px; /* clear the sidebar */
+  right: 0;
+  z-index: 400;
+  background: #1e293b;
+  border-top: 2px solid #2563eb;
+  padding: 12px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
+}
+
+.totem-keyboard__row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.totem-keyboard__key {
+  min-width: 48px;
+  height: 52px;
+  padding: 0 10px;
+  background: #334155;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  color: #f1f5f9;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.totem-keyboard__key:active {
+  background: #2563eb;
+  border-color: #3b82f6;
+}
+
+.totem-keyboard__key--wide {
+  min-width: 72px;
+  background: #ef4444;
+  border-color: #dc2626;
+}
+
+.totem-keyboard__key--caps {
+  min-width: 110px;
+  background: #475569;
+  font-size: 13px;
+}
+
+.totem-keyboard__key--space {
+  flex: 1;
+  max-width: 320px;
+  background: #475569;
+}
+
+.totem-keyboard__key--ok {
+  min-width: 100px;
+  background: #16a34a;
+  border-color: #15803d;
+  font-size: 14px;
+}
+
+/* Highlight the active input field */
+.totem-kb-active-input {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25) !important;
+  outline: none;
+}
+
 /* Inline badge for totem nav buttons */
 .order-badge--inline {
   position: relative;
