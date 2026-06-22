@@ -14352,30 +14352,7 @@ table button:hover {
    Identici al sito normale — la progressione Small<Medium<Large emerge
    dalle colonne proporzionali 226fr:261fr:290fr. */
 
-/* ── Bottone "Scegli": metà dentro e metà fuori dal bordo inferiore della card.
-   Le card usano align-items:end sulla griglia → tutte allineate in basso →
-   tutti i bottoni alla stessa altezza. ── */
-.menu-page--totem .size-card,
-.poke-builder-page--totem .size-card {
-  position: relative !important;
-  overflow: visible !important;
-}
-
-.menu-page--totem .size-card .size-pick-btn,
-.poke-builder-page--totem .size-card .size-pick-btn {
-  position: absolute !important;
-  bottom: 0 !important;
-  left: 50% !important;
-  transform: translate(-50%, 50%) !important;
-  white-space: nowrap !important;
-  z-index: 5 !important;
-}
-
-/* Riduci padding-bottom del content: il bottone è fuori dal flusso */
-.menu-page--totem .size-card-content,
-.poke-builder-page--totem .size-card-content {
-  padding-bottom: 28px !important;
-}
+/* Bottone e content: zero override — identici al sito normale /menu. */
 
 /* ══════════════════════════════════════════════════════════════════════════
    TOTEM RESPONSIVE — Ottimizzato per schermo kiosk 21,5" verticale (≈1080×1920px)
