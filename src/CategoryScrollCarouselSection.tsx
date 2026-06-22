@@ -68,7 +68,7 @@ function isSplitEditorialHomeAsset(src: string | null): boolean {
   );
 }
 
-function categoryHomeIcon(name: string): string | null {
+export function categoryHomeIcon(name: string): string | null {
   const key = categorySlugForIcon(name);
   if (CATEGORY_HOME_ICONS[key]) return CATEGORY_HOME_ICONS[key];
 

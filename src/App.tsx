@@ -17,7 +17,7 @@ import {
 } from "./api";
 import { isPokeManagerMarketingPortal } from "./portal";
 import { AboutFishLanes } from "./AboutFishLanes";
-import { CategoryScrollCarouselSection } from "./CategoryScrollCarouselSection";
+import { CategoryScrollCarouselSection, categoryHomeIcon } from "./CategoryScrollCarouselSection";
 import { ModalPortal } from "./ModalPortal";
 import pokedoLogo from "./pokedoLogo.png";
 import pokeBlankScaffold from "./poke-blank-scaffold.json";
@@ -8314,28 +8314,53 @@ export default function App() {
       {isTotemLoggedIn && menu && (route === "/totem" || route === "/totem/crea-la-tua-poke" || route === "/totem/completa-ordine") && (
         <nav className="totem-category-sidebar" aria-label="Categorie menu">
           <ul className="totem-category-sidebar__list">
-            {(menu.categories ?? []).filter((cat: any) => !cat.hidden).map((cat: any) => (
-              <li key={cat.id}>
-                <button
-                  type="button"
-                  className="totem-category-sidebar__btn"
-                  onClick={() => {
-                    if (route !== "/totem") {
-                      goTo("/totem");
-                      setTimeout(() => {
-                        const el = document.getElementById(`menu-category-${cat.id}`);
-                        if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                      }, 300);
-                    } else {
-                      const el = document.getElementById(`menu-category-${cat.id}`);
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }
-                  }}
-                >
-                  {cat.name}
-                </button>
-              </li>
-            ))}
+            {(menu.categories ?? []).filter((cat: any) => !cat.hidden).map((cat: any) => {
+              const iconSrc = categoryHomeIcon(cat.name);
+              const handleClick = () => {
+                if (route !== "/totem") {
+                  goTo("/totem");
+                  setTimeout(() => {
+                    const el = document.getElementById(`menu-category-${cat.id}`);
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }, 300);
+                } else {
+                  const el = document.getElementById(`menu-category-${cat.id}`);
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              };
+              return (
+                <li key={cat.id}>
+                  {iconSrc ? (
+                    <button
+                      type="button"
+                      className="totem-sidebar-cat-card"
+                      onClick={handleClick}
+                    >
+                      <div className="totem-sidebar-cat-card__visual">
+                        <img
+                          className="totem-sidebar-cat-card__img"
+                          src={iconSrc}
+                          alt=""
+                          aria-hidden="true"
+                        />
+                        <h4 className="totem-sidebar-cat-card__name">{cat.name}</h4>
+                        <p className="totem-sidebar-cat-card__count">
+                          {cat.items_count ?? 0} piatti
+                        </p>
+                      </div>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="totem-category-sidebar__btn"
+                      onClick={handleClick}
+                    >
+                      {cat.name}
+                    </button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </nav>
       )}
