@@ -14322,9 +14322,10 @@ table button:hover {
    tutta la larghezza dello schermo portrait.
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Riduci il gap tra le 3 card */
+/* Riduci il gap tra le 3 card e aggiungi respiro laterale */
 .poke-builder-page--totem .builder-size-cards {
   column-gap: 28px;
+  padding-inline: 28px;
 }
 
 /* Card SMALL: 226px → 162px */
