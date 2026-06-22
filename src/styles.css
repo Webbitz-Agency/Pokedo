@@ -14318,12 +14318,14 @@ table button:hover {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   TOTEM — Size card poke builder: zoom 55% (circa metà dimensione originale).
-   zoom scala tutto proporzionalmente: larghezza, altezza, immagine, testi.
+   TOTEM — Size card poke builder: padding laterale per non toccare i bordi.
+   Applicato su entrambe le route totem (/totem e /totem/crea-la-tua-poke).
    ══════════════════════════════════════════════════════════════════════════ */
 
+.menu-page--totem .builder-size-cards,
 .poke-builder-page--totem .builder-size-cards {
-  zoom: 0.55;
+  padding-inline: 32px !important;
+  box-sizing: border-box !important;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
