@@ -14348,69 +14348,9 @@ table button:hover {
   /* max-width gestito dal tier CSS originale (226/261/290px) */
 }
 
-/* ── Bowl image: ridotta per lasciare spazio al testo nella card ── */
-.menu-page--totem .size-card-photo-img,
-.poke-builder-page--totem .size-card-photo-img {
-  max-height: 130px !important;
-}
-
-/* ── Content: padding ricalcolato per bowl 130px (protrude 65px in cima) ── */
-.menu-page--totem .size-card-content,
-.poke-builder-page--totem .size-card-content {
-  padding-top: 78px !important;
-  padding-bottom: 18px !important;
-  padding-inline: 10px !important;
-  gap: 5px !important;
-}
-
-/* ── Titolo SMALL / MEDIUM / LARGE: scala crescente ── */
-.menu-page--totem .size-card-tier--small .size-card-title,
-.poke-builder-page--totem .size-card-tier--small .size-card-title {
-  font-size: 0.68rem !important;
-  padding: 4px 8px !important;
-}
-
-.menu-page--totem .size-card-tier--medium .size-card-title,
-.poke-builder-page--totem .size-card-tier--medium .size-card-title {
-  font-size: 0.78rem !important;
-  padding: 5px 10px !important;
-}
-
-.menu-page--totem .size-card-tier--large .size-card-title,
-.poke-builder-page--totem .size-card-tier--large .size-card-title {
-  font-size: 0.88rem !important;
-  padding: 5px 10px !important;
-}
-
-/* ── Testo ingredienti: compatto uguale per tutti ── */
-.menu-page--totem .size-card-ingredients-text,
-.poke-builder-page--totem .size-card-ingredients-text {
-  font-size: 0.62rem !important;
-  line-height: 1.25 !important;
-}
-
-/* ── Prezzo: scala crescente per tier ── */
-.menu-page--totem .size-card-tier--small .size-card-price,
-.poke-builder-page--totem .size-card-tier--small .size-card-price {
-  font-size: 0.92rem !important;
-}
-
-.menu-page--totem .size-card-tier--medium .size-card-price,
-.poke-builder-page--totem .size-card-tier--medium .size-card-price {
-  font-size: 1.06rem !important;
-}
-
-.menu-page--totem .size-card-tier--large .size-card-price,
-.poke-builder-page--totem .size-card-tier--large .size-card-price {
-  font-size: 1.18rem !important;
-}
-
-/* ── Bottone Scegli: compatto ── */
-.menu-page--totem .size-card .size-pick-btn,
-.poke-builder-page--totem .size-card .size-pick-btn {
-  font-size: 0.72rem !important;
-  padding: 6px 14px !important;
-}
+/* Bowl image, content padding, font size, bottone: zero override.
+   Identici al sito normale — la progressione Small<Medium<Large emerge
+   dalle colonne proporzionali 226fr:261fr:290fr. */
 
 /* ══════════════════════════════════════════════════════════════════════════
    TOTEM RESPONSIVE — Ottimizzato per schermo kiosk 21,5" verticale (≈1080×1920px)
