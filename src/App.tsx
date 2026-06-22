@@ -9435,8 +9435,10 @@ export default function App() {
                     style={isTotemLoggedIn ? {
                       gridTemplateColumns: "repeat(3, 1fr)",
                       columnGap: "20px",
-                      paddingInline: "32px",
-                      maxWidth: "100%",
+                      paddingInline: "0",
+                      maxWidth: "560px",
+                      width: "100%",
+                      margin: "0 auto",
                       boxSizing: "border-box" as const,
                     } : undefined}
                   >
