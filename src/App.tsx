@@ -9430,18 +9430,7 @@ export default function App() {
               {pokeFlowStep === 0 && (
                 <>
                   <h3>{t("phase_size")}</h3>
-                  <div
-                    className="builder-size-cards"
-                    style={isTotemLoggedIn ? {
-                      gridTemplateColumns: "repeat(3, 1fr)",
-                      columnGap: "20px",
-                      paddingInline: "0",
-                      maxWidth: "560px",
-                      width: "100%",
-                      margin: "0 auto",
-                      boxSizing: "border-box" as const,
-                    } : undefined}
-                  >
+                  <div className="builder-size-cards">
                     {pokeBuilderItemsPublic.map((item) => {
                       const sizeImgSrc = resolveMediaSrc(item.image_url);
                       const isSel = selectedBuilderId === item.id;
@@ -9451,12 +9440,6 @@ export default function App() {
                         <div
                         key={item.id}
                           className={`size-card-wrap size-card-wrap--interactive ${tierClass}`.trim()}
-                          style={isTotemLoggedIn ? {
-                            width: "100%",
-                            display: "flex",
-                            justifyContent: "center",
-                            paddingTop: "24px",
-                          } : undefined}
                           role="button"
                           tabIndex={0}
                           aria-label={sizeCardLabel}
@@ -9468,19 +9451,8 @@ export default function App() {
                             }
                           }}
                         >
-                          <div
-                            className="size-card-move"
-                            style={isTotemLoggedIn ? { width: "100%" } : undefined}
-                          >
-                            <article
-                              className={`size-card ${isSel ? "selected" : ""}`}
-                              style={isTotemLoggedIn ? {
-                                width: "100%",
-                                maxWidth: tierClass.includes("small") ? "162px"
-                                  : tierClass.includes("medium") ? "188px"
-                                  : "210px",
-                              } : undefined}
-                            >
+                          <div className="size-card-move">
+                            <article className={`size-card ${isSel ? "selected" : ""}`}>
                               <div className="size-card-surface">
                                 <div className="size-card-photo-wrap">
                                   {sizeImgSrc ? (
