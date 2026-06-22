@@ -14249,3 +14249,246 @@ table button:hover {
   font-weight: 700;
   border-radius: 999px;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TOTEM RESPONSIVE — Ottimizzato per schermo kiosk 21,5" verticale (≈1080×1920px)
+   Tutte le regole sono scoped su classi totem, non intaccano il sito normale.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Portrait kiosk ≤ 1200px (1080px wide, 1920px tall) ── */
+@media (max-width: 1200px) {
+
+  /* ----- Sidebar: bottoni più grandi per il tocco ---- */
+  .totem-category-sidebar {
+    width: 200px;
+    padding: 0 8px;
+    padding-top: calc(70px + 1px + 14px);
+  }
+
+  .totem-category-sidebar__list {
+    gap: 5px;
+  }
+
+  .totem-category-sidebar__btn {
+    min-height: 56px;
+    padding: 14px 10px;
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    border-radius: 12px;
+    line-height: 1.25;
+  }
+
+  /* ----- Content area: offset = larghezza sidebar 200px ---- */
+  .menu-page--totem {
+    padding-left: 200px;
+  }
+
+  .menu-page--totem .container {
+    width: min(1220px, calc(100vw - 200px - 24px));
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .poke-builder-page--totem {
+    padding-left: 200px;
+  }
+
+  .poke-builder-page--totem .container {
+    width: min(1220px, calc(100vw - 200px - 24px));
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .checkout-page--totem {
+    padding-left: 200px;
+  }
+
+  .checkout-page--totem .container {
+    width: min(680px, calc(100vw - 200px - 24px));
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Checkout: colonna singola — più comodo con tastiera a schermo */
+  .checkout-page--totem .checkout-name-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* ----- Tastiera virtuale: tasti grandi per il dito ---- */
+  .totem-keyboard {
+    left: 200px;
+    padding: 10px 14px 20px;
+    gap: 7px;
+  }
+
+  .totem-keyboard__row {
+    gap: 7px;
+  }
+
+  .totem-keyboard__key {
+    min-width: 66px;
+    height: 66px;
+    font-size: 21px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 0 6px;
+  }
+
+  .totem-keyboard__key--wide {
+    min-width: 96px;
+  }
+
+  .totem-keyboard__key--caps {
+    min-width: 116px;
+    font-size: 14px;
+  }
+
+  .totem-keyboard__key--space {
+    max-width: 380px;
+  }
+
+  .totem-keyboard__key--ok {
+    min-width: 110px;
+    font-size: 16px;
+  }
+
+  /* ----- Navbar totem: riduci padding per far stare tutti i bottoni ---- */
+  .totem-nav-btn {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+}
+
+/* ── Kiosk con scaling > 100% (viewport < 900px) ── */
+@media (max-width: 900px) {
+
+  /* Sidebar ancora più compatta */
+  .totem-category-sidebar {
+    width: 170px;
+    padding: 0 6px;
+    padding-top: calc(70px + 1px + 12px);
+  }
+
+  .totem-category-sidebar__btn {
+    min-height: 52px;
+    padding: 12px 8px;
+    font-size: 12.5px;
+  }
+
+  .menu-page--totem {
+    padding-left: 170px;
+  }
+
+  .menu-page--totem .container {
+    width: min(1220px, calc(100vw - 170px - 16px));
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .poke-builder-page--totem {
+    padding-left: 170px;
+  }
+
+  .poke-builder-page--totem .container {
+    width: min(1220px, calc(100vw - 170px - 16px));
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .checkout-page--totem {
+    padding-left: 170px;
+  }
+
+  .checkout-page--totem .container {
+    width: min(600px, calc(100vw - 170px - 16px));
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .totem-keyboard {
+    left: 170px;
+    padding: 8px 10px 16px;
+    gap: 5px;
+  }
+
+  .totem-keyboard__row {
+    gap: 5px;
+  }
+
+  .totem-keyboard__key {
+    min-width: 52px;
+    height: 58px;
+    font-size: 18px;
+    border-radius: 9px;
+  }
+
+  .totem-keyboard__key--wide {
+    min-width: 76px;
+  }
+
+  .totem-keyboard__key--caps {
+    min-width: 96px;
+    font-size: 13px;
+  }
+
+  .totem-keyboard__key--space {
+    max-width: 280px;
+  }
+
+  .totem-keyboard__key--ok {
+    min-width: 88px;
+    font-size: 14px;
+  }
+}
+
+/* ── Login screen: portrait-first su kiosk ── */
+@media (max-width: 1200px) {
+  .totem-login-card {
+    max-width: 420px;
+    padding: 40px 32px;
+  }
+
+  .totem-login-logo-img {
+    height: 72px;
+  }
+
+  .totem-login-title {
+    font-size: 1.5rem;
+  }
+
+  .totem-login-input {
+    height: 56px;
+    font-size: 16px;
+  }
+
+  .totem-login-btn {
+    height: 56px;
+    font-size: 17px;
+  }
+}
+
+/* ── Order success overlay: grande e leggibile su kiosk ── */
+@media (max-width: 1200px) {
+  .totem-order-success-card {
+    max-width: 440px;
+    padding: 48px 36px;
+  }
+
+  .totem-order-success-icon {
+    font-size: 72px;
+  }
+
+  .totem-order-success-card h2 {
+    font-size: 1.7rem;
+  }
+
+  .totem-order-success-card p {
+    font-size: 1rem;
+  }
+
+  .totem-order-success-reset {
+    height: 56px;
+    font-size: 17px;
+  }
+}

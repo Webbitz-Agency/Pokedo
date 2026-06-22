@@ -7866,7 +7866,7 @@ export default function App() {
                   <>
                     {/* Totem nav: replace Home/Menu with Filtro allergeni + Resoconto */}
                     <button
-                      className="nav-link-btn"
+                      className="nav-link-btn totem-nav-btn"
                       onClick={() => {
                         if (route === "/totem/crea-la-tua-poke") {
                           setPokeAllergenAccordionOpen(true);
@@ -7879,7 +7879,7 @@ export default function App() {
                       {t("filterAllergens")}
                     </button>
                     <button
-                      className="nav-link-btn"
+                      className="nav-link-btn totem-nav-btn"
                       onClick={() => {
                         if (route === "/totem/crea-la-tua-poke") {
                           setPokeSummaryModalOpen(true);
