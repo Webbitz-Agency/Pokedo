@@ -14318,14 +14318,32 @@ table button:hover {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   TOTEM — Size card poke builder: padding laterale per non toccare i bordi.
-   Applicato su entrambe le route totem (/totem e /totem/crea-la-tua-poke).
+   TOTEM — Size card poke builder: colonne 1fr (come i piatti) + padding laterale.
+   Con max-content le colonne sfondano il container ignorando il padding-right.
+   Con 1fr si adattano allo spazio disponibile come fa la griglia dei piatti.
+   Applicato su entrambe le route: /totem e /totem/crea-la-tua-poke.
    ══════════════════════════════════════════════════════════════════════════ */
 
 .menu-page--totem .builder-size-cards,
 .poke-builder-page--totem .builder-size-cards {
+  grid-template-columns: repeat(3, 1fr) !important;
+  column-gap: 30px !important;
   padding-inline: 32px !important;
   box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+/* Le card si adattano alla colonna 1fr senza eccedere la loro dimensione originale */
+.menu-page--totem .size-card-wrap,
+.poke-builder-page--totem .size-card-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.menu-page--totem .size-card,
+.poke-builder-page--totem .size-card {
+  width: 100% !important;
+  max-width: 290px !important;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
