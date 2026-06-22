@@ -14288,13 +14288,13 @@ table button:hover {
 }
 
 .menu-page--totem .menu-dish-title-row h5 {
-  font-size: 0.86rem;
+  font-size: 1rem;
   line-height: 1.3;
   margin-bottom: 4px;
 }
 
 .menu-page--totem .menu-dish-content p {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   line-height: 1.4;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -14307,7 +14307,7 @@ table button:hover {
 }
 
 .menu-page--totem .menu-dish-price {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 900;
 }
 
@@ -14322,28 +14322,28 @@ table button:hover {
    tutta la larghezza dello schermo portrait.
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Riduci il gap tra le 3 card e aggiungi respiro laterale */
+/* Colonne 1fr: le 3 card si dividono lo spazio disponibile equamente,
+   così non sfondano mai i bordi a nessun viewport/scaling */
 .poke-builder-page--totem .builder-size-cards {
-  column-gap: 28px;
-  padding-inline: 28px;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 20px;
+  padding-inline: 32px;
+  max-width: 100%;
 }
 
-/* Card SMALL: 226px → 162px */
-.poke-builder-page--totem .size-card-tier--small .size-card {
-  width: min(100%, 162px);
-  max-width: 162px;
-}
-
-/* Card MEDIUM: 261px → 188px */
-.poke-builder-page--totem .size-card-tier--medium .size-card {
-  width: min(100%, 188px);
-  max-width: 188px;
-}
-
-/* Card LARGE: 290px → 210px */
+/* Ogni card occupa al massimo la sua larghezza originale (non cresce oltre) */
+.poke-builder-page--totem .size-card-tier--small .size-card,
+.poke-builder-page--totem .size-card-tier--medium .size-card,
 .poke-builder-page--totem .size-card-tier--large .size-card {
-  width: min(100%, 210px);
+  width: 100%;
   max-width: 210px;
+}
+
+/* Il wrap si centra nel suo slot 1fr */
+.poke-builder-page--totem .size-card-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 /* Immagine bowl: altezza massima ridotta */
