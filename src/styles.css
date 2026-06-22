@@ -14323,27 +14323,39 @@ table button:hover {
    ══════════════════════════════════════════════════════════════════════════ */
 
 /* Colonne 1fr: le 3 card si dividono lo spazio disponibile equamente,
-   così non sfondano mai i bordi a nessun viewport/scaling */
+   così non sfondano mai i bordi a nessun viewport/scaling.
+   !important necessari perché il selettore .poke-builder-layout--size-step .builder-size-cards
+   ha la stessa specificità ma potrebbe venire dopo in alcuni contesti. */
 .poke-builder-page--totem .builder-size-cards {
-  grid-template-columns: repeat(3, 1fr);
-  column-gap: 20px;
-  padding-inline: 32px;
-  max-width: 100%;
+  grid-template-columns: repeat(3, 1fr) !important;
+  column-gap: 20px !important;
+  padding-inline: 32px !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 /* Ogni card occupa al massimo la sua larghezza originale (non cresce oltre) */
-.poke-builder-page--totem .size-card-tier--small .size-card,
-.poke-builder-page--totem .size-card-tier--medium .size-card,
-.poke-builder-page--totem .size-card-tier--large .size-card {
-  width: 100%;
-  max-width: 210px;
+.poke-builder-page--totem .size-card-tier--small .size-card {
+  width: 100% !important;
+  max-width: 162px !important;
 }
 
-/* Il wrap si centra nel suo slot 1fr */
+.poke-builder-page--totem .size-card-tier--medium .size-card {
+  width: 100% !important;
+  max-width: 188px !important;
+}
+
+.poke-builder-page--totem .size-card-tier--large .size-card {
+  width: 100% !important;
+  max-width: 210px !important;
+}
+
+/* Il wrap occupa il suo slot 1fr e centra la card al suo interno */
 .poke-builder-page--totem .size-card-wrap {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  padding-top: 24px !important;
 }
 
 /* Immagine bowl: altezza massima ridotta */
@@ -14382,10 +14394,7 @@ table button:hover {
   padding: 7px 14px;
 }
 
-/* Wrap (lascia spazio per l'immagine che fuoriesce) */
-.poke-builder-page--totem .size-card-wrap {
-  padding-top: 24px;
-}
+/* (padding-top già incluso nella regola .size-card-wrap sopra) */
 
 /* ══════════════════════════════════════════════════════════════════════════
    TOTEM RESPONSIVE — Ottimizzato per schermo kiosk 21,5" verticale (≈1080×1920px)
