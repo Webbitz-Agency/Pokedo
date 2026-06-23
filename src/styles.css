@@ -14203,7 +14203,7 @@ table button:hover {
   z-index: 400;
   background: #1e293b;
   border-top: 2px solid #2563eb;
-  padding: 48px 16px 20px; /* top padding per fare spazio al bottone X */
+  padding: 42px 12px 18px; /* top padding per fare spazio al bottone X */
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -14217,9 +14217,10 @@ table button:hover {
 }
 
 .totem-keyboard__key {
-  min-width: 48px;
+  flex: 1;          /* si espande per riempire tutta la riga */
+  min-width: 0;
   height: 52px;
-  padding: 0 10px;
+  padding: 0 4px;
   background: #334155;
   border: 1px solid #475569;
   border-radius: 8px;
@@ -14238,20 +14239,19 @@ table button:hover {
 }
 
 .totem-keyboard__key--wide {
-  min-width: 72px;
+  flex: 1.5;
   background: #ef4444;
   border-color: #dc2626;
 }
 
 .totem-keyboard__key--caps {
-  min-width: 110px;
+  flex: 2;
   background: #475569;
   font-size: 13px;
 }
 
 .totem-keyboard__key--space {
-  flex: 1;
-  max-width: 320px;
+  flex: 5;
   background: #475569;
 }
 
@@ -14279,14 +14279,14 @@ table button:hover {
 }
 
 .totem-keyboard__key--enter {
-  min-width: 100px;
+  flex: 2;
   background: #16a34a;
   border-color: #15803d;
   font-size: 14px;
 }
 
 .totem-keyboard__key--ok {
-  min-width: 100px;
+  flex: 2;
   background: #16a34a;
   border-color: #15803d;
   font-size: 14px;
@@ -14498,30 +14498,15 @@ table button:hover {
   }
 
   .totem-keyboard__key {
-    min-width: 66px;
     height: 66px;
     font-size: 21px;
     font-weight: 700;
     border-radius: 10px;
-    padding: 0 6px;
-  }
-
-  .totem-keyboard__key--wide {
-    min-width: 96px;
-  }
-
-  .totem-keyboard__key--caps {
-    min-width: 116px;
-    font-size: 14px;
-  }
-
-  .totem-keyboard__key--space {
-    max-width: 380px;
+    padding: 0 4px;
   }
 
   .totem-keyboard__key--ok,
   .totem-keyboard__key--enter {
-    min-width: 110px;
     font-size: 16px;
   }
 
@@ -14597,28 +14582,14 @@ table button:hover {
   }
 
   .totem-keyboard__key {
-    min-width: 52px;
     height: 58px;
     font-size: 18px;
     border-radius: 9px;
-  }
-
-  .totem-keyboard__key--wide {
-    min-width: 76px;
-  }
-
-  .totem-keyboard__key--caps {
-    min-width: 96px;
-    font-size: 13px;
-  }
-
-  .totem-keyboard__key--space {
-    max-width: 280px;
+    padding: 0 2px;
   }
 
   .totem-keyboard__key--ok,
   .totem-keyboard__key--enter {
-    min-width: 88px;
     font-size: 14px;
   }
 }

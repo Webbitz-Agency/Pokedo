@@ -6508,6 +6508,7 @@ export default function App() {
 
   function handleTotemKey(key: string) {
     if (!totemKbField) return;
+    const isSpecial = key === "⌫" || key === " ";
     setMenuCheckoutForm((old) => {
       const cur: string = old[totemKbField as keyof typeof old] as string ?? "";
       if (key === "⌫") return { ...old, [totemKbField]: cur.slice(0, -1) };
@@ -6515,7 +6516,10 @@ export default function App() {
       const ch = totemKbCaps ? key.toUpperCase() : key.toLowerCase();
       return { ...old, [totemKbField]: cur + ch };
     });
-    if (!totemKbCaps) setTotemKbCaps(false);
+    /* Auto-caps: dopo la prima lettera reale si disattiva il maiuscolo */
+    if (!isSpecial && totemKbCaps) {
+      setTotemKbCaps(false);
+    }
   }
 
   async function submitTotemLogin() {
