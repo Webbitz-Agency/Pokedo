@@ -370,6 +370,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     add: "Aggiungi",
     back: "Indietro",
     next: "Avanti",
+    phaseMaxHint: "per extra premi «Avanti»",
     addToOrder: "Aggiungi all'ordine",
     viewOrder: "Vedi ordine",
     yourOrder: "Il tuo ordine",
@@ -563,6 +564,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     add: "Add",
     back: "Back",
     next: "Next",
+    phaseMaxHint: "for extras press «Next»",
     addToOrder: "Add to order",
     viewOrder: "View order",
     yourOrder: "Your order",
@@ -757,6 +759,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     add: "Hinzufügen",
     back: "Zurück",
     next: "Weiter",
+    phaseMaxHint: "für Extra «Weiter» drücken",
     addToOrder: "Zur Bestellung hinzufügen",
     viewOrder: "Bestellung ansehen",
     yourOrder: "Deine Bestellung",
@@ -951,6 +954,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     add: "Añadir",
     back: "Atrás",
     next: "Siguiente",
+    phaseMaxHint: "para extras pulsa «Siguiente»",
     addToOrder: "Añadir al pedido",
     viewOrder: "Ver pedido",
     yourOrder: "Tu pedido",
@@ -1143,6 +1147,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     add: "Ajouter",
     back: "Retour",
     next: "Suivant",
+    phaseMaxHint: "pour des extras appuie sur «Suivant»",
     addToOrder: "Ajouter à la commande",
     viewOrder: "Voir la commande",
     yourOrder: "Ta commande",
@@ -1333,6 +1338,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     add: "添加",
     back: "返回",
     next: "下一步",
+    phaseMaxHint: "如需加点请按«下一步»",
     addToOrder: "加入订单",
     viewOrder: "查看订单",
     yourOrder: "您的订单",
@@ -1521,6 +1527,7 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     add: "追加",
     back: "戻る",
     next: "次へ",
+    phaseMaxHint: "エクストラは«次へ»を押してください",
     addToOrder: "注文に追加",
     viewOrder: "注文を確認",
     yourOrder: "あなたの注文",
@@ -2892,8 +2899,9 @@ export default function App() {
   const [totemLoginError, setTotemLoginError] = useState("");
   const [totemLoginBusy, setTotemLoginBusy] = useState(false);
   const [totemOrderSuccess, setTotemOrderSuccess] = useState(false);
-  const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | null>(null);
+  const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | "order_note" | null>(null);
   const [totemKbCaps, setTotemKbCaps] = useState(true);
+  const [dishAllergenMap, setDishAllergenMap] = useState<Record<number, number[]>>({});
   // ────────────────────────────────────────────────────────────────────────────
 
   const [adminLoggedIn, setAdminLoggedIn] = useState(
@@ -6492,6 +6500,7 @@ export default function App() {
   }
 
   const TOTEM_KB_ROWS = [
+    ["1","2","3","4","5","6","7","8","9","0"],
     ["Q","W","E","R","T","Y","U","I","O","P"],
     ["A","S","D","F","G","H","J","K","L"],
     ["Z","X","C","V","B","N","M"],
@@ -6538,12 +6547,20 @@ export default function App() {
       const customerAllergenCodes = menuCheckoutForm.customer_allergen_codes.slice().sort((a, b) => a - b);
       const customerAllergenLabels = customerAllergenCodes.map((code) => getAllergenTitleByCode(code));
       const allergensNote = customerAllergenLabels.length > 0 ? `Allergeni: ${customerAllergenLabels.join(" ")}` : "";
+      const dishAllergenNoteParts = orderItemsList
+        .filter((item) => (dishAllergenMap[item.id] ?? []).length > 0)
+        .map((item) => {
+          const labels = (dishAllergenMap[item.id] ?? []).map((code) => getAllergenTitleByCode(code));
+          return `${item.name} (${labels.join(", ")})`;
+        });
+      const dishAllergenNote = dishAllergenNoteParts.length > 0 ? `Attenzione: ${dishAllergenNoteParts.join(" | ")}` : "";
+      const totemNote = [allergensNote, menuCheckoutForm.order_note.trim(), dishAllergenNote].filter(Boolean).join(" — ");
       await publicApi.createOrder({
         source: "totem",
         service_type: "totem",
         customer_name: customerName,
         table_number: null,
-        note: allergensNote || undefined,
+        note: totemNote || undefined,
         total_price: orderTotalAmount,
         payload: {
           type: "totem_order",
@@ -6563,6 +6580,7 @@ export default function App() {
       resetBuilder();
       setOrderOpen(false);
       setOrderClosing(false);
+      setDishAllergenMap({});
       setMenuCheckoutForm({
         first_name: "",
         last_name: "",
@@ -6595,9 +6613,19 @@ export default function App() {
       const pickupNote = isPickupAsapSelected
         ? `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)}: ${pickupTimeLabel}`
         : `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} alle ${pickupTimeLabel}`;
+      const regularDishAllergenParts = orderItemsList
+        .filter((item) => (dishAllergenMap[item.id] ?? []).length > 0)
+        .map((item) => {
+          const labels = (dishAllergenMap[item.id] ?? []).map((code) => getAllergenTitleByCode(code));
+          return `${item.name} (${labels.join(", ")})`;
+        });
+      const regularDishAllergenNote = regularDishAllergenParts.length > 0 ? `Attenzione: ${regularDishAllergenParts.join(" | ")}` : "";
       const orderNoteParts = [pickupNote];
       if (customerAllergensLabel) {
         orderNoteParts.push(`Allergeni: ${customerAllergensLabel}`);
+      }
+      if (regularDishAllergenNote) {
+        orderNoteParts.push(regularDishAllergenNote);
       }
       if (customerOrderNote) {
         orderNoteParts.push(`Note cliente: ${customerOrderNote}`);
@@ -6634,6 +6662,7 @@ export default function App() {
         }
       });
       setOrderItems({});
+      setDishAllergenMap({});
       setMenuCheckoutStep(1);
       setMenuCheckoutMessage("Ordine inviato correttamente.");
       setMenuCheckoutCompleted(true);
@@ -6717,7 +6746,7 @@ export default function App() {
     const isBeverageGroup = group.name.toLowerCase().includes("bevand");
     const selectedCount = getGroupSelectionCount(group.id);
     if (!isBeverageGroup && selectedCount >= group.force_max) {
-      showPokeLimitMessage(`Max ${group.force_max} ${displayPhaseName(group.name)}`);
+      showPokeLimitMessage(`Max ${group.force_max} ${displayPhaseName(group.name)} — ${t("phaseMaxHint")}`);
       return;
     }
     setPokeLimitMessage("");
@@ -8368,19 +8397,34 @@ export default function App() {
       {/* ── Totem virtual keyboard ───────────────────────────────────────── */}
       {isTotemLoggedIn && totemKbField && (
         <div className="totem-keyboard">
+          <button
+            type="button"
+            className="totem-keyboard__close"
+            onPointerDown={(e) => { e.preventDefault(); setTotemKbField(null); }}
+            aria-label="Chiudi tastiera"
+          >
+            ✕
+          </button>
           {TOTEM_KB_ROWS.map((row, ri) => (
             <div key={ri} className="totem-keyboard__row">
+              {/* Numeri: riga 0 — nessun tasto speciale */}
               {row.map((k) => (
                 <button
                   key={k}
                   type="button"
                   className="totem-keyboard__key"
-                  onPointerDown={(e) => { e.preventDefault(); handleTotemKey(totemKbCaps ? k.toUpperCase() : k.toLowerCase()); }}
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    /* I numeri non cambiano maiuscolo/minuscolo */
+                    const isDigit = ri === 0;
+                    handleTotemKey(isDigit ? k : (totemKbCaps ? k.toUpperCase() : k.toLowerCase()));
+                  }}
                 >
-                  {totemKbCaps ? k.toUpperCase() : k.toLowerCase()}
+                  {ri === 0 ? k : (totemKbCaps ? k.toUpperCase() : k.toLowerCase())}
                 </button>
               ))}
-              {ri === 2 && (
+              {/* ⌫ sull'ultima riga lettere (Z…M) */}
+              {ri === 3 && (
                 <button
                   type="button"
                   className="totem-keyboard__key totem-keyboard__key--wide"
@@ -8408,10 +8452,10 @@ export default function App() {
             </button>
             <button
               type="button"
-              className="totem-keyboard__key totem-keyboard__key--ok"
+              className="totem-keyboard__key totem-keyboard__key--enter"
               onPointerDown={(e) => { e.preventDefault(); setTotemKbField(null); }}
             >
-              OK ✓
+              INVIO ↵
             </button>
           </div>
         </div>
@@ -10220,6 +10264,52 @@ export default function App() {
                         onPointerDown={(e) => { e.preventDefault(); setTotemKbField("last_name"); setTotemKbCaps(true); }}
                       />
                     </div>
+                    <label className="field-label" style={{ marginTop: "10px" }}>
+                      <span>{t("orderNotes")}</span>
+                      <textarea
+                        placeholder={t("orderNotesPlaceholder")}
+                        value={menuCheckoutForm.order_note}
+                        readOnly
+                        rows={2}
+                        className={totemKbField === "order_note" ? "totem-kb-active-input" : ""}
+                        onPointerDown={(e) => { e.preventDefault(); setTotemKbField("order_note"); setTotemKbCaps(false); }}
+                      />
+                    </label>
+                    {publicExcludedAllergens.length > 0 && (
+                      <div className="checkout-dish-allergens">
+                        <h4>Allergeni per piatto</h4>
+                        <p className="checkout-dish-allergens__lead muted">Tocca gli allergeni sui piatti a cui fare attenzione:</p>
+                        {orderItemsList.map((item) => (
+                          <div key={item.id} className="dish-allergen-row">
+                            <span className="dish-allergen-row__name">{item.name}</span>
+                            <div className="dish-allergen-row__btns">
+                              {publicExcludedAllergens.map((code) => {
+                                const al = ALLERGEN_OPTIONS.find((a) => a.id === code);
+                                const selected = (dishAllergenMap[item.id] ?? []).includes(code);
+                                return (
+                                  <button
+                                    key={code}
+                                    type="button"
+                                    className={`dish-allergen-btn${selected ? " selected" : ""}`}
+                                    onPointerDown={(e) => {
+                                      e.preventDefault();
+                                      setDishAllergenMap((old) => {
+                                        const cur = old[item.id] ?? [];
+                                        const next = selected ? cur.filter((c) => c !== code) : [...cur, code];
+                                        return { ...old, [item.id]: next };
+                                      });
+                                    }}
+                                  >
+                                    {al?.icon_url ? <img src={al.icon_url} alt="" /> : <span>{code}</span>}
+                                    <small>{getAllergenDisplayTitle(code, uiLanguage)}</small>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <button
                       className="cta big"
                       style={{ width: "100%", marginTop: "8px" }}
@@ -10495,6 +10585,44 @@ export default function App() {
                       })}
                     </div>
                   </div>
+                  {(() => {
+                    const relevantAllergens = [...new Set([...publicExcludedAllergens, ...menuCheckoutForm.customer_allergen_codes])];
+                    if (relevantAllergens.length === 0) return null;
+                    return (
+                      <div className="checkout-dish-allergens">
+                        <h4>Allergeni per piatto</h4>
+                        <p className="checkout-dish-allergens__lead muted">Indica a quali piatti fare attenzione per ciascun allergene:</p>
+                        {orderItemsList.map((item) => (
+                          <div key={item.id} className="dish-allergen-row">
+                            <span className="dish-allergen-row__name">{item.name}</span>
+                            <div className="dish-allergen-row__btns">
+                              {relevantAllergens.map((code) => {
+                                const al = ALLERGEN_OPTIONS.find((a) => a.id === code);
+                                const selected = (dishAllergenMap[item.id] ?? []).includes(code);
+                                return (
+                                  <button
+                                    key={code}
+                                    type="button"
+                                    className={`dish-allergen-btn${selected ? " selected" : ""}`}
+                                    onClick={() =>
+                                      setDishAllergenMap((old) => {
+                                        const cur = old[item.id] ?? [];
+                                        const next = selected ? cur.filter((c) => c !== code) : [...cur, code];
+                                        return { ...old, [item.id]: next };
+                                      })
+                                    }
+                                  >
+                                    {al?.icon_url ? <img src={al.icon_url} alt="" /> : <span>{code}</span>}
+                                    <small>{getAllergenDisplayTitle(code, uiLanguage)}</small>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </>
               )}
 

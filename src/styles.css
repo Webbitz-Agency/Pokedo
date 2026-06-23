@@ -14198,12 +14198,12 @@ table button:hover {
 .totem-keyboard {
   position: fixed;
   bottom: 0;
-  left: 230px; /* clear the sidebar */
+  left: 0;
   right: 0;
   z-index: 400;
   background: #1e293b;
   border-top: 2px solid #2563eb;
-  padding: 12px 16px 20px;
+  padding: 48px 16px 20px; /* top padding per fare spazio al bottone X */
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -14253,6 +14253,36 @@ table button:hover {
   flex: 1;
   max-width: 320px;
   background: #475569;
+}
+
+.totem-keyboard__close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.totem-keyboard__close:active {
+  background: rgba(255,255,255,0.3);
+}
+
+.totem-keyboard__key--enter {
+  min-width: 100px;
+  background: #16a34a;
+  border-color: #15803d;
+  font-size: 14px;
 }
 
 .totem-keyboard__key--ok {
@@ -14458,7 +14488,7 @@ table button:hover {
 
   /* ----- Tastiera virtuale: tasti grandi per il dito ---- */
   .totem-keyboard {
-    left: 200px;
+    left: 0;
     padding: 10px 14px 20px;
     gap: 7px;
   }
@@ -14489,9 +14519,18 @@ table button:hover {
     max-width: 380px;
   }
 
-  .totem-keyboard__key--ok {
+  .totem-keyboard__key--ok,
+  .totem-keyboard__key--enter {
     min-width: 110px;
     font-size: 16px;
+  }
+
+  .totem-keyboard__close {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+    top: 10px;
+    right: 14px;
   }
 
   /* ----- Navbar totem: riduci padding per far stare tutti i bottoni ---- */
@@ -14548,7 +14587,7 @@ table button:hover {
   }
 
   .totem-keyboard {
-    left: 170px;
+    left: 0;
     padding: 8px 10px 16px;
     gap: 5px;
   }
@@ -14577,7 +14616,8 @@ table button:hover {
     max-width: 280px;
   }
 
-  .totem-keyboard__key--ok {
+  .totem-keyboard__key--ok,
+  .totem-keyboard__key--enter {
     min-width: 88px;
     font-size: 14px;
   }
@@ -14632,4 +14672,90 @@ table button:hover {
     height: 56px;
     font-size: 17px;
   }
+}
+
+/* ── Sezione allergeni per piatto (checkout totem + sito) ─────────────── */
+.checkout-dish-allergens {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.checkout-dish-allergens h4 {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.checkout-dish-allergens__lead {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+}
+
+.dish-allergen-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dish-allergen-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dish-allergen-row__name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1e293b;
+}
+
+.dish-allergen-row__btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dish-allergen-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s, border-color 0.15s, background 0.15s;
+  min-width: 52px;
+}
+
+.dish-allergen-btn img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.dish-allergen-btn small {
+  font-size: 0.6rem;
+  text-align: center;
+  color: #475569;
+  max-width: 52px;
+  line-height: 1.2;
+}
+
+.dish-allergen-btn.selected {
+  opacity: 1;
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.dish-allergen-btn.selected small {
+  color: #dc2626;
+  font-weight: 600;
 }
