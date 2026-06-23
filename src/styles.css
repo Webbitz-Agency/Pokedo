@@ -14063,7 +14063,7 @@ table button:hover {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 12px;
 }
 
 .totem-category-sidebar__btn {
@@ -14401,7 +14401,7 @@ table button:hover {
   }
 
   .totem-category-sidebar__list {
-    gap: 5px;
+    gap: 10px;
   }
 
   .totem-category-sidebar__btn {
