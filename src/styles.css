@@ -14098,8 +14098,14 @@ table button:hover {
 .totem-sidebar-cat-card.category-carousel-card {
   width: 100% !important;
   flex: none !important;
-  /* Niente lift verticale: la sidebar è già scrollabile */
+  /* Ombra morbida al posto di quella netta della card originale */
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.18) !important;
   transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.totem-sidebar-cat-card.category-carousel-card::before {
+  /* Niente bordo blu sull'hover nella sidebar */
+  display: none !important;
 }
 
 .totem-sidebar-cat-card.category-carousel-card:hover,

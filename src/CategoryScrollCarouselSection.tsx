@@ -80,7 +80,7 @@ export function categoryHomeIcon(name: string): string | null {
     return CATEGORY_HOME_ICONS["altri-piatti"];
   }
   if (lower.includes("tartare")) return CATEGORY_HOME_ICONS.tartare;
-  if (lower.includes("dolc")) return CATEGORY_HOME_ICONS.dolci;
+  if (lower.includes("dolc") && !lower.includes("vini") && !lower.includes("amari")) return CATEGORY_HOME_ICONS.dolci;
   if (lower.includes("pasta")) return CATEGORY_HOME_ICONS.pasta;
   if (lower.includes("secondi")) return CATEGORY_HOME_ICONS.secondi;
   if (lower.includes("poke")) return CATEGORY_HOME_ICONS.poke;

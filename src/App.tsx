@@ -8347,9 +8347,6 @@ export default function App() {
                           />
                         </div>
                         <h4 className="category-carousel-card-title">{cat.name}</h4>
-                        <p className="category-carousel-card-meta">
-                          {cat.items_count ?? 0} piatti
-                        </p>
                       </div>
                     </button>
                   ) : (
