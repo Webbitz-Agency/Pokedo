@@ -2899,7 +2899,7 @@ export default function App() {
   const [totemLoginError, setTotemLoginError] = useState("");
   const [totemLoginBusy, setTotemLoginBusy] = useState(false);
   const [totemOrderSuccess, setTotemOrderSuccess] = useState(false);
-  const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | "order_note" | "modal_note" | null>(null);
+  const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | "order_note" | "modal_note" | "edit_note" | null>(null);
   const [totemKbCaps, setTotemKbCaps] = useState(true);
   const [dishAllergenMap, setDishAllergenMap] = useState<Record<number, number[]>>({});
   // ────────────────────────────────────────────────────────────────────────────
@@ -5509,6 +5509,15 @@ export default function App() {
     });
   }, [publicExcludedAllergens]);
 
+  /* Quando i modal con note si chiudono, resetta il campo tastiera totem */
+  useEffect(() => {
+    if (!menuItemVariantModal && totemKbField === "modal_note") setTotemKbField(null);
+  }, [menuItemVariantModal]);
+
+  useEffect(() => {
+    if (!orderItemEditModal && totemKbField === "edit_note") setTotemKbField(null);
+  }, [orderItemEditModal]);
+
   function confirmMenuItemVariantSelection() {
     if (!menuItemVariantModal) return;
     const { item, selectedByVariantId, note } = menuItemVariantModal;
@@ -6513,6 +6522,15 @@ export default function App() {
       setMenuItemVariantModal((old) => {
         if (!old) return old;
         const cur = old.note ?? "";
+        if (key === "⌫") return { ...old, note: cur.slice(0, -1) };
+        if (key === " ") return { ...old, note: cur + " " };
+        const ch = totemKbCaps ? key.toUpperCase() : key.toLowerCase();
+        return { ...old, note: cur + ch };
+      });
+    } else if (totemKbField === "edit_note") {
+      setOrderItemEditModal((old) => {
+        if (!old) return old;
+        const cur = (old as { note?: string }).note ?? "";
         if (key === "⌫") return { ...old, note: cur.slice(0, -1) };
         if (key === " ") return { ...old, note: cur + " " };
         const ch = totemKbCaps ? key.toUpperCase() : key.toLowerCase();
@@ -11343,7 +11361,14 @@ export default function App() {
                   <textarea
                     placeholder={t("orderNotesPlaceholder")}
                     value={orderItemEditModal.note || ""}
-                    onChange={(e) =>
+                    readOnly={isTotemLoggedIn}
+                    className={isTotemLoggedIn && totemKbField === "edit_note" ? "totem-kb-active-input" : ""}
+                    onPointerDown={isTotemLoggedIn ? (e) => {
+                      e.preventDefault();
+                      setTotemKbField("edit_note");
+                      setTotemKbCaps(false);
+                    } : undefined}
+                    onChange={isTotemLoggedIn ? undefined : (e) =>
                       setOrderItemEditModal((old) => {
                         if (!old || old.mode !== "menu_variant") return old;
                         return { ...old, note: e.target.value };
