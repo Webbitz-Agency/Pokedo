@@ -2899,7 +2899,7 @@ export default function App() {
   const [totemLoginError, setTotemLoginError] = useState("");
   const [totemLoginBusy, setTotemLoginBusy] = useState(false);
   const [totemOrderSuccess, setTotemOrderSuccess] = useState(false);
-  const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | "order_note" | null>(null);
+  const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | "order_note" | "modal_note" | null>(null);
   const [totemKbCaps, setTotemKbCaps] = useState(true);
   const [dishAllergenMap, setDishAllergenMap] = useState<Record<number, number[]>>({});
   // ────────────────────────────────────────────────────────────────────────────
@@ -6509,13 +6509,24 @@ export default function App() {
   function handleTotemKey(key: string) {
     if (!totemKbField) return;
     const isSpecial = key === "⌫" || key === " ";
-    setMenuCheckoutForm((old) => {
-      const cur: string = old[totemKbField as keyof typeof old] as string ?? "";
-      if (key === "⌫") return { ...old, [totemKbField]: cur.slice(0, -1) };
-      if (key === " ") return { ...old, [totemKbField]: cur + " " };
-      const ch = totemKbCaps ? key.toUpperCase() : key.toLowerCase();
-      return { ...old, [totemKbField]: cur + ch };
-    });
+    if (totemKbField === "modal_note") {
+      setMenuItemVariantModal((old) => {
+        if (!old) return old;
+        const cur = old.note ?? "";
+        if (key === "⌫") return { ...old, note: cur.slice(0, -1) };
+        if (key === " ") return { ...old, note: cur + " " };
+        const ch = totemKbCaps ? key.toUpperCase() : key.toLowerCase();
+        return { ...old, note: cur + ch };
+      });
+    } else {
+      setMenuCheckoutForm((old) => {
+        const cur: string = old[totemKbField as keyof typeof old] as string ?? "";
+        if (key === "⌫") return { ...old, [totemKbField]: cur.slice(0, -1) };
+        if (key === " ") return { ...old, [totemKbField]: cur + " " };
+        const ch = totemKbCaps ? key.toUpperCase() : key.toLowerCase();
+        return { ...old, [totemKbField]: cur + ch };
+      });
+    }
     /* Auto-caps: dopo la prima lettera reale si disattiva il maiuscolo */
     if (!isSpecial && totemKbCaps) {
       setTotemKbCaps(false);
@@ -11064,12 +11075,15 @@ export default function App() {
               <textarea
                 placeholder={t("orderNotesPlaceholder")}
                 value={menuItemVariantModal.note}
-                onChange={(e) =>
+                readOnly={isTotemLoggedIn}
+                className={isTotemLoggedIn && totemKbField === "modal_note" ? "totem-kb-active-input" : ""}
+                onChange={isTotemLoggedIn ? undefined : (e) =>
                   setMenuItemVariantModal((old) => {
                     if (!old) return old;
                     return { ...old, note: e.target.value };
                   })
                 }
+                onPointerDown={isTotemLoggedIn ? (e) => { e.preventDefault(); setTotemKbField("modal_note"); setTotemKbCaps(false); } : undefined}
               />
             </label>
             <div className="admin-modal-actions">
