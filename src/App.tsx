@@ -17,7 +17,7 @@ import {
 } from "./api";
 import { isPokeManagerMarketingPortal } from "./portal";
 import { AboutFishLanes } from "./AboutFishLanes";
-import { CategoryScrollCarouselSection, categoryHomeIcon } from "./CategoryScrollCarouselSection";
+import { CategoryScrollCarouselSection, categoryHomeIcon, categoryCarouselIconKind } from "./CategoryScrollCarouselSection";
 import { ModalPortal } from "./ModalPortal";
 import pokedoLogo from "./pokedoLogo.png";
 import pokeBlankScaffold from "./poke-blank-scaffold.json";
@@ -8333,18 +8333,21 @@ export default function App() {
                   {iconSrc ? (
                     <button
                       type="button"
-                      className="totem-sidebar-cat-card"
+                      className="category-carousel-card category-carousel-card--split-editorial totem-sidebar-cat-card"
                       onClick={handleClick}
                     >
-                      <div className="totem-sidebar-cat-card__visual">
-                        <img
-                          className="totem-sidebar-cat-card__img"
-                          src={iconSrc}
-                          alt=""
-                          aria-hidden="true"
-                        />
-                        <h4 className="totem-sidebar-cat-card__name">{cat.name}</h4>
-                        <p className="totem-sidebar-cat-card__count">
+                      <div className="category-carousel-card-visual category-carousel-card-visual--icon category-carousel-card-visual--split-editorial">
+                        <div className="category-carousel-card-media category-carousel-card-media--icon category-carousel-card-media--split-editorial">
+                          <img
+                            className="category-carousel-card-icon-img"
+                            src={iconSrc}
+                            alt=""
+                            aria-hidden="true"
+                            data-carousel-icon={categoryCarouselIconKind(iconSrc)}
+                          />
+                        </div>
+                        <h4 className="category-carousel-card-title">{cat.name}</h4>
+                        <p className="category-carousel-card-meta">
                           {cat.items_count ?? 0} piatti
                         </p>
                       </div>

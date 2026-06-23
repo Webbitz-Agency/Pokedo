@@ -35,7 +35,7 @@ const CATEGORY_HOME_ICONS: Record<string, string> = {
 };
 
 /** Per layout/size CSS: varianti per asset in immagini/categorie */
-function categoryCarouselIconKind(
+export function categoryCarouselIconKind(
   src: string
 ):
   | "toast"

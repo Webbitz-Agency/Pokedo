@@ -14093,76 +14093,34 @@ table button:hover {
   transform: scale(0.97);
 }
 
-/* ── Totem sidebar: card con icona (stile home) ──────────────────────── */
-.totem-sidebar-cat-card {
-  display: block;
-  width: 100%;
-  padding: 0;
-  border: none;
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: pointer;
-  background: none;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+/* ── Totem sidebar: card categoria identica alla home (split-editorial) ─ */
+/* Sovrascriviamo solo le proprietà dimensionali incompatibili con la sidebar */
+.totem-sidebar-cat-card.category-carousel-card {
+  width: 100% !important;
+  flex: none !important;
+  /* Niente lift verticale: la sidebar è già scrollabile */
+  transition: transform 0.18s ease, box-shadow 0.18s ease !important;
 }
 
-.totem-sidebar-cat-card:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+.totem-sidebar-cat-card.category-carousel-card:hover,
+.totem-sidebar-cat-card.category-carousel-card:focus-visible {
+  transform: scale(1.02) !important;
 }
 
-.totem-sidebar-cat-card:active {
-  transform: scale(0.97);
+.totem-sidebar-cat-card .category-carousel-card-visual {
+  min-height: 0 !important;
+  aspect-ratio: 1 / 1 !important;
 }
 
-.totem-sidebar-cat-card__visual {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 60%, #3b82f6 100%);
-  border-radius: 16px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 10px 10px 8px;
-  box-sizing: border-box;
+/* Titolo e meta: dimensioni ridotte per la sidebar stretta */
+.totem-sidebar-cat-card .category-carousel-card-title {
+  font-size: clamp(0.75rem, 2.8vw, 1rem) !important;
+  padding: 8px 8px 2px !important;
 }
 
-.totem-sidebar-cat-card__img {
-  position: absolute;
-  bottom: 0;
-  right: -4px;
-  width: 65%;
-  height: 85%;
-  object-fit: contain;
-  object-position: bottom right;
-  pointer-events: none;
-}
-
-.totem-sidebar-cat-card__name {
-  position: relative;
-  z-index: 1;
-  margin: 0 0 2px;
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.2;
-  color: #fff;
-  text-align: left;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.25);
-  max-width: 60%;
-}
-
-.totem-sidebar-cat-card__count {
-  position: relative;
-  z-index: 1;
-  margin: 0;
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.75);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  text-align: left;
+.totem-sidebar-cat-card .category-carousel-card-meta {
+  font-size: 0.6rem !important;
+  padding: 4px 8px 8px !important;
 }
 
 
