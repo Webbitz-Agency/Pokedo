@@ -3212,6 +3212,10 @@ select {
   margin-top: 14px;
   font-size: 20px;
   font-weight: 800;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 .order-next-step-note {
