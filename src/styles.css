@@ -14204,7 +14204,7 @@ table button:hover {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 400;
+  z-index: 10060; /* sopra overlay modal (10050) */
   background: #1e293b;
   border-top: 2px solid #2563eb;
   padding: 42px 12px 18px; /* top padding per fare spazio al bottone X */
