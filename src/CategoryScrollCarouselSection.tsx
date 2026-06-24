@@ -31,7 +31,15 @@ const CATEGORY_HOME_ICONS: Record<string, string> = {
   secondi: "/immagini/categorie/secondi.svg",
   sushi: "/immagini/categorie/sushi.svg",
   "altri-piatti": "/immagini/categorie/altripiatti.svg",
-  "altri-piatti-by-pokedo": "/immagini/categorie/altripiatti.svg"
+  "altri-piatti-by-pokedo": "/immagini/categorie/altripiatti.svg",
+  amari: "/immagini/categorie/amari.png",
+  bevande: "/immagini/categorie/bevande.png",
+  birre: "/immagini/categorie/birre.png",
+  bollicine: "/immagini/categorie/bollicine.png",
+  caffe: "/immagini/categorie/caffe.png",
+  "vini-rossi": "/immagini/categorie/viniRossi.png",
+  viniber: "/immagini/categorie/viniBeR.png",
+  "vini-bianchi-e-rosati": "/immagini/categorie/viniBeR.png"
 };
 
 /** Per layout/size CSS: varianti per asset in immagini/categorie */
@@ -85,6 +93,13 @@ export function categoryHomeIcon(name: string): string | null {
   if (lower.includes("secondi")) return CATEGORY_HOME_ICONS.secondi;
   if (lower.includes("poke")) return CATEGORY_HOME_ICONS.poke;
   if (lower.includes("sushi")) return CATEGORY_HOME_ICONS.sushi;
+  if (lower.includes("amari")) return CATEGORY_HOME_ICONS.amari;
+  if (lower.includes("bevande")) return CATEGORY_HOME_ICONS.bevande;
+  if (lower.includes("birre") || lower.includes("birra")) return CATEGORY_HOME_ICONS.birre;
+  if (lower.includes("bollicine")) return CATEGORY_HOME_ICONS.bollicine;
+  if (lower.includes("caffe") || lower.includes("caffè")) return CATEGORY_HOME_ICONS.caffe;
+  if (lower.includes("vini rossi") || lower.includes("vini-rossi") || (lower.includes("vini") && lower.includes("rossi"))) return CATEGORY_HOME_ICONS["vini-rossi"];
+  if (lower.includes("viniber") || lower.includes("bianchi") || lower.includes("rosati")) return CATEGORY_HOME_ICONS.viniber;
 
   return null;
 }
