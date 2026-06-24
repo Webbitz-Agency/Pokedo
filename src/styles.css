@@ -2883,7 +2883,7 @@ select {
 }
 
 .menu-category-section {
-  scroll-margin-top: 140px; /* navbar 77px + strip 52px + margine 11px */
+  scroll-margin-top: 145px; /* header totale: navbar ~77px + strip 52px + margini */
 }
 
 .menu-category-section + .menu-category-section {
@@ -14741,12 +14741,7 @@ table button:hover {
 
 /* ── Menu Category Strip ── */
 .menu-cat-strip {
-  position: sticky;
-  top: 77px;
-  z-index: 55;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid #dbeafe;
+  border-top: 1px solid #dbeafe;
   height: 52px;
   overflow: hidden;
 }
