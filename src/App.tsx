@@ -8028,6 +8028,37 @@ export default function App() {
         </div>
       </header>
 
+      {/* ── Barra categorie orizzontale (solo /menu, non totem) ── */}
+      {route === "/menu" && !isTotemLoggedIn && menu && filteredMenuCategories.length > 0 && (
+        <nav className="menu-cat-strip" aria-label="Categorie menu">
+          <div className="menu-cat-strip__track">
+            {filteredMenuCategories.map((cat) => {
+              const iconSrc = categoryHomeIcon(cat.name);
+              return (
+                <button
+                  key={cat.id}
+                  className="menu-cat-strip__item"
+                  onClick={() => {
+                    const el = document.getElementById(`menu-category-${cat.id}`);
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                >
+                  {iconSrc && (
+                    <img
+                      src={iconSrc}
+                      alt=""
+                      aria-hidden="true"
+                      className="menu-cat-strip__icon"
+                    />
+                  )}
+                  <span className="menu-cat-strip__label">{cat.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      )}
+
       {settingsNotice && (
         <div
           className={`settings-toast settings-toast-${settingsNotice.kind} ${settingsNoticeVisible ? "visible" : "hidden"}`.trim()}
