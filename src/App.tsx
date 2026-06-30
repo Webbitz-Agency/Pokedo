@@ -11781,7 +11781,7 @@ export default function App() {
             <button
               type="button"
               className="modal-close-btn"
-              onClick={() => { setTableAllergenModalOpen(false); submitTableOrder(); }}
+              onClick={() => setTableAllergenModalOpen(false)}
               aria-label={t("close")}
             >
               <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
