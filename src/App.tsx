@@ -5527,6 +5527,25 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [menuCheckoutStep]);
 
+  /* Pre-popola dishAllergenMap con i filtri attivi quando si arriva allo step allergen */
+  useEffect(() => {
+    const allergens = [...new Set([...publicExcludedAllergens, ...menuCheckoutForm.customer_allergen_codes])];
+    if (allergens.length === 0) return;
+    // Attiva solo allo step 3 del checkout asporto oppure quando si apre il modal tavolo
+    const isAllergenStep = menuCheckoutStep === 3;
+    if (!isAllergenStep && !tableAllergenModalOpen) return;
+    setDishAllergenMap((old) => {
+      const next = { ...old };
+      for (const item of orderItemsList) {
+        if (!next[item.id] || next[item.id].length === 0) {
+          next[item.id] = allergens.slice();
+        }
+      }
+      return next;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuCheckoutStep, tableAllergenModalOpen]);
+
   /* Quando i modal con note si chiudono, resetta il campo tastiera totem */
   useEffect(() => {
     if (!menuItemVariantModal && totemKbField === "modal_note") setTotemKbField(null);
