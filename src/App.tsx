@@ -443,6 +443,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     descriptionAvailableInStore: "Descrizione disponibile in sala.",
     allergensPresent: "Allergeni presenti",
     noAllergenSpecifiedForDish: "Nessun allergene specificato per questo piatto.",
+    allergenPerDishTitle: "Allergeni per piatto",
+    allergenPerDishSub: "Associa un allergene al piatto specifico (opzionale).",
     selectVariants: "Seleziona varianti",
     addProduct: "Aggiungi prodotto",
     editProduct: "Modifica prodotto",
@@ -637,6 +639,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     descriptionAvailableInStore: "Description available in the restaurant.",
     allergensPresent: "Allergens present",
     noAllergenSpecifiedForDish: "No allergen specified for this dish.",
+    allergenPerDishTitle: "Allergens per dish",
+    allergenPerDishSub: "Associate an allergen to a specific dish (optional).",
     selectVariants: "Select variants",
     addProduct: "Add product",
     editProduct: "Edit product",
@@ -2902,6 +2906,8 @@ export default function App() {
   const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | "order_note" | "modal_note" | "edit_note" | null>(null);
   const [totemKbCaps, setTotemKbCaps] = useState(true);
   const [dishAllergenMap, setDishAllergenMap] = useState<Record<number, number[]>>({});
+  const [tableAllergenModalOpen, setTableAllergenModalOpen] = useState(false);
+  const [pendingTableOrderSubmit, setPendingTableOrderSubmit] = useState(false);
   // ────────────────────────────────────────────────────────────────────────────
 
   const [adminLoggedIn, setAdminLoggedIn] = useState(
@@ -4450,8 +4456,15 @@ export default function App() {
     const isBeverageGroup = pokeCurrentGroup.name.toLowerCase().includes("bevand");
     const sourceOptions = isBeverageGroup ? getBeverageOptions() : pokeCurrentGroup.options;
     const activeOptions = sourceOptions.filter((option) => !option.is_out_of_stock);
-    if (publicExcludedAllergens.length === 0 && publicActiveFilterTags.length === 0) return activeOptions;
-    return activeOptions.filter((option) => {
+    // Rimuovi duplicati "NessunX!" quando esiste già "NessunX" senza punto esclamativo
+    const normalizedNames = new Set(activeOptions.map((o) => o.name.replace(/!+$/g, "").trim().toLowerCase()));
+    const deduped = activeOptions.filter((option) => {
+      if (!option.name.endsWith("!")) return true;
+      const withoutBang = option.name.replace(/!+$/g, "").trim().toLowerCase();
+      return !normalizedNames.has(withoutBang) || !activeOptions.some((o) => !o.name.endsWith("!") && o.name.trim().toLowerCase() === withoutBang);
+    });
+    if (publicExcludedAllergens.length === 0 && publicActiveFilterTags.length === 0) return deduped;
+    return deduped.filter((option) => {
       if (publicExcludedAllergens.length > 0) {
       const optionAllergens = sanitizeAllergenCodes(option.allergen_codes ?? []);
         if (optionAllergens.some((code) => publicExcludedAllergens.includes(code))) return false;
@@ -5509,6 +5522,11 @@ export default function App() {
     });
   }, [publicExcludedAllergens]);
 
+  /* Scroll to top ad ogni cambio di step nel checkout */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [menuCheckoutStep]);
+
   /* Quando i modal con note si chiudono, resetta il campo tastiera totem */
   useEffect(() => {
     if (!menuItemVariantModal && totemKbField === "modal_note") setTotemKbField(null);
@@ -6398,7 +6416,13 @@ export default function App() {
         return;
       }
       if (!tableGuestName.trim()) {
+        setPendingTableOrderSubmit(true);
         setTableGuestModalOpen(true);
+        return;
+      }
+      // Se ci sono allergeni attivi mostra prima il modal per associarli ai piatti
+      if (publicExcludedAllergens.length > 0) {
+        setTableAllergenModalOpen(true);
         return;
       }
       submitTableOrder();
@@ -6512,6 +6536,14 @@ export default function App() {
       setTableAccessRevoked(false);
       setTableGuestsList(Array.isArray(result?.guests) ? result.guests : []);
       setTableGuestTableSessionId(typeof result?.table_session_id === "number" ? result.table_session_id : null);
+      if (pendingTableOrderSubmit) {
+        setPendingTableOrderSubmit(false);
+        if (publicExcludedAllergens.length > 0) {
+          setTableAllergenModalOpen(true);
+        } else {
+          submitTableOrder();
+        }
+      }
     } finally {
       setSaving(false);
     }
@@ -8265,6 +8297,61 @@ export default function App() {
                 {t("tableBackToSite")}
               </button>
             </div>
+          </article>
+        </div>
+      )}
+
+      {/* Modal allergeni per piatto — ordine tavolo */}
+      {isTableOrderMode && tableAllergenModalOpen && (
+        <div className="overlay modal-center" onClick={(e) => e.stopPropagation()}>
+          <article className="info-modal admin-modal" style={{ maxWidth: 480, width: "92vw" } as React.CSSProperties}>
+            <button
+              type="button"
+              className="modal-close-btn"
+              onClick={() => { setTableAllergenModalOpen(false); submitTableOrder(); }}
+              aria-label={t("close")}
+            >
+              <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
+            </button>
+            <h4>{t("allergenPerDishTitle")}</h4>
+            <p className="muted" style={{ marginBottom: 12 } as React.CSSProperties}>{t("allergenPerDishSub")}</p>
+            <div className="checkout-dish-allergens">
+              {orderItemsList.map((item) => (
+                <div key={item.id} className="dish-allergen-row">
+                  <span className="dish-allergen-row__name">{item.name}</span>
+                  <div className="dish-allergen-row__btns">
+                    {publicExcludedAllergens.map((code) => {
+                      const al = ALLERGEN_OPTIONS.find((a) => a.id === code);
+                      const selected = (dishAllergenMap[item.id] ?? []).includes(code);
+                      return (
+                        <button
+                          key={code}
+                          type="button"
+                          className={`dish-allergen-btn${selected ? " selected" : ""}`}
+                          onClick={() =>
+                            setDishAllergenMap((old) => {
+                              const prev = old[item.id] ?? [];
+                              const next = selected ? prev.filter((c) => c !== code) : [...prev, code];
+                              return { ...old, [item.id]: next };
+                            })
+                          }
+                        >
+                          {al?.icon_url ? <img src={al.icon_url} alt="" /> : <span>{code}</span>}
+                          <small>{getAllergenDisplayTitle(code, uiLanguage)}</small>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              className="cta"
+              style={{ marginTop: 20, width: "100%" } as React.CSSProperties}
+              onClick={() => { setTableAllergenModalOpen(false); submitTableOrder(); }}
+            >
+              {t("sendOrder")}
+            </button>
           </article>
         </div>
       )}
