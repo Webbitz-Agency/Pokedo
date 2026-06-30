@@ -2387,6 +2387,10 @@ select {
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .public-allergen-option:hover {
@@ -14697,6 +14701,7 @@ table button:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  overflow: visible;
 }
 
 .dish-allergen-btn {
@@ -14704,14 +14709,21 @@ table button:hover {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 6px 8px;
+  padding: 8px;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
   background: #fff;
   cursor: pointer;
   opacity: 0.6;
   transition: opacity 0.15s, border-color 0.15s, background 0.15s;
-  min-width: 52px;
+  min-width: 56px;
+  min-height: 48px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 1;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .dish-allergen-btn img {
