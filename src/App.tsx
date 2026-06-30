@@ -8320,61 +8320,6 @@ export default function App() {
         </div>
       )}
 
-      {/* Modal allergeni per piatto — ordine tavolo */}
-      {isTableOrderMode && tableAllergenModalOpen && (
-        <div className="overlay modal-center" onClick={(e) => e.stopPropagation()}>
-          <article className="info-modal admin-modal" style={{ maxWidth: 480, width: "92vw" } as React.CSSProperties}>
-            <button
-              type="button"
-              className="modal-close-btn"
-              onClick={() => { setTableAllergenModalOpen(false); submitTableOrder(); }}
-              aria-label={t("close")}
-            >
-              <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
-            </button>
-            <h4>{t("allergenPerDishTitle")}</h4>
-            <p className="muted" style={{ marginBottom: 12 } as React.CSSProperties}>{t("allergenPerDishSub")}</p>
-            <div className="checkout-dish-allergens">
-              {orderItemsList.map((item) => (
-                <div key={item.id} className="dish-allergen-row">
-                  <span className="dish-allergen-row__name">{item.name}</span>
-                  <div className="dish-allergen-row__btns">
-                    {publicExcludedAllergens.map((code) => {
-                      const al = ALLERGEN_OPTIONS.find((a) => a.id === code);
-                      const selected = (dishAllergenMap[item.id] ?? []).includes(code);
-                      return (
-                        <button
-                          key={code}
-                          type="button"
-                          className={`dish-allergen-btn${selected ? " selected" : ""}`}
-                          onClick={() =>
-                            setDishAllergenMap((old) => {
-                              const prev = old[item.id] ?? [];
-                              const next = selected ? prev.filter((c) => c !== code) : [...prev, code];
-                              return { ...old, [item.id]: next };
-                            })
-                          }
-                        >
-                          {al?.icon_url ? <img src={al.icon_url} alt="" /> : <span>{code}</span>}
-                          <small>{getAllergenDisplayTitle(code, uiLanguage)}</small>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button
-              className="cta"
-              style={{ marginTop: 20, width: "100%" } as React.CSSProperties}
-              onClick={() => { setTableAllergenModalOpen(false); submitTableOrder(); }}
-            >
-              {t("sendOrder")}
-            </button>
-          </article>
-        </div>
-      )}
-
         <div className={`language-fab ${languageMenuOpen ? "open" : ""}`.trim()}>
           <button
             className="language-fab-main"
@@ -11824,6 +11769,64 @@ export default function App() {
             </div>
           </div>
         </footer>
+      )}
+      {/* Modal allergeni per piatto — ordine tavolo (z-index massimo, fuori da qualsiasi stacking context) */}
+      {isTableOrderMode && tableAllergenModalOpen && (
+        <div
+          className="overlay modal-center"
+          style={{ zIndex: 99999 } as React.CSSProperties}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <article className="info-modal admin-modal" style={{ maxWidth: 480, width: "92vw" } as React.CSSProperties}>
+            <button
+              type="button"
+              className="modal-close-btn"
+              onClick={() => { setTableAllergenModalOpen(false); submitTableOrder(); }}
+              aria-label={t("close")}
+            >
+              <wa-icon name="xmark" variant="solid" aria-hidden="true"></wa-icon>
+            </button>
+            <h4>{t("allergenPerDishTitle")}</h4>
+            <p className="muted" style={{ marginBottom: 12 } as React.CSSProperties}>{t("allergenPerDishSub")}</p>
+            <div className="checkout-dish-allergens">
+              {orderItemsList.map((item) => (
+                <div key={item.id} className="dish-allergen-row">
+                  <span className="dish-allergen-row__name">{item.name}</span>
+                  <div className="dish-allergen-row__btns">
+                    {publicExcludedAllergens.map((code) => {
+                      const al = ALLERGEN_OPTIONS.find((a) => a.id === code);
+                      const selected = (dishAllergenMap[item.id] ?? []).includes(code);
+                      return (
+                        <button
+                          key={code}
+                          type="button"
+                          className={`dish-allergen-btn${selected ? " selected" : ""}`}
+                          onClick={() =>
+                            setDishAllergenMap((old) => {
+                              const prev = old[item.id] ?? [];
+                              const next = selected ? prev.filter((c) => c !== code) : [...prev, code];
+                              return { ...old, [item.id]: next };
+                            })
+                          }
+                        >
+                          {al?.icon_url ? <img src={al.icon_url} alt="" /> : <span>{code}</span>}
+                          <small>{getAllergenDisplayTitle(code, uiLanguage)}</small>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              className="cta big"
+              style={{ marginTop: 20, width: "100%", display: "block" } as React.CSSProperties}
+              onClick={() => { setTableAllergenModalOpen(false); submitTableOrder(); }}
+            >
+              {t("sendOrder")}
+            </button>
+          </article>
+        </div>
       )}
     </div>
     </>
