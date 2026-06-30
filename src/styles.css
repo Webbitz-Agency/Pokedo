@@ -457,6 +457,15 @@ select {
   flex-direction: column-reverse;
   align-items: flex-start;
   gap: 8px;
+  /* Il container non deve intercettare click nella zona invisibile della lista chiusa */
+  pointer-events: none;
+}
+
+/* Solo gli elementi interattivi riattivano i pointer events */
+.language-fab-main,
+.language-fab.open .language-fab-list,
+.language-fab.open .language-fab-option {
+  pointer-events: auto;
 }
 
 .language-fab-main {
