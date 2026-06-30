@@ -5527,13 +5527,23 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [menuCheckoutStep]);
 
-  /* Pre-popola dishAllergenMap con i filtri attivi quando si arriva allo step allergen */
+  /* Pre-popola customer_allergen_codes nella griglia in alto con i filtri attivi
+     quando si arriva allo step 3 del checkout asporto */
   useEffect(() => {
+    if (menuCheckoutStep !== 3) return;
+    if (publicExcludedAllergens.length === 0) return;
+    setMenuCheckoutForm((old) => {
+      const merged = [...new Set([...old.customer_allergen_codes, ...publicExcludedAllergens])].sort((a, b) => a - b);
+      return { ...old, customer_allergen_codes: merged };
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuCheckoutStep]);
+
+  /* Pre-popola dishAllergenMap con i filtri attivi quando si apre il modal allergeni tavolo */
+  useEffect(() => {
+    if (!tableAllergenModalOpen) return;
     const allergens = [...new Set([...publicExcludedAllergens, ...menuCheckoutForm.customer_allergen_codes])];
     if (allergens.length === 0) return;
-    // Attiva solo allo step 3 del checkout asporto oppure quando si apre il modal tavolo
-    const isAllergenStep = menuCheckoutStep === 3;
-    if (!isAllergenStep && !tableAllergenModalOpen) return;
     setDishAllergenMap((old) => {
       const next = { ...old };
       for (const item of orderItemsList) {
@@ -5544,7 +5554,7 @@ export default function App() {
       return next;
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menuCheckoutStep, tableAllergenModalOpen]);
+  }, [tableAllergenModalOpen]);
 
   /* Quando i modal con note si chiudono, resetta il campo tastiera totem */
   useEffect(() => {
