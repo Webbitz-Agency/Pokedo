@@ -6426,13 +6426,21 @@ export default function App() {
     }
     setSaving(true);
     try {
+      const tableDishAllergenParts = orderItemsList
+        .filter((item) => (dishAllergenMap[item.id] ?? []).length > 0)
+        .map((item) => {
+          const labels = (dishAllergenMap[item.id] ?? []).map((code) => getAllergenTitleByCode(code));
+          return `${item.name} (${labels.join(", ")})`;
+        });
+      const tableDishAllergenNote = tableDishAllergenParts.length > 0 ? `Attenzione: ${tableDishAllergenParts.join(" | ")}` : "";
+      const tableNote = [`Ordine tavolo ${tableOrderNumber} - ${guestName}`, tableDishAllergenNote].filter(Boolean).join(" \u2014 ");
       await publicApi.createOrder({
         source: "qr_table",
         service_type: "table",
         access_code: accessCode,
         customer_name: `Tavolo ${tableOrderNumber} - ${guestName}`,
         table_number: tableOrderNumber,
-        note: `Ordine tavolo ${tableOrderNumber} - ${guestName}`,
+        note: tableNote,
         total_price: orderTotalAmount,
         payload: {
           type: "table_qr_order",
@@ -6451,6 +6459,7 @@ export default function App() {
         }
       });
       setOrderItems({});
+      setDishAllergenMap({});
       resetBuilder();
       setTableOrderSuccessOpen(true);
       setOrderOpen(false);
@@ -6653,17 +6662,12 @@ export default function App() {
           return `${item.name} (${labels.join(", ")})`;
         });
       const regularDishAllergenNote = regularDishAllergenParts.length > 0 ? `Attenzione: ${regularDishAllergenParts.join(" | ")}` : "";
-      const orderNoteParts = [pickupNote];
-      if (customerAllergensLabel) {
-        orderNoteParts.push(`Allergeni: ${customerAllergensLabel}`);
-      }
-      if (regularDishAllergenNote) {
-        orderNoteParts.push(regularDishAllergenNote);
-      }
-      if (customerOrderNote) {
-        orderNoteParts.push(`Note cliente: ${customerOrderNote}`);
-      }
-      const orderNote = orderNoteParts.join(" | ");
+      const orderNote = [
+        pickupNote,
+        customerAllergensLabel ? `Allergeni: ${customerAllergensLabel}` : "",
+        customerOrderNote,
+        regularDishAllergenNote
+      ].filter(Boolean).join(" \u2014 ");
       await publicApi.createOrder({
         source: "website",
         service_type: "pickup",
