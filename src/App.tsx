@@ -5527,6 +5527,18 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [menuCheckoutStep]);
 
+  /* Scroll to top quando appare la schermata "Aggiungi all'ordine" nel Poke Builder */
+  useEffect(() => {
+    if (pokeAddedMessage) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [pokeAddedMessage]);
+
+  /* Scroll to top ad ogni cambio di step nel Poke Builder */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [pokeFlowStep]);
+
   /* Pre-popola customer_allergen_codes nella griglia in alto con i filtri attivi
      quando si arriva allo step 3 del checkout asporto */
   useEffect(() => {
