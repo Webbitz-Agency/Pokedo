@@ -2777,7 +2777,27 @@ function menuItemVisibleInPublicFilters(
 ): boolean {
   if ((item as MenuItem & { active?: boolean }).active === false) return false;
   if (!menuItemVisibleInAllergenFilter(item, excludedAllergens)) return false;
-  return itemMatchesAdditionalFilterTags(item, activeFilterTagIds);
+  if (activeFilterTagIds.length === 0) return true;
+
+  // Se il prodotto BASE ha il tag è visibile senza ulteriori controlli sulle scelte.
+  if (matchesAdditionalFilterTags(item.tag_ids, activeFilterTagIds)) return true;
+
+  // Altrimenti applica il filtro tag alle scelte e verifica che tutte le varianti
+  // obbligatorie (force_min >= 1) abbiano ancora almeno una scelta valida.
+  const filteredVariants = filterMenuItemVariantsForAllFilters(item, excludedAllergens, activeFilterTagIds);
+  if (filteredVariants.length === 0) return false;
+
+  const allVariants = Array.isArray(item.variants) ? item.variants : [];
+  for (const variant of allVariants) {
+    const forceMax = Math.max(1, Number(variant.force_max ?? 1));
+    const forceMin = Math.max(0, Math.min(Number(variant.force_min ?? 1), forceMax));
+    if (forceMin >= 1) {
+      // Variante obbligatoria: deve avere almeno una scelta dopo il filtro
+      const filtered = filteredVariants.find((v) => v.id === variant.id);
+      if (!filtered || filtered.choices.length === 0) return false;
+    }
+  }
+  return true;
 }
 
 function sanitizeTagIds(value: unknown): string[] {
