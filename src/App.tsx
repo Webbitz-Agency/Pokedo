@@ -4386,13 +4386,18 @@ export default function App() {
     if (!menu) return [];
     if (publicExcludedAllergens.length === 0 && publicActiveFilterTags.length === 0) return menu.categories;
     return menu.categories
-      .map((category) => ({
-        ...category,
-        items: category.items.filter((item) =>
-          menuItemVisibleInPublicFilters(item, publicExcludedAllergens, publicActiveFilterTags)
-        )
-      }))
-      .filter((category) => category.items.length > 0);
+      .map((category) => {
+        // Le categorie bevanda non vengono mai filtrate: le bevande devono
+        // essere sempre visibili indipendentemente da allergeni/tag attivi
+        if (category.is_beverage) return category;
+        return {
+          ...category,
+          items: category.items.filter((item) =>
+            menuItemVisibleInPublicFilters(item, publicExcludedAllergens, publicActiveFilterTags)
+          )
+        };
+      })
+      .filter((category) => category.is_beverage || category.items.length > 0);
   }, [menu, publicExcludedAllergens, publicActiveFilterTags]);
   const infoModalParsed = useMemo(() => {
     if (!infoModalItem) return { cleanName: "", allergens: null as string | null };
@@ -4463,6 +4468,8 @@ export default function App() {
       const withoutBang = option.name.replace(/!+$/g, "").trim().toLowerCase();
       return !normalizedNames.has(withoutBang) || !activeOptions.some((o) => !o.name.endsWith("!") && o.name.trim().toLowerCase() === withoutBang);
     });
+    // Le bevande non vengono mai filtrate per allergeni/tag
+    if (isBeverageGroup) return deduped;
     if (publicExcludedAllergens.length === 0 && publicActiveFilterTags.length === 0) return deduped;
     return deduped.filter((option) => {
       if (publicExcludedAllergens.length > 0) {
@@ -4556,6 +4563,12 @@ export default function App() {
       selectedBuilder.groups.forEach((group) => {
         const currentSelection = old[group.id] ?? {};
         if (Object.keys(currentSelection).length === 0) return;
+        // I gruppi bevanda non vengono mai ripuliti dai filtri
+        const isBeverageGroup = group.name.toLowerCase().includes("bevand");
+        if (isBeverageGroup) {
+          next[group.id] = currentSelection;
+          return;
+        }
         const allowedOptionIds = new Set(
           group.options
             .filter((option) => {
