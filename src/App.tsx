@@ -4982,7 +4982,8 @@ export default function App() {
     };
   }, []);
 
-  // Auto-avanza al prossimo giorno disponibile se la data è nel passato, chiusa o senza slot futuri
+  // Auto-avanza (o torna indietro) alla prima data disponibile basandosi sulle regole correnti.
+  // Gestisce anche la race condition: default settings → domani; poi settings reali → oggi.
   useEffect(() => {
     if (!menuCheckoutForm.pickup_date) return;
     const isPastDate = menuCheckoutForm.pickup_date < todayIsoForPickup;
@@ -4994,7 +4995,10 @@ export default function App() {
     const hasNoFutureSlots =
       menuCheckoutForm.pickup_date === todayIsoForPickup &&
       !pickupBaseSlots.some((s) => s.minutes >= threshold);
-    if (isPastDate || isDayClosed || hasNoFutureSlots) {
+    // Se la data attuale è DOPO la prima disponibile (es. dopo aggiornamento settings),
+    // riporta alla prima data utile.
+    const isLaterThanNeeded = menuCheckoutForm.pickup_date > nextAvailablePickupDate;
+    if (isPastDate || isDayClosed || hasNoFutureSlots || isLaterThanNeeded) {
       setMenuCheckoutForm((old) => ({
         ...old,
         pickup_date: nextAvailablePickupDate,
@@ -10527,33 +10531,26 @@ export default function App() {
                             }}
                           />
                         </div>
-                        <div className={`checkout-time-selects${isPickupAsapSelected ? " checkout-time-selects-asap" : ""}`}>
+                        <div className="checkout-time-selects">
                           <select
                             value={menuCheckoutForm.pickup_hour}
                             onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, pickup_hour: e.target.value, pickup_minute: "" }))}
                           >
                             <option value="">{t("selectHour")}</option>
-                            {appSettings.site.pickup_asap_enabled && (
-                              <option value={PICKUP_HOUR_ASAP_VALUE}>{t("pickupAsapLabel")}</option>
-                            )}
                             {pickupAllowedHours.map((hour) => (
                               <option key={hour} value={hour}>{hour}</option>
                             ))}
                           </select>
-                          {!isPickupAsapSelected && (
-                            <>
-                              <span>:</span>
-                              <select
-                                value={menuCheckoutForm.pickup_minute}
-                                onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, pickup_minute: e.target.value }))}
-                              >
-                                <option value="">{t("selectMinutes")}</option>
-                                {pickupAllowedMinutesForHour.map((minute) => (
-                                  <option key={minute} value={minute}>{minute}</option>
-                                ))}
-                              </select>
-                            </>
-                          )}
+                          <span>:</span>
+                          <select
+                            value={menuCheckoutForm.pickup_minute}
+                            onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, pickup_minute: e.target.value }))}
+                          >
+                            <option value="">{t("selectMinutes")}</option>
+                            {pickupAllowedMinutesForHour.map((minute) => (
+                              <option key={minute} value={minute}>{minute}</option>
+                            ))}
+                          </select>
                         </div>
                         <button
                           className="checkout-back-btn"
@@ -10567,12 +10564,12 @@ export default function App() {
                     {/* Step 2b/3: form dati cliente (visibile quando scelta fatta e orario valido) */}
                     {totemPickupChoice !== null && (
                       totemPickupChoice === "now" ||
-                      (totemPickupChoice === "later" && menuCheckoutForm.pickup_date && (isPickupAsapSelected || (menuCheckoutForm.pickup_hour && menuCheckoutForm.pickup_minute)))
+                      (totemPickupChoice === "later" && menuCheckoutForm.pickup_date && menuCheckoutForm.pickup_hour && menuCheckoutForm.pickup_minute)
                     ) && (
                       <>
                         {totemPickupChoice === "later" && (
                           <p className="totem-later-summary">
-                            Ritiro: <strong>{formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} {isPickupAsapSelected ? t("pickupAsapLabel") : `${menuCheckoutForm.pickup_hour}:${menuCheckoutForm.pickup_minute}`}</strong>
+                            Ritiro: <strong>{formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} {menuCheckoutForm.pickup_hour}:{menuCheckoutForm.pickup_minute}</strong>
                             <button className="totem-later-edit-btn" onClick={() => setMenuCheckoutForm((old) => ({ ...old, pickup_hour: "", pickup_minute: "" }))}>
                               Modifica
                             </button>
