@@ -345,9 +345,9 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     aboutKicker: "Chi siamo",
     aboutTitle: "La nostra filosofia in ogni bowl",
     aboutEyebrow: "Pokè bar contemporaneo a San Miniato",
-    aboutHighlight: "Ingredienti veri, gusto pulito, esperienza digitale semplice.",
+    aboutHighlight: "Ingredienti freschi, gusto vero...!",
     aboutBody1:
-      "Pokedo è il poke bar di San Miniato (PI) dove freschezza, creatività e velocità convivono ogni giorno. Con il nostro percorso digitale scegli la bowl ideale, personalizzi ogni dettaglio e ordini in pochi passaggi chiari.",
+      "Pokedo è il poke bar di San Miniato (PI) dove freschezza, creatività e velocità convivono ogni giorno. Non solo pokè: dal nostro menu trovi bowl personalizzabili, piatti unici, bevande e molto altro. Scegli ciò che vuoi, personalizza ogni dettaglio e ordina in pochi semplici passaggi.",
     aboutBody2:
       "Dalla pausa pranzo alla cena con amici, componi la tua pokè come vuoi tu e scegli subito se gustarla in sala o ritirarla da asporto, con tempi trasparenti e servizio rapido.",
     callUs: "Chiamaci",
