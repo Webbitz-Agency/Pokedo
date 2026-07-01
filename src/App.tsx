@@ -10591,17 +10591,17 @@ export default function App() {
                             className={totemKbField === "last_name" ? "totem-kb-active-input" : ""}
                             onPointerDown={(e) => { e.preventDefault(); setTotemKbField("last_name"); setTotemKbCaps(true); }}
                           />
+                          {totemPickupChoice === "later" && (
+                            <input
+                              placeholder="Telefono *"
+                              value={menuCheckoutForm.phone}
+                              readOnly
+                              className={totemKbField === "phone" ? "totem-kb-active-input" : ""}
+                              style={{ gridColumn: "1 / -1" }}
+                              onPointerDown={(e) => { e.preventDefault(); setTotemKbField("phone"); setTotemKbCaps(false); }}
+                            />
+                          )}
                         </div>
-                        {totemPickupChoice === "later" && (
-                          <input
-                            placeholder="Telefono *"
-                            value={menuCheckoutForm.phone}
-                            readOnly
-                            className={totemKbField === "phone" ? "totem-kb-active-input" : ""}
-                            style={{ marginTop: "10px", width: "100%" }}
-                            onPointerDown={(e) => { e.preventDefault(); setTotemKbField("phone"); setTotemKbCaps(false); }}
-                          />
-                        )}
                         <label className="field-label" style={{ marginTop: "10px" }}>
                           <span>{t("orderNotes")}</span>
                           <textarea
