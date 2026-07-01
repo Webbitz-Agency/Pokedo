@@ -2930,7 +2930,7 @@ export default function App() {
   const [totemLoginBusy, setTotemLoginBusy] = useState(false);
   const [totemOrderSuccess, setTotemOrderSuccess] = useState(false);
   const [totemPickupChoice, setTotemPickupChoice] = useState<"now" | "later" | null>(null);
-  const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | "order_note" | "modal_note" | "edit_note" | null>(null);
+  const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | "phone" | "order_note" | "modal_note" | "edit_note" | null>(null);
   const [totemKbCaps, setTotemKbCaps] = useState(true);
   const [dishAllergenMap, setDishAllergenMap] = useState<Record<number, number[]>>({});
   const [tableAllergenModalOpen, setTableAllergenModalOpen] = useState(false);
@@ -10592,6 +10592,16 @@ export default function App() {
                             onPointerDown={(e) => { e.preventDefault(); setTotemKbField("last_name"); setTotemKbCaps(true); }}
                           />
                         </div>
+                        {totemPickupChoice === "later" && (
+                          <input
+                            placeholder="Telefono *"
+                            value={menuCheckoutForm.phone}
+                            readOnly
+                            className={totemKbField === "phone" ? "totem-kb-active-input" : ""}
+                            style={{ marginTop: "10px", width: "100%" }}
+                            onPointerDown={(e) => { e.preventDefault(); setTotemKbField("phone"); setTotemKbCaps(false); }}
+                          />
+                        )}
                         <label className="field-label" style={{ marginTop: "10px" }}>
                           <span>{t("orderNotes")}</span>
                           <textarea
@@ -10641,7 +10651,7 @@ export default function App() {
                         <button
                           className="cta big"
                           style={{ width: "100%", marginTop: "8px" }}
-                          disabled={saving || !menuCheckoutForm.first_name.trim() || !menuCheckoutForm.last_name.trim()}
+                          disabled={saving || !menuCheckoutForm.first_name.trim() || !menuCheckoutForm.last_name.trim() || (totemPickupChoice === "later" && !menuCheckoutForm.phone.trim())}
                           onClick={() => void submitTotemOrder()}
                         >
                           {saving ? t("sending") : t("sendOrder")}
