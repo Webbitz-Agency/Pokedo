@@ -4981,9 +4981,10 @@ export default function App() {
     };
   }, []);
 
-  // Auto-avanza al prossimo giorno disponibile se il giorno corrente è chiuso o senza slot futuri
+  // Auto-avanza al prossimo giorno disponibile se la data è nel passato, chiusa o senza slot futuri
   useEffect(() => {
     if (!menuCheckoutForm.pickup_date) return;
+    const isPastDate = menuCheckoutForm.pickup_date < todayIsoForPickup;
     const date = new Date(menuCheckoutForm.pickup_date + "T00:00:00");
     const dayIdx = getIsoDayIndex(date);
     const dayRule = appSettings.site.pickup_time_rule.find((d) => d.day === dayIdx);
@@ -4992,7 +4993,7 @@ export default function App() {
     const hasNoFutureSlots =
       menuCheckoutForm.pickup_date === todayIsoForPickup &&
       !pickupBaseSlots.some((s) => s.minutes >= threshold);
-    if (isDayClosed || hasNoFutureSlots) {
+    if (isPastDate || isDayClosed || hasNoFutureSlots) {
       setMenuCheckoutForm((old) => ({
         ...old,
         pickup_date: nextAvailablePickupDate,
@@ -10671,14 +10672,17 @@ export default function App() {
                       type="date"
                       min={todayIsoForPickup}
                       value={menuCheckoutForm.pickup_date}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        // Rifiuta date nel passato (possono essere digitate manualmente)
+                        const safeDate = val && val < todayIsoForPickup ? nextAvailablePickupDate : val;
                         setMenuCheckoutForm((old) => ({
                           ...old,
-                          pickup_date: e.target.value,
+                          pickup_date: safeDate,
                           pickup_hour: "",
                           pickup_minute: ""
-                        }))
-                      }
+                        }));
+                      }}
                     />
                     <small>{t("pickupDayHint")}</small>
                   </div>
