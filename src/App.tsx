@@ -2654,6 +2654,48 @@ function filterMenuItemVariantsForAllergens(item: MenuItem, excludedAllergens: n
     .filter((variant) => variant.choices.length > 0);
 }
 
+/**
+ * Filtra le scelte di una variante mantenendo solo quelle che hanno almeno uno
+ * dei tag attivi. Se il prodotto base ha già il tag, le scelte non vengono filtrate
+ * (il prodotto è già qualificato indipendentemente dalla scelta).
+ */
+function filterVariantChoicesForTags(
+  choices: MenuVariantChoice[] | undefined,
+  activeTagIds: string[],
+  itemAlreadyMatchesTags: boolean
+): MenuVariantChoice[] {
+  if (activeTagIds.length === 0 || itemAlreadyMatchesTags) {
+    return (Array.isArray(choices) ? choices : []).filter(isVariantChoiceActive);
+  }
+  return (Array.isArray(choices) ? choices : []).filter((choice) => {
+    if (!isVariantChoiceActive(choice)) return false;
+    return matchesAdditionalFilterTags(choice.tag_ids, activeTagIds);
+  });
+}
+
+/**
+ * Combina filtro allergeni (esclusione) + filtro tag aggiuntivi (inclusione).
+ * Il filtro tag si applica alle scelte solo se il prodotto base NON ha già il tag.
+ */
+function filterMenuItemVariantsForAllFilters(
+  item: MenuItem,
+  excludedAllergens: number[],
+  activeTagIds: string[]
+) {
+  const itemBaseMatchesTags =
+    activeTagIds.length === 0 || matchesAdditionalFilterTags(item.tag_ids, activeTagIds);
+  const variants = Array.isArray(item.variants) ? item.variants : [];
+  return variants
+    .map((variant) => {
+      // Prima applica filtro allergeni
+      const allergenFiltered = filterVariantChoices(variant.choices, excludedAllergens);
+      // Poi applica filtro tag
+      const tagFiltered = filterVariantChoicesForTags(allergenFiltered, activeTagIds, itemBaseMatchesTags);
+      return { ...variant, choices: tagFiltered };
+    })
+    .filter((variant) => variant.choices.length > 0);
+}
+
 type PokeBuilderOption = BuilderItem["groups"][number]["options"][number];
 type BeverageOption = PokeBuilderOption & { category_id?: number; category_name?: string };
 
@@ -5532,7 +5574,7 @@ export default function App() {
   }
 
   function getMenuItemVariants(item: MenuItem) {
-    return filterMenuItemVariantsForAllergens(item, publicExcludedAllergens);
+    return filterMenuItemVariantsForAllFilters(item, publicExcludedAllergens, publicActiveFilterTags);
   }
 
   function getMenuItemQuantity(itemId: number) {
@@ -5569,9 +5611,9 @@ export default function App() {
   }
 
   useEffect(() => {
-    if (publicExcludedAllergens.length === 0) return;
+    if (publicExcludedAllergens.length === 0 && publicActiveFilterTags.length === 0) return;
     const pruneSelection = (item: MenuItem, selectedByVariantId: Record<number, Record<number, number>>) => {
-      const variants = filterMenuItemVariantsForAllergens(item, publicExcludedAllergens);
+      const variants = filterMenuItemVariantsForAllFilters(item, publicExcludedAllergens, publicActiveFilterTags);
       const nextSelected: Record<number, Record<number, number>> = {};
       variants.forEach((variant) => {
         const limits = getVariantLimits(variant);
@@ -5602,7 +5644,7 @@ export default function App() {
       const nextSelected = pruneSelection(old.menuItem, old.selectedByVariantId);
       return { ...old, selectedByVariantId: nextSelected };
     });
-  }, [publicExcludedAllergens]);
+  }, [publicExcludedAllergens, publicActiveFilterTags]);
 
   /* Scroll to top ad ogni cambio di step nel checkout */
   useEffect(() => {
