@@ -9177,30 +9177,35 @@ export default function App() {
                         )}
                       </button>
                       <div className="menu-dish-content">
-                        {(itemAdditionalFilterTags.length > 0 || itemChoiceAdditionalFilterTags.length > 0) && (
-                          <div className="menu-dish-filter-labels" aria-hidden="true">
-                            {itemAdditionalFilterTags.map((tag) => (
-                              <span
-                                key={`menu-dish-filter-label-${item.id}-${tag.id}`}
-                                className="menu-dish-filter-label"
-                                style={{ backgroundColor: tag.color }}
-                              >
-                                {tag.name.trim().slice(0, 3).toUpperCase()}
-                              </span>
-                            ))}
-                            {itemChoiceAdditionalFilterTags.map((tag) => (
-                              <span
-                                key={`menu-dish-filter-label-also-${item.id}-${tag.id}`}
-                                className="menu-dish-filter-label menu-dish-filter-label--also"
-                                style={{ backgroundColor: tag.color }}
-                              >
-                                {translateText(uiLanguage, "alsoFilterTag", {
-                                  tag: tag.name.trim().slice(0, 3).toUpperCase()
-                                })}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                        {(itemAdditionalFilterTags.length > 0 || itemChoiceAdditionalFilterTags.length > 0) && (() => {
+                          // Unifica tag diretti e da variante, deduplicando per id
+                          const allItemTags = [...itemAdditionalFilterTags, ...itemChoiceAdditionalFilterTags];
+                          const seenTagIds = new Set<string>();
+                          const uniqueItemTags = allItemTags.filter(tag => {
+                            if (seenTagIds.has(tag.id)) return false;
+                            seenTagIds.add(tag.id);
+                            return true;
+                          });
+                          // Se vegano è presente, non mostrare vegetariano (vegano implica vegetariano)
+                          const hasVegano = uniqueItemTags.some(t => t.name.toLowerCase().includes("vegan"));
+                          const displayTags = hasVegano
+                            ? uniqueItemTags.filter(t => !t.name.toLowerCase().includes("vegetar"))
+                            : uniqueItemTags;
+                          if (displayTags.length === 0) return null;
+                          return (
+                            <div className="menu-dish-filter-labels" aria-hidden="true">
+                              {displayTags.map((tag) => (
+                                <span
+                                  key={`menu-dish-filter-label-also-${item.id}-${tag.id}`}
+                                  className="menu-dish-filter-label menu-dish-filter-label--also"
+                                  style={{ backgroundColor: tag.color }}
+                                >
+                                  {translateText(uiLanguage, "alsoFilterTag", { tag: tag.name.trim() })}
+                                </span>
+                              ))}
+                            </div>
+                          );
+                        })()}
                         <div className="menu-dish-title-row">
                           <h5 className="menu-open-trigger" onClick={() => setInfoModalItem(item)}>
                             {parsed.cleanName}
