@@ -2656,15 +2656,14 @@ function filterMenuItemVariantsForAllergens(item: MenuItem, excludedAllergens: n
 
 /**
  * Filtra le scelte di una variante mantenendo solo quelle che hanno almeno uno
- * dei tag attivi. Se il prodotto base ha già il tag, le scelte non vengono filtrate
- * (il prodotto è già qualificato indipendentemente dalla scelta).
+ * dei tag attivi. Il tag sul prodotto BASE non bypassa questo filtro: ogni scelta
+ * deve avere esplicitamente il tag per restare visibile.
  */
 function filterVariantChoicesForTags(
   choices: MenuVariantChoice[] | undefined,
-  activeTagIds: string[],
-  itemAlreadyMatchesTags: boolean
+  activeTagIds: string[]
 ): MenuVariantChoice[] {
-  if (activeTagIds.length === 0 || itemAlreadyMatchesTags) {
+  if (activeTagIds.length === 0) {
     return (Array.isArray(choices) ? choices : []).filter(isVariantChoiceActive);
   }
   return (Array.isArray(choices) ? choices : []).filter((choice) => {
@@ -2675,22 +2674,19 @@ function filterVariantChoicesForTags(
 
 /**
  * Combina filtro allergeni (esclusione) + filtro tag aggiuntivi (inclusione).
- * Il filtro tag si applica alle scelte solo se il prodotto base NON ha già il tag.
+ * Il tag BASE del prodotto non bypassa il filtro sulle scelte: anche se il
+ * prodotto è taggato vegano, ogni scelta deve avere il tag per restare visibile.
  */
 function filterMenuItemVariantsForAllFilters(
   item: MenuItem,
   excludedAllergens: number[],
   activeTagIds: string[]
 ) {
-  const itemBaseMatchesTags =
-    activeTagIds.length === 0 || matchesAdditionalFilterTags(item.tag_ids, activeTagIds);
   const variants = Array.isArray(item.variants) ? item.variants : [];
   return variants
     .map((variant) => {
-      // Prima applica filtro allergeni
       const allergenFiltered = filterVariantChoices(variant.choices, excludedAllergens);
-      // Poi applica filtro tag
-      const tagFiltered = filterVariantChoicesForTags(allergenFiltered, activeTagIds, itemBaseMatchesTags);
+      const tagFiltered = filterVariantChoicesForTags(allergenFiltered, activeTagIds);
       return { ...variant, choices: tagFiltered };
     })
     .filter((variant) => variant.choices.length > 0);
@@ -2779,20 +2775,24 @@ function menuItemVisibleInPublicFilters(
   if (!menuItemVisibleInAllergenFilter(item, excludedAllergens)) return false;
   if (activeFilterTagIds.length === 0) return true;
 
-  // Se il prodotto BASE ha il tag è visibile senza ulteriori controlli sulle scelte.
-  if (matchesAdditionalFilterTags(item.tag_ids, activeFilterTagIds)) return true;
+  // Il prodotto (base o almeno una scelta attiva) deve avere il tag.
+  if (!itemMatchesAdditionalFilterTags(item, activeFilterTagIds)) return false;
 
-  // Altrimenti applica il filtro tag alle scelte e verifica che tutte le varianti
-  // obbligatorie (force_min >= 1) abbiano ancora almeno una scelta valida.
-  const filteredVariants = filterMenuItemVariantsForAllFilters(item, excludedAllergens, activeFilterTagIds);
-  if (filteredVariants.length === 0) return false;
-
+  // Per prodotti senza varianti configurate il base tag è sufficiente.
   const allVariants = Array.isArray(item.variants) ? item.variants : [];
+  const hasActiveChoices = allVariants.some(
+    (v) => Array.isArray(v.choices) && v.choices.some(isVariantChoiceActive)
+  );
+  if (!hasActiveChoices) return true;
+
+  // Per prodotti con varianti: ogni variante obbligatoria (force_min >= 1) deve
+  // avere almeno una scelta con il tag dopo il filtro allergenico + tag.
+  // Il tag sul BASE non bypassa questo controllo: conta solo quello sulle scelte.
+  const filteredVariants = filterMenuItemVariantsForAllFilters(item, excludedAllergens, activeFilterTagIds);
   for (const variant of allVariants) {
     const forceMax = Math.max(1, Number(variant.force_max ?? 1));
     const forceMin = Math.max(0, Math.min(Number(variant.force_min ?? 1), forceMax));
     if (forceMin >= 1) {
-      // Variante obbligatoria: deve avere almeno una scelta dopo il filtro
       const filtered = filteredVariants.find((v) => v.id === variant.id);
       if (!filtered || filtered.choices.length === 0) return false;
     }
