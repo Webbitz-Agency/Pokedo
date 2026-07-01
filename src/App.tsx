@@ -232,9 +232,13 @@ type AppSettings = {
     }[];
     pickup_asap_enabled: boolean;
     pickup_time_rule: {
-      start_time: string;
-      end_time: string;
-      interval_minutes: number;
+      day: number;
+      enabled: boolean;
+      slots: {
+        start_time: string;
+        end_time: string;
+        interval_minutes: number;
+      }[];
     }[];
     orders_blocked: {
       enabled: boolean;
@@ -2449,13 +2453,11 @@ const DEFAULT_APP_SETTINGS: AppSettings = {
     table_cover_rules: [],
     tag_rules: [],
     pickup_asap_enabled: false,
-    pickup_time_rule: [
-      {
-      start_time: "12:00",
-        end_time: "14:00",
-        interval_minutes: 5
-      }
-    ],
+    pickup_time_rule: Array.from({ length: 7 }, (_, d) => ({
+      day: d,
+      enabled: true,
+      slots: [{ start_time: "12:00", end_time: "14:00", interval_minutes: 5 }]
+    })),
     orders_blocked: {
       enabled: false,
       reason: ""
@@ -2481,26 +2483,50 @@ function normalizeAppSettings(value: unknown): AppSettings {
     ? [pickupRuleRawSource]
     : [];
   const pickup_asap_enabled = Boolean((site as { pickup_asap_enabled?: unknown }).pickup_asap_enabled);
-  const defaultPickupWindow = DEFAULT_APP_SETTINGS.site.pickup_time_rule[0];
-  const allowedPickupIntervals = new Set([5, 10, 15, 20, 30]);
+  const _defSlot = { start_time: "12:00", end_time: "14:00", interval_minutes: 5 };
+  const _allowedIv = new Set([5, 10, 15, 20, 30]);
+  const _normPickupSlot = (source: Record<string, unknown>) => {
+    const st = String(source.start_time ?? "").trim();
+    const et = String(source.end_time ?? "").trim();
+    const ivRaw = Number(source.interval_minutes ?? _defSlot.interval_minutes);
+    return {
+      start_time: /^\d{2}:\d{2}$/.test(st) ? st : _defSlot.start_time,
+      end_time: /^\d{2}:\d{2}$/.test(et) ? et : _defSlot.end_time,
+      interval_minutes: _allowedIv.has(ivRaw) ? ivRaw : _defSlot.interval_minutes
+    };
+  };
   const pickup_time_rule_normalized = (() => {
-    const cleaned = pickupRuleRawList
-      .map((entry) => {
-        const source = (entry ?? {}) as Record<string, unknown>;
-        const start_time = String(source.start_time ?? "").trim();
-        const end_time = String(source.end_time ?? "").trim();
-        const intervalRaw = Number(source.interval_minutes ?? defaultPickupWindow.interval_minutes);
-        const interval_minutes = allowedPickupIntervals.has(intervalRaw)
-          ? intervalRaw
-          : defaultPickupWindow.interval_minutes;
+    const isOldFmt =
+      pickupRuleRawList.length > 0 &&
+      typeof (pickupRuleRawList[0] as Record<string, unknown>).start_time === "string" &&
+      typeof (pickupRuleRawList[0] as Record<string, unknown>).day === "undefined";
+    if (isOldFmt) {
+      const oldSlots = pickupRuleRawList
+        .slice(0, 6)
+        .map((e) => _normPickupSlot((e ?? {}) as Record<string, unknown>));
+      const slots = oldSlots.length > 0 ? oldSlots : [{ ..._defSlot }];
+      return Array.from({ length: 7 }, (_, d) => ({ day: d, enabled: true, slots }));
+    }
+    const seenDays = new Set<number>();
+    const days = pickupRuleRawList
+      .map((e) => {
+        const src = (e ?? {}) as Record<string, unknown>;
+        const day = Number(src.day);
+        if (!Number.isInteger(day) || day < 0 || day > 6 || seenDays.has(day)) return null;
+        seenDays.add(day);
+        const rawSlots = Array.isArray(src.slots) ? (src.slots as unknown[]) : [];
         return {
-          start_time: /^\d{2}:\d{2}$/.test(start_time) ? start_time : defaultPickupWindow.start_time,
-          end_time: /^\d{2}:\d{2}$/.test(end_time) ? end_time : defaultPickupWindow.end_time,
-          interval_minutes
+          day,
+          enabled: Boolean(src.enabled ?? true),
+          slots: rawSlots.slice(0, 6).map((s) => _normPickupSlot((s ?? {}) as Record<string, unknown>))
         };
       })
-      .slice(0, 6);
-    return cleaned.length > 0 ? cleaned : [{ ...defaultPickupWindow }];
+      .filter(Boolean) as { day: number; enabled: boolean; slots: typeof _defSlot[] }[];
+    for (let d = 0; d < 7; d++) {
+      if (!seenDays.has(d)) days.push({ day: d, enabled: false, slots: [] });
+    }
+    days.sort((a, b) => a.day - b.day);
+    return days.length > 0 ? days : Array.from({ length: 7 }, (_, d) => ({ day: d, enabled: true, slots: [{ ..._defSlot }] }));
   })();
   const ordersBlockedRaw = ((site as { orders_blocked?: unknown }).orders_blocked ?? {}) as Partial<
     AppSettings["site"]["orders_blocked"]
@@ -4872,41 +4898,70 @@ export default function App() {
     if (!menuCheckoutForm.pickup_hour || !menuCheckoutForm.pickup_minute) return "";
     return `${menuCheckoutForm.pickup_hour}:${menuCheckoutForm.pickup_minute}`;
   }, [menuCheckoutForm.pickup_hour, menuCheckoutForm.pickup_minute, t]);
-  const pickupBaseSlots = useMemo(() => {
+  // Converte JS getDay() (0=Dom) in indice ISO (0=Lun, ..., 6=Dom)
+  const getIsoDayIndex = (date: Date) => (date.getDay() + 6) % 7;
+
+  // Genera slot per un giorno specifico basandosi sulle regole
+  const buildSlotsForDate = (dateStr: string, rules: AppSettings["site"]["pickup_time_rule"]) => {
+    if (!dateStr) return [];
+    const date = new Date(dateStr + "T00:00:00");
+    const dayIdx = getIsoDayIndex(date);
+    const dayRule = rules.find((d) => d.day === dayIdx);
+    if (!dayRule || !dayRule.enabled) return [];
     const seen = new Set<number>();
     const slots: { hour: string; minute: string; minutes: number }[] = [];
-    for (const window of appSettings.site.pickup_time_rule) {
-      const start = parseTimeToMinutes(window.start_time);
-      const end = parseTimeToMinutes(window.end_time);
+    for (const w of dayRule.slots) {
+      const start = parseTimeToMinutes(w.start_time);
+      const end = parseTimeToMinutes(w.end_time);
       if (start === null || end === null || start > end) continue;
-      const step = Math.max(1, Number(window.interval_minutes) || 5);
-    for (let minutes = start; minutes <= end; minutes += step) {
-        if (seen.has(minutes)) continue;
-        seen.add(minutes);
-      slots.push({
-        hour: String(Math.floor(minutes / 60)).padStart(2, "0"),
-          minute: String(minutes % 60).padStart(2, "0"),
-          minutes
-      });
-    }
+      const step = Math.max(1, Number(w.interval_minutes) || 5);
+      for (let m = start; m <= end; m += step) {
+        if (seen.has(m)) continue;
+        seen.add(m);
+        slots.push({ hour: String(Math.floor(m / 60)).padStart(2, "0"), minute: String(m % 60).padStart(2, "0"), minutes: m });
+      }
     }
     slots.sort((a, b) => a.minutes - b.minutes);
     return slots;
-  }, [appSettings.site.pickup_time_rule]);
+  };
+
   const todayIsoForPickup = useMemo(() => {
     const y = pickupNowTick.getFullYear();
     const m = String(pickupNowTick.getMonth() + 1).padStart(2, "0");
     const d = String(pickupNowTick.getDate()).padStart(2, "0");
     return `${y}-${m}-${d}`;
   }, [pickupNowTick]);
-  const tomorrowIsoForPickup = useMemo(() => {
-    const dt = new Date(pickupNowTick);
-    dt.setDate(dt.getDate() + 1);
-    const y = dt.getFullYear();
-    const m = String(dt.getMonth() + 1).padStart(2, "0");
-    const d = String(dt.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
-  }, [pickupNowTick]);
+
+  // Trova il prossimo giorno disponibile con slot futuri
+  const nextAvailablePickupDate = useMemo(() => {
+    const rules = appSettings.site.pickup_time_rule;
+    const now = pickupNowTick;
+    const threshold = getMinutesOfDayFromDate(now) + PICKUP_PREP_BUFFER_MINUTES;
+    for (let i = 0; i < 14; i++) {
+      const date = new Date(now);
+      date.setDate(date.getDate() + i);
+      const dayIdx = getIsoDayIndex(date);
+      const dayRule = rules.find((d) => d.day === dayIdx);
+      if (!dayRule || !dayRule.enabled || !dayRule.slots.length) continue;
+      const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      if (i === 0) {
+        const slots = buildSlotsForDate(dateStr, rules);
+        if (!slots.some((s) => s.minutes >= threshold)) continue;
+      }
+      return dateStr;
+    }
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, "0")}-${String(tomorrow.getDate()).padStart(2, "0")}`;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appSettings.site.pickup_time_rule, pickupNowTick]);
+
+  const pickupBaseSlots = useMemo(
+    () => buildSlotsForDate(menuCheckoutForm.pickup_date, appSettings.site.pickup_time_rule),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [menuCheckoutForm.pickup_date, appSettings.site.pickup_time_rule]
+  );
+
   const pickupAllowedSlots = useMemo(() => {
     if (menuCheckoutForm.pickup_date !== todayIsoForPickup) {
       return pickupBaseSlots.map(({ hour, minute }) => ({ hour, minute }));
@@ -4916,6 +4971,7 @@ export default function App() {
       .filter((slot) => slot.minutes >= threshold)
       .map(({ hour, minute }) => ({ hour, minute }));
   }, [pickupBaseSlots, menuCheckoutForm.pickup_date, todayIsoForPickup, pickupNowTick]);
+
   useEffect(() => {
     const id = window.setInterval(() => {
       setPickupNowTick(new Date());
@@ -4924,20 +4980,27 @@ export default function App() {
       window.clearInterval(id);
     };
   }, []);
+
+  // Auto-avanza al prossimo giorno disponibile se il giorno corrente è chiuso o senza slot futuri
   useEffect(() => {
-    if (menuCheckoutForm.pickup_date !== todayIsoForPickup) return;
-    if (pickupBaseSlots.length === 0) return;
+    if (!menuCheckoutForm.pickup_date) return;
+    const date = new Date(menuCheckoutForm.pickup_date + "T00:00:00");
+    const dayIdx = getIsoDayIndex(date);
+    const dayRule = appSettings.site.pickup_time_rule.find((d) => d.day === dayIdx);
+    const isDayClosed = !dayRule || !dayRule.enabled;
     const threshold = getMinutesOfDayFromDate(pickupNowTick) + PICKUP_PREP_BUFFER_MINUTES;
-    const hasFutureSlotToday = pickupBaseSlots.some((slot) => slot.minutes >= threshold);
-    if (!hasFutureSlotToday) {
+    const hasNoFutureSlots =
+      menuCheckoutForm.pickup_date === todayIsoForPickup &&
+      !pickupBaseSlots.some((s) => s.minutes >= threshold);
+    if (isDayClosed || hasNoFutureSlots) {
       setMenuCheckoutForm((old) => ({
         ...old,
-        pickup_date: tomorrowIsoForPickup,
+        pickup_date: nextAvailablePickupDate,
         pickup_hour: "",
         pickup_minute: ""
       }));
     }
-  }, [menuCheckoutForm.pickup_date, pickupBaseSlots, pickupNowTick, todayIsoForPickup, tomorrowIsoForPickup]);
+  }, [menuCheckoutForm.pickup_date, pickupBaseSlots, pickupNowTick, todayIsoForPickup, nextAvailablePickupDate, appSettings.site.pickup_time_rule]);
   const pickupAllowedHours = useMemo(
     () => Array.from(new Set(pickupAllowedSlots.map((entry) => entry.hour))),
     [pickupAllowedSlots]
@@ -5225,7 +5288,7 @@ export default function App() {
       | Record<string, string>
       | { id: number; name: string; start_time: string; end_time: string; cost_pp: number; active: boolean }[]
       | { id: number; name: string; color: string }[]
-      | { start_time: string; end_time: string; interval_minutes: number }[]
+      | { day: number; enabled: boolean; slots: { start_time: string; end_time: string; interval_minutes: number }[] }[]
   ) {
     setSettingsForm((old) => {
       if (section === "activity") {
@@ -5299,10 +5362,10 @@ export default function App() {
           ...old,
           site: {
             ...old.site,
-            pickup_time_rule: value as {
-              start_time: string;
-              end_time: string;
-              interval_minutes: number;
+            pickup_time_rule: value as unknown as {
+              day: number;
+              enabled: boolean;
+              slots: { start_time: string; end_time: string; interval_minutes: number }[];
             }[]
           }
         };
