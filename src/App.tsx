@@ -2929,6 +2929,7 @@ export default function App() {
   const [totemLoginError, setTotemLoginError] = useState("");
   const [totemLoginBusy, setTotemLoginBusy] = useState(false);
   const [totemOrderSuccess, setTotemOrderSuccess] = useState(false);
+  const [totemPickupChoice, setTotemPickupChoice] = useState<"now" | "later" | null>(null);
   const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | "order_note" | "modal_note" | "edit_note" | null>(null);
   const [totemKbCaps, setTotemKbCaps] = useState(true);
   const [dishAllergenMap, setDishAllergenMap] = useState<Record<number, number[]>>({});
@@ -6734,6 +6735,12 @@ export default function App() {
     const lastName = menuCheckoutForm.last_name.trim();
     const customerName = `${firstName} ${lastName}`.trim();
     if (!customerName) return;
+    const isLater = totemPickupChoice === "later";
+    const pickupTimeText = isLater
+      ? (menuCheckoutForm.pickup_hour === PICKUP_HOUR_ASAP_VALUE
+          ? "Prima possibile"
+          : `${menuCheckoutForm.pickup_hour}:${menuCheckoutForm.pickup_minute}`)
+      : null;
     setSaving(true);
     try {
       const customerAllergenCodes = menuCheckoutForm.customer_allergen_codes.slice().sort((a, b) => a - b);
@@ -6746,7 +6753,10 @@ export default function App() {
           return `${item.name} (${labels.join(", ")})`;
         });
       const dishAllergenNote = dishAllergenNoteParts.length > 0 ? `Attenzione: ${dishAllergenNoteParts.join(" | ")}` : "";
-      const totemNote = [allergensNote, menuCheckoutForm.order_note.trim(), dishAllergenNote].filter(Boolean).join(" — ");
+      const pickupNote = isLater && menuCheckoutForm.pickup_date
+        ? `Ritiro il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} alle ${pickupTimeText}`
+        : "";
+      const totemNote = [allergensNote, pickupNote, menuCheckoutForm.order_note.trim(), dishAllergenNote].filter(Boolean).join(" — ");
       await publicApi.createOrder({
         source: "totem",
         service_type: "totem",
@@ -6756,6 +6766,11 @@ export default function App() {
         total_price: orderTotalAmount,
         payload: {
           type: "totem_order",
+          totem_pickup_type: isLater ? "later" : "now",
+          ...(isLater && menuCheckoutForm.pickup_date ? {
+            pickup_date: menuCheckoutForm.pickup_date,
+            pickup_time: pickupTimeText ?? undefined
+          } : {}),
           contact: { first_name: firstName, last_name: lastName },
           customer_allergen_codes: customerAllergenCodes,
           customer_allergen_labels: customerAllergenLabels,
@@ -6773,12 +6788,13 @@ export default function App() {
       setOrderOpen(false);
       setOrderClosing(false);
       setDishAllergenMap({});
+      setTotemPickupChoice(null);
       setMenuCheckoutForm({
         first_name: "",
         last_name: "",
         phone: "",
         email: "",
-        pickup_date: "",
+        pickup_date: getTodayIsoDate(),
         pickup_hour: "",
         pickup_minute: "",
         order_note: "",
@@ -10469,80 +10485,177 @@ export default function App() {
                     <strong>{formatCurrency(orderTotalAmount)}</strong>
                   </div>
                   <div className="totem-checkout-name-form">
-                    <h3>{t("customerData")}</h3>
-                    <div className="form-grid">
-                      <input
-                        placeholder={t("firstNamePlaceholder")}
-                        value={menuCheckoutForm.first_name}
-                        readOnly
-                        className={totemKbField === "first_name" ? "totem-kb-active-input" : ""}
-                        onPointerDown={(e) => { e.preventDefault(); setTotemKbField("first_name"); setTotemKbCaps(true); }}
-                      />
-                      <input
-                        placeholder={t("lastNamePlaceholder")}
-                        value={menuCheckoutForm.last_name}
-                        readOnly
-                        className={totemKbField === "last_name" ? "totem-kb-active-input" : ""}
-                        onPointerDown={(e) => { e.preventDefault(); setTotemKbField("last_name"); setTotemKbCaps(true); }}
-                      />
-                    </div>
-                    <label className="field-label" style={{ marginTop: "10px" }}>
-                      <span>{t("orderNotes")}</span>
-                      <textarea
-                        placeholder={t("orderNotesPlaceholder")}
-                        value={menuCheckoutForm.order_note}
-                        readOnly
-                        rows={2}
-                        className={totemKbField === "order_note" ? "totem-kb-active-input" : ""}
-                        onPointerDown={(e) => { e.preventDefault(); setTotemKbField("order_note"); setTotemKbCaps(false); }}
-                      />
-                    </label>
-                    {publicExcludedAllergens.length > 0 && (
-                      <div className="checkout-dish-allergens">
-                        <h4>Allergeni per piatto</h4>
-                        <p className="checkout-dish-allergens__lead muted">Tocca gli allergeni sui piatti a cui fare attenzione:</p>
-                        {orderItemsList.map((item) => (
-                          <div key={item.id} className="dish-allergen-row">
-                            <span className="dish-allergen-row__name">{item.name}</span>
-                            <div className="dish-allergen-row__btns">
-                              {publicExcludedAllergens.map((code) => {
-                                const al = ALLERGEN_OPTIONS.find((a) => a.id === code);
-                                const selected = (dishAllergenMap[item.id] ?? []).includes(code);
-                                return (
-                                  <button
-                                    key={code}
-                                    type="button"
-                                    className={`dish-allergen-btn${selected ? " selected" : ""}`}
-                                    onPointerDown={(e) => {
-                                      e.preventDefault();
-                                      setDishAllergenMap((old) => {
-                                        const cur = old[item.id] ?? [];
-                                        const next = selected ? cur.filter((c) => c !== code) : [...cur, code];
-                                        return { ...old, [item.id]: next };
-                                      });
-                                    }}
-                                  >
-                                    {al?.icon_url ? <img src={al.icon_url} alt="" /> : <span>{code}</span>}
-                                    <small>{getAllergenDisplayTitle(code, uiLanguage)}</small>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))}
+                    {/* Step 1: scelta ritiro ora / più tardi */}
+                    {totemPickupChoice === null && (
+                      <div className="totem-pickup-choice">
+                        <h3>Quando vuoi ritirare il tuo ordine?</h3>
+                        <div className="totem-pickup-choice-btns">
+                          <button
+                            className="cta big totem-pickup-btn"
+                            onClick={() => setTotemPickupChoice("now")}
+                          >
+                            Ritira ora
+                          </button>
+                          <button
+                            className="cta big totem-pickup-btn totem-pickup-btn--later"
+                            onClick={() => setTotemPickupChoice("later")}
+                          >
+                            Ritira più tardi
+                          </button>
+                        </div>
+                        <button className="checkout-back-btn" onClick={goToMenuPage}>
+                          {t("backToMenu")}
+                        </button>
                       </div>
                     )}
-                    <button
-                      className="cta big"
-                      style={{ width: "100%", marginTop: "8px" }}
-                      disabled={saving || !menuCheckoutForm.first_name.trim() || !menuCheckoutForm.last_name.trim()}
-                      onClick={() => void submitTotemOrder()}
-                    >
-                      {saving ? t("sending") : t("sendOrder")}
-                    </button>
-                    <button className="checkout-back-btn" onClick={goToMenuPage} disabled={saving}>
-                      {t("backToMenu")}
-                    </button>
+
+                    {/* Step 2a: selezione orario (solo se "più tardi") */}
+                    {totemPickupChoice === "later" && (
+                      <div className="totem-later-time">
+                        <h3>Scegli orario di ritiro</h3>
+                        <div className="checkout-date-row">
+                          <label htmlFor="totem-pickup-date">Giorno</label>
+                          <input
+                            id="totem-pickup-date"
+                            type="date"
+                            min={todayIsoForPickup}
+                            value={menuCheckoutForm.pickup_date}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const safeDate = val && val < todayIsoForPickup ? nextAvailablePickupDate : val;
+                              setMenuCheckoutForm((old) => ({ ...old, pickup_date: safeDate, pickup_hour: "", pickup_minute: "" }));
+                            }}
+                          />
+                        </div>
+                        <div className={`checkout-time-selects${isPickupAsapSelected ? " checkout-time-selects-asap" : ""}`}>
+                          <select
+                            value={menuCheckoutForm.pickup_hour}
+                            onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, pickup_hour: e.target.value, pickup_minute: "" }))}
+                          >
+                            <option value="">{t("selectHour")}</option>
+                            {appSettings.site.pickup_asap_enabled && (
+                              <option value={PICKUP_HOUR_ASAP_VALUE}>{t("pickupAsapLabel")}</option>
+                            )}
+                            {pickupAllowedHours.map((hour) => (
+                              <option key={hour} value={hour}>{hour}</option>
+                            ))}
+                          </select>
+                          {!isPickupAsapSelected && (
+                            <>
+                              <span>:</span>
+                              <select
+                                value={menuCheckoutForm.pickup_minute}
+                                onChange={(e) => setMenuCheckoutForm((old) => ({ ...old, pickup_minute: e.target.value }))}
+                              >
+                                <option value="">{t("selectMinutes")}</option>
+                                {pickupAllowedMinutesForHour.map((minute) => (
+                                  <option key={minute} value={minute}>{minute}</option>
+                                ))}
+                              </select>
+                            </>
+                          )}
+                        </div>
+                        <button
+                          className="checkout-back-btn"
+                          onClick={() => setTotemPickupChoice(null)}
+                        >
+                          Indietro
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Step 2b/3: form dati cliente (visibile quando scelta fatta e orario valido) */}
+                    {totemPickupChoice !== null && (
+                      totemPickupChoice === "now" ||
+                      (totemPickupChoice === "later" && menuCheckoutForm.pickup_date && (isPickupAsapSelected || (menuCheckoutForm.pickup_hour && menuCheckoutForm.pickup_minute)))
+                    ) && (
+                      <>
+                        {totemPickupChoice === "later" && (
+                          <p className="totem-later-summary">
+                            Ritiro: <strong>{formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} {isPickupAsapSelected ? t("pickupAsapLabel") : `${menuCheckoutForm.pickup_hour}:${menuCheckoutForm.pickup_minute}`}</strong>
+                            <button className="totem-later-edit-btn" onClick={() => setMenuCheckoutForm((old) => ({ ...old, pickup_hour: "", pickup_minute: "" }))}>
+                              Modifica
+                            </button>
+                          </p>
+                        )}
+                        <h3>{t("customerData")}</h3>
+                        <div className="form-grid">
+                          <input
+                            placeholder={t("firstNamePlaceholder")}
+                            value={menuCheckoutForm.first_name}
+                            readOnly
+                            className={totemKbField === "first_name" ? "totem-kb-active-input" : ""}
+                            onPointerDown={(e) => { e.preventDefault(); setTotemKbField("first_name"); setTotemKbCaps(true); }}
+                          />
+                          <input
+                            placeholder={t("lastNamePlaceholder")}
+                            value={menuCheckoutForm.last_name}
+                            readOnly
+                            className={totemKbField === "last_name" ? "totem-kb-active-input" : ""}
+                            onPointerDown={(e) => { e.preventDefault(); setTotemKbField("last_name"); setTotemKbCaps(true); }}
+                          />
+                        </div>
+                        <label className="field-label" style={{ marginTop: "10px" }}>
+                          <span>{t("orderNotes")}</span>
+                          <textarea
+                            placeholder={t("orderNotesPlaceholder")}
+                            value={menuCheckoutForm.order_note}
+                            readOnly
+                            rows={2}
+                            className={totemKbField === "order_note" ? "totem-kb-active-input" : ""}
+                            onPointerDown={(e) => { e.preventDefault(); setTotemKbField("order_note"); setTotemKbCaps(false); }}
+                          />
+                        </label>
+                        {publicExcludedAllergens.length > 0 && (
+                          <div className="checkout-dish-allergens">
+                            <h4>Allergeni per piatto</h4>
+                            <p className="checkout-dish-allergens__lead muted">Tocca gli allergeni sui piatti a cui fare attenzione:</p>
+                            {orderItemsList.map((item) => (
+                              <div key={item.id} className="dish-allergen-row">
+                                <span className="dish-allergen-row__name">{item.name}</span>
+                                <div className="dish-allergen-row__btns">
+                                  {publicExcludedAllergens.map((code) => {
+                                    const al = ALLERGEN_OPTIONS.find((a) => a.id === code);
+                                    const selected = (dishAllergenMap[item.id] ?? []).includes(code);
+                                    return (
+                                      <button
+                                        key={code}
+                                        type="button"
+                                        className={`dish-allergen-btn${selected ? " selected" : ""}`}
+                                        onPointerDown={(e) => {
+                                          e.preventDefault();
+                                          setDishAllergenMap((old) => {
+                                            const cur = old[item.id] ?? [];
+                                            const next = selected ? cur.filter((c) => c !== code) : [...cur, code];
+                                            return { ...old, [item.id]: next };
+                                          });
+                                        }}
+                                      >
+                                        {al?.icon_url ? <img src={al.icon_url} alt="" /> : <span>{code}</span>}
+                                        <small>{getAllergenDisplayTitle(code, uiLanguage)}</small>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <button
+                          className="cta big"
+                          style={{ width: "100%", marginTop: "8px" }}
+                          disabled={saving || !menuCheckoutForm.first_name.trim() || !menuCheckoutForm.last_name.trim()}
+                          onClick={() => void submitTotemOrder()}
+                        >
+                          {saving ? t("sending") : t("sendOrder")}
+                        </button>
+                        {totemPickupChoice === "now" && (
+                          <button className="checkout-back-btn" onClick={() => setTotemPickupChoice(null)} disabled={saving}>
+                            Indietro
+                          </button>
+                        )}
+                      </>
+                    )}
                   </div>
                 </>
               )}

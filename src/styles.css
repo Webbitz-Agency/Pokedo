@@ -14210,6 +14210,83 @@ table button:hover {
   text-decoration: underline;
 }
 
+/* Totem: scelta ritiro ora / più tardi */
+.totem-pickup-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 0;
+}
+
+.totem-pickup-choice h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+}
+
+.totem-pickup-choice-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+.totem-pickup-btn {
+  font-size: 1.1rem !important;
+  padding: 18px 12px !important;
+  border-radius: 14px !important;
+}
+
+.totem-pickup-btn--later {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border: 2px solid #cbd5e1 !important;
+}
+
+.totem-pickup-btn--later:hover {
+  background: #e2e8f0 !important;
+}
+
+/* Totem: selezione orario ritiro più tardi */
+.totem-later-time {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.totem-later-time h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Totem: riepilogo orario scelto */
+.totem-later-summary {
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.totem-later-edit-btn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  text-decoration: underline;
+  margin-left: auto;
+}
+
 /* In totem mode the side tabs are replaced by navbar buttons — hide them */
 .allergen-side-tab--totem {
   display: none !important;
