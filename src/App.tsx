@@ -2774,28 +2774,10 @@ function menuItemVisibleInPublicFilters(
   if ((item as MenuItem & { active?: boolean }).active === false) return false;
   if (!menuItemVisibleInAllergenFilter(item, excludedAllergens)) return false;
   if (activeFilterTagIds.length === 0) return true;
-
-  // Il prodotto (base o almeno una scelta attiva) deve avere il tag.
-  if (!itemMatchesAdditionalFilterTags(item, activeFilterTagIds)) return false;
-
-  // Per prodotti senza varianti configurate il base tag è sufficiente.
-  const allVariants = Array.isArray(item.variants) ? item.variants : [];
-  const hasActiveChoices = allVariants.some(
-    (v) => Array.isArray(v.choices) && v.choices.some(isVariantChoiceActive)
-  );
-  if (!hasActiveChoices) return true;
-
-  // Per prodotti con varianti: ogni variante obbligatoria (force_min >= 1) deve
-  // avere almeno una scelta con il tag dopo il filtro allergenico + tag.
-  // Il tag sul BASE non bypassa questo controllo: conta solo quello sulle scelte.
-  const filteredVariants = filterMenuItemVariantsForAllFilters(item, excludedAllergens, activeFilterTagIds);
-  for (const variant of allVariants) {
-    if (variantForceMin(variant) >= 1) {
-      const filtered = filteredVariants.find((v) => v.id === variant.id);
-      if (!filtered || filtered.choices.length === 0) return false;
-    }
-  }
-  return true;
+  // La decisione spetta SOLO al tag BASE del prodotto.
+  // Se non è selezionato, il prodotto non può essere vegano/vegetariano
+  // indipendentemente da cosa hanno le sue varianti.
+  return itemMatchesAdditionalFilterTags(item, activeFilterTagIds);
 }
 
 function sanitizeTagIds(value: unknown): string[] {
@@ -2855,59 +2837,26 @@ function variantForceMin(variant: { force_min?: number; force_max?: number }): n
 }
 
 /**
- * Raccoglie i tag aggiuntivi delle scelte che provengono da varianti OBBLIGATORIE
- * (force_min >= 1). Le varianti opzionali (es. Green Extra da poke) non contribuiscono
- * al badge "ANCHE VEGANO!", evitando falsi positivi su piatti come il sashimi.
+ * I badge aggiuntivi (es. "ANCHE VEGANO!") vengono mostrati SOLO se il tag è
+ * presente sul prodotto BASE. Le scelte delle varianti non contribuiscono al badge:
+ * evita che prodotti come il sashimi mostrino badge fuorvianti perché hanno
+ * ingredienti importati con tag vegano.
  */
 function getItemChoiceAdditionalFilterTags(
-  item: MenuItem,
-  tagRules: { name: string; color: string; additional_filter?: boolean }[]
+  _item: MenuItem,
+  _tagRules: { name: string; color: string; additional_filter?: boolean }[]
 ): AdditionalFilterTagOption[] {
-  const rulesByKey = buildAdditionalFilterTagRulesMap(tagRules);
-  const productTagIds = new Set(sanitizeTagIds(item.tag_ids));
-  const found = new Map<string, AdditionalFilterTagOption>();
-  const variants = Array.isArray(item.variants) ? item.variants : [];
-  for (const variant of variants) {
-    // Solo varianti obbligatorie contribuiscono al badge
-    if (variantForceMin(variant) < 1) continue;
-    for (const choice of variant.choices ?? []) {
-      if (!isVariantChoiceActive(choice)) continue;
-      for (const tagId of sanitizeTagIds(choice.tag_ids)) {
-        if (productTagIds.has(tagId)) continue;
-        const tag = rulesByKey.get(tagId);
-        if (tag) found.set(tagId, tag);
-      }
-    }
-  }
-  return Array.from(found.values());
+  return [];
 }
 
 /**
- * Un prodotto corrisponde al filtro tag se:
- * - Non ha scelte attive → basta il tag base (prodotto semplice)
- * - Ha scelte attive → almeno una VARIANTE OBBLIGATORIA (force_min >= 1) deve avere
- *   una scelta con il tag. Varianti opzionali (extra da poke, condimenti, ecc.)
- *   non contano per evitare falsi positivi.
+ * Il tag BASE del prodotto è DECISIONALE per i filtri aggiuntivi.
+ * Se il prodotto base non ha il tag, non appare mai nel filtro
+ * anche se alcune varianti/scelte ce l'hanno.
  */
 function itemMatchesAdditionalFilterTags(item: MenuItem, activeFilterTagIds: string[]): boolean {
   if (activeFilterTagIds.length === 0) return true;
-  const variants = Array.isArray(item.variants) ? item.variants : [];
-  const hasActiveChoices = variants.some(
-    (v) => Array.isArray(v.choices) && v.choices.some(isVariantChoiceActive)
-  );
-  // Prodotto senza scelte configurate: il tag base è sufficiente
-  if (!hasActiveChoices) {
-    return matchesAdditionalFilterTags(item.tag_ids, activeFilterTagIds);
-  }
-  // Con scelte: solo varianti obbligatorie contano
-  for (const variant of variants) {
-    if (variantForceMin(variant) < 1) continue;
-    for (const choice of variant.choices ?? []) {
-      if (!isVariantChoiceActive(choice)) continue;
-      if (matchesAdditionalFilterTags(choice.tag_ids, activeFilterTagIds)) return true;
-    }
-  }
-  return false;
+  return matchesAdditionalFilterTags(item.tag_ids, activeFilterTagIds);
 }
 
 function renderAdditionalFiltersInAllergenGrid(
