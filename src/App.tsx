@@ -2790,9 +2790,7 @@ function menuItemVisibleInPublicFilters(
   // Il tag sul BASE non bypassa questo controllo: conta solo quello sulle scelte.
   const filteredVariants = filterMenuItemVariantsForAllFilters(item, excludedAllergens, activeFilterTagIds);
   for (const variant of allVariants) {
-    const forceMax = Math.max(1, Number(variant.force_max ?? 1));
-    const forceMin = Math.max(0, Math.min(Number(variant.force_min ?? 1), forceMax));
-    if (forceMin >= 1) {
+    if (variantForceMin(variant) >= 1) {
       const filtered = filteredVariants.find((v) => v.id === variant.id);
       if (!filtered || filtered.choices.length === 0) return false;
     }
@@ -2850,6 +2848,17 @@ function getItemAdditionalFilterTags(
     .filter((entry): entry is AdditionalFilterTagOption => entry != null);
 }
 
+/** Restituisce il force_min effettivo di una variante. */
+function variantForceMin(variant: { force_min?: number; force_max?: number }): number {
+  const max = Math.max(1, Number(variant.force_max ?? 1));
+  return Math.max(0, Math.min(Number(variant.force_min ?? 1), max));
+}
+
+/**
+ * Raccoglie i tag aggiuntivi delle scelte che provengono da varianti OBBLIGATORIE
+ * (force_min >= 1). Le varianti opzionali (es. Green Extra da poke) non contribuiscono
+ * al badge "ANCHE VEGANO!", evitando falsi positivi su piatti come il sashimi.
+ */
 function getItemChoiceAdditionalFilterTags(
   item: MenuItem,
   tagRules: { name: string; color: string; additional_filter?: boolean }[]
@@ -2859,6 +2868,8 @@ function getItemChoiceAdditionalFilterTags(
   const found = new Map<string, AdditionalFilterTagOption>();
   const variants = Array.isArray(item.variants) ? item.variants : [];
   for (const variant of variants) {
+    // Solo varianti obbligatorie contribuiscono al badge
+    if (variantForceMin(variant) < 1) continue;
     for (const choice of variant.choices ?? []) {
       if (!isVariantChoiceActive(choice)) continue;
       for (const tagId of sanitizeTagIds(choice.tag_ids)) {
@@ -2871,11 +2882,26 @@ function getItemChoiceAdditionalFilterTags(
   return Array.from(found.values());
 }
 
+/**
+ * Un prodotto corrisponde al filtro tag se:
+ * - Non ha scelte attive → basta il tag base (prodotto semplice)
+ * - Ha scelte attive → almeno una VARIANTE OBBLIGATORIA (force_min >= 1) deve avere
+ *   una scelta con il tag. Varianti opzionali (extra da poke, condimenti, ecc.)
+ *   non contano per evitare falsi positivi.
+ */
 function itemMatchesAdditionalFilterTags(item: MenuItem, activeFilterTagIds: string[]): boolean {
   if (activeFilterTagIds.length === 0) return true;
-  if (matchesAdditionalFilterTags(item.tag_ids, activeFilterTagIds)) return true;
   const variants = Array.isArray(item.variants) ? item.variants : [];
+  const hasActiveChoices = variants.some(
+    (v) => Array.isArray(v.choices) && v.choices.some(isVariantChoiceActive)
+  );
+  // Prodotto senza scelte configurate: il tag base è sufficiente
+  if (!hasActiveChoices) {
+    return matchesAdditionalFilterTags(item.tag_ids, activeFilterTagIds);
+  }
+  // Con scelte: solo varianti obbligatorie contano
   for (const variant of variants) {
+    if (variantForceMin(variant) < 1) continue;
     for (const choice of variant.choices ?? []) {
       if (!isVariantChoiceActive(choice)) continue;
       if (matchesAdditionalFilterTags(choice.tag_ids, activeFilterTagIds)) return true;
