@@ -525,6 +525,86 @@ select {
   font-weight: 700;
 }
 
+/* ── Selettore lingua inline nella navbar totem ── */
+.totem-lang-selector {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.totem-lang-selector__trigger {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 160ms ease;
+}
+
+.totem-lang-selector__trigger:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.totem-lang-selector__dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: var(--z-floating-ui);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px) scale(0.97);
+  transform-origin: top right;
+  transition: opacity 200ms ease, transform 200ms ease;
+  min-width: 130px;
+}
+
+.totem-lang-selector.open .totem-lang-selector__dropdown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.totem-lang-selector__option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #0f172a;
+  transition: background 140ms ease;
+  white-space: nowrap;
+}
+
+.totem-lang-selector__option:hover {
+  background: #f1f5f9;
+}
+
+.totem-lang-selector__option span {
+  font-size: 18px;
+}
+
+.totem-lang-selector__option small {
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .order-badge {
   position: absolute;
   top: -5px;

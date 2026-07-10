@@ -2951,6 +2951,7 @@ export default function App() {
     }
   });
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
+  const [totemLangMenuOpen, setTotemLangMenuOpen] = useState(false);
   const [adminTab, setAdminTab] = useState<AdminTab>("ordini");
   const [loading, setLoading] = useState(true);
   const [routeOverlayLoading, setRouteOverlayLoading] = useState(false);
@@ -8184,6 +8185,41 @@ export default function App() {
                       <wa-icon name="clipboard" variant="regular" aria-hidden="true"></wa-icon>
                       {orderCount > 0 && <span className="order-badge">{orderCount}</span>}
                     </button>
+                    {/* Selettore lingua inline per il totem */}
+                    <div className={`totem-lang-selector ${totemLangMenuOpen ? "open" : ""}`.trim()}>
+                      <button
+                        className="totem-lang-selector__trigger"
+                        onClick={() => setTotemLangMenuOpen((prev) => !prev)}
+                        aria-label={t("changeLanguage")}
+                      >
+                        {uiLanguage === "it" ? "🇮🇹" : uiLanguage === "en" ? "🇬🇧" : uiLanguage === "de" ? "🇩🇪" : uiLanguage === "es" ? "🇪🇸" : uiLanguage === "fr" ? "🇫🇷" : uiLanguage === "zh" ? "🇨🇳" : "🇯🇵"}
+                      </button>
+                      <div className="totem-lang-selector__dropdown">
+                        {[
+                          { code: "it" as UiLanguage, flag: "🇮🇹", label: "Italiano" },
+                          { code: "en" as UiLanguage, flag: "🇬🇧", label: "English" },
+                          { code: "de" as UiLanguage, flag: "🇩🇪", label: "Deutsch" },
+                          { code: "es" as UiLanguage, flag: "🇪🇸", label: "Español" },
+                          { code: "fr" as UiLanguage, flag: "🇫🇷", label: "Français" },
+                          { code: "zh" as UiLanguage, flag: "🇨🇳", label: "中文" },
+                          { code: "ja" as UiLanguage, flag: "🇯🇵", label: "日本語" },
+                        ]
+                          .filter((entry) => entry.code !== uiLanguage)
+                          .map((entry) => (
+                            <button
+                              key={entry.code}
+                              className="totem-lang-selector__option"
+                              onClick={() => {
+                                setUiLanguage(entry.code);
+                                setTotemLangMenuOpen(false);
+                              }}
+                            >
+                              <span>{entry.flag}</span>
+                              <small>{entry.label}</small>
+                            </button>
+                          ))}
+                      </div>
+                    </div>
                   </>
                 ) : (
                   <>
