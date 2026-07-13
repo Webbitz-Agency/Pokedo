@@ -4695,6 +4695,11 @@ export default function App() {
     const rows: Record<string, PokeSummaryRowModel> = {};
 
     selectedOptionsByGroup.forEach((entry) => {
+      // Salta i gruppi che non hanno nessuna opzione disponibile (non configurati in PokeManager):
+      // evita di mostrare "Nessun green" per fasi vuote nel riepilogo.
+      const hasAvailableOptions = entry.group.options.some((opt) => !opt.is_out_of_stock);
+      if (!hasAvailableOptions && entry.selections.length === 0) return;
+
       const baseKey = getBaseKey(entry.group.name);
       const cleanedGroupName = displayPhaseName(entry.group.name);
       if (!rows[baseKey]) {
@@ -6518,13 +6523,18 @@ export default function App() {
       showPokeActionMessage("Completa prima tutte le selezioni richieste");
       return;
     }
-    const details = selectedOptionsByGroup.map((entry) => {
-      const cleanedGroupName = getOrderEditPhaseLabel(selectedBuilder, entry.group.id);
-      if (entry.selections.length === 0) return `${cleanedGroupName}: ${t("nonePrefix")} ${cleanedGroupName.toLowerCase()}`;
-      return `${cleanedGroupName}: ${entry.selections
-        .map((selection) => `${selection.option.name} x${selection.quantity}`)
-        .join(", ")}`;
-    });
+    const details = selectedOptionsByGroup
+      .filter((entry) => {
+        const hasAvailableOptions = entry.group.options.some((opt) => !opt.is_out_of_stock);
+        return hasAvailableOptions || entry.selections.length > 0;
+      })
+      .map((entry) => {
+        const cleanedGroupName = getOrderEditPhaseLabel(selectedBuilder, entry.group.id);
+        if (entry.selections.length === 0) return `${cleanedGroupName}: ${t("nonePrefix")} ${cleanedGroupName.toLowerCase()}`;
+        return `${cleanedGroupName}: ${entry.selections
+          .map((selection) => `${selection.option.name} x${selection.quantity}`)
+          .join(", ")}`;
+      });
     const customId = -Date.now();
     setOrderItems((old) => ({
       ...old,
