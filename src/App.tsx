@@ -10140,7 +10140,7 @@ export default function App() {
             return (
               <div
                 className={`poke-notch-bar${canProceedCurrentStep ? " poke-notch-bar--visible" : ""}`}
-                aria-hidden={!canProceedCurrentStep}
+                aria-hidden="true"
               >
                 {pokeFlowStep > 0 && (
                   <button

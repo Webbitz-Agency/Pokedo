@@ -2971,6 +2971,100 @@ select {
   }
 }
 
+/* ═══════════════════════════════════════════════════════
+   MODAL RESPONSIVE — max 70% larghezza, 80% altezza
+   Tutti i modal sul sito devono rispettare questi limiti
+   su schermi mobili e tablet piccoli
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Overlay centrato anche verticalmente per i modal centrali */
+  .overlay.modal-center {
+    align-items: center;
+    padding: 16px;
+  }
+  .allergen-modal-overlay {
+    padding: 10px;
+  }
+
+  /* ── Allergen / filtri / poke-summary modal ── */
+  .allergen-modal {
+    width: 70vw;
+    max-width: 70vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 18px 14px;
+    gap: 14px;
+  }
+
+  /* ── Product info modal ── */
+  .info-modal {
+    width: 70vw;
+    max-width: 70vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 18px 16px;
+  }
+
+  /* ── Product variant selection modal ── */
+  .admin-modal {
+    width: 70vw;
+    max-width: 70vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 18px 16px;
+  }
+
+  /* ── Orders blocked modal ── */
+  .orders-blocked-modal {
+    width: 70vw;
+    max-width: 70vw;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  /* ── Table guest modal ── */
+  .table-guest-modal {
+    width: 70vw;
+    max-width: 70vw;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  /* ── Info product grid: collapse a colonna singola ── */
+  .info-modal-product {
+    grid-template-columns: 1fr;
+  }
+  .info-modal-thumb {
+    width: 100%;
+    height: 120px;
+  }
+
+  /* ── Bottoni nei modal: testo su una riga, font ridotto ── */
+  .admin-modal-actions button,
+  .admin-modal-actions .cta,
+  .admin-modal-actions .plain-link,
+  .info-modal-actions button,
+  .drinks-modal-actions button,
+  .poke-size-change-actions button,
+  .order-edit-modal-actions button,
+  .orders-blocked-close-btn {
+    white-space: nowrap;
+    font-size: clamp(11px, 3.4vw, 14px);
+    padding: 9px 14px;
+  }
+
+  /* Prezzo totale nel modal varianti: non dev'essere troppo largo */
+  .public-variant-total-price {
+    font-size: clamp(12px, 3.5vw, 15px);
+  }
+
+  /* Header titolo modal più compatto */
+  .allergen-modal-header h3,
+  .poke-summary-modal .allergen-modal-header h3 {
+    font-size: 1rem;
+  }
+}
+
 .poke-builder-layout.section-padding {
   padding-top: 22px;
 }
