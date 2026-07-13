@@ -4695,10 +4695,9 @@ export default function App() {
     const rows: Record<string, PokeSummaryRowModel> = {};
 
     selectedOptionsByGroup.forEach((entry) => {
-      // Salta i gruppi che non hanno nessuna opzione disponibile (non configurati in PokeManager):
-      // evita di mostrare "Nessun green" per fasi vuote nel riepilogo.
-      const hasAvailableOptions = entry.group.options.some((opt) => !opt.is_out_of_stock);
-      if (!hasAvailableOptions && entry.selections.length === 0) return;
+      // Salta i gruppi senza selezioni: il riepilogo mostra solo ciò che
+      // è stato effettivamente scelto, senza placeholder "Nessun X".
+      if (entry.selections.length === 0) return;
 
       const baseKey = getBaseKey(entry.group.name);
       const cleanedGroupName = displayPhaseName(entry.group.name);
