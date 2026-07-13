@@ -9759,7 +9759,7 @@ export default function App() {
             aria-label={t("orderSummaryPokeTab")}
           >
             <wa-icon name="bowl-rice" variant="solid" aria-hidden="true"></wa-icon>
-            {orderCount > 0 && <span className="poke-mobile-fab-badge">{orderCount}</span>}
+            {selectedBuilderId && <span className="poke-mobile-fab-badge">1</span>}
           </button>
 
           {pokeSummaryModalOpen && (
@@ -9774,11 +9774,11 @@ export default function App() {
                 className="allergen-modal poke-summary-modal"
                 role="dialog"
                 aria-modal="true"
-                aria-label={t("orderSummary")}
+                aria-label={t("pokeSummaryTitle")}
               >
                 <div className="allergen-modal-header">
                   <div>
-                    <h3>{t("orderSummary")}</h3>
+                    <h3>{t("pokeSummaryTitle")}</h3>
               </div>
                   <button
                     type="button"
