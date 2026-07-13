@@ -9820,22 +9820,6 @@ export default function App() {
             {!pokeAddedMessage ? (
               <>
                 <section className="poke-builder-main poke-builder-main--flush">
-              {/* Bottoni in cima sull'ultimo step (bevande) per evitare lo scroll fino in fondo */}
-              {pokeFlowStep > 0 && !(pokeFlowStep < pokeStepsTotal - 1 && pokeCurrentGroup) && (
-                <div className="builder-actions builder-actions--top">
-                  <button
-                    onClick={() => {
-                      setPokeFlowStep((s) => Math.max(0, s - 1));
-                      scrollPokeProgressIntoView();
-                    }}
-                  >
-                    {t("back")}
-                  </button>
-                  <button className="cta" onClick={addCustomPokeToOrder}>
-                    {t("addToOrder")}
-                  </button>
-                </div>
-              )}
               {pokeFlowStep === 0 && (
                 <>
                   <h3>{t("phase_size")}</h3>
@@ -10108,33 +10092,6 @@ export default function App() {
                 </>
               )}
 
-              <div className="builder-actions">
-                <button
-                  disabled={pokeFlowStep === 0}
-                  onClick={() => {
-                    setPokeFlowStep((s) => Math.max(0, s - 1));
-                    scrollPokeProgressIntoView();
-                  }}
-                >
-                  {t("back")}
-                </button>
-                {pokeFlowStep === 0 ? (
-                  <button className="cta" onClick={goNextPokeStep}>
-                    {t("next")}
-                  </button>
-                ) : pokeFlowStep < pokeStepsTotal - 1 && pokeCurrentGroup ? (
-                  <button
-                    className="cta"
-                    onClick={goNextPokeStep}
-                  >
-                    {t("next")}
-                  </button>
-                ) : (
-                  <button className="cta" onClick={addCustomPokeToOrder}>
-                    {t("addToOrder")}
-                  </button>
-                )}
-              </div>
               {pokeAddedMessage && <p className="success">{pokeAddedMessage}</p>}
                 </section>
               </>
@@ -10170,6 +10127,52 @@ export default function App() {
               </section>
             )}
           </div>
+
+          {/* ─── Notch bar: appare dal basso quando il minimo è raggiunto ─── */}
+          {!pokeAddedMessage && (() => {
+            const canProceedCurrentStep =
+              pokeFlowStep === 0
+                ? !!selectedBuilderId
+                : pokeCurrentGroup
+                ? canProceedGroup(pokeCurrentGroup)
+                : true;
+            const isLastStep = !(pokeFlowStep < pokeStepsTotal - 1 && pokeCurrentGroup);
+            return (
+              <div
+                className={`poke-notch-bar${canProceedCurrentStep ? " poke-notch-bar--visible" : ""}`}
+                aria-hidden={!canProceedCurrentStep}
+              >
+                {pokeFlowStep > 0 && (
+                  <button
+                    className="poke-notch-bar__back"
+                    onClick={() => {
+                      setPokeFlowStep((s) => Math.max(0, s - 1));
+                      scrollPokeProgressIntoView();
+                    }}
+                  >
+                    <wa-icon name="chevron-left" variant="solid" aria-hidden="true" />
+                    {t("back")}
+                  </button>
+                )}
+                {isLastStep ? (
+                  <button
+                    className="cta poke-notch-bar__cta"
+                    onClick={addCustomPokeToOrder}
+                  >
+                    {t("addToOrder")}
+                  </button>
+                ) : (
+                  <button
+                    className="cta poke-notch-bar__cta"
+                    onClick={goNextPokeStep}
+                  >
+                    {t("next")}
+                    <wa-icon name="chevron-right" variant="solid" aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+            );
+          })()}
 
           {(pokeLimitMessage || pokeActionMessage) && (
             <div className="poke-builder-toast-stack" aria-live="polite">
