@@ -9820,6 +9820,22 @@ export default function App() {
             {!pokeAddedMessage ? (
               <>
                 <section className="poke-builder-main poke-builder-main--flush">
+              {/* Bottoni in cima sull'ultimo step (bevande) per evitare lo scroll fino in fondo */}
+              {pokeFlowStep > 0 && !(pokeFlowStep < pokeStepsTotal - 1 && pokeCurrentGroup) && (
+                <div className="builder-actions builder-actions--top">
+                  <button
+                    onClick={() => {
+                      setPokeFlowStep((s) => Math.max(0, s - 1));
+                      scrollPokeProgressIntoView();
+                    }}
+                  >
+                    {t("back")}
+                  </button>
+                  <button className="cta" onClick={addCustomPokeToOrder}>
+                    {t("addToOrder")}
+                  </button>
+                </div>
+              )}
               {pokeFlowStep === 0 && (
                 <>
                   <h3>{t("phase_size")}</h3>

@@ -3900,6 +3900,13 @@ select {
   align-items: center;
 }
 
+.builder-actions--top {
+  margin-top: 0;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
 .builder-actions button {
   border: 1px solid #cbd5e1;
   border-radius: 10px;
