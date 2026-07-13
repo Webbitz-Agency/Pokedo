@@ -9736,7 +9736,7 @@ export default function App() {
               aria-label={t("orderSummaryPokeTab")}
             >
               <span className="order-summary-side-tab-label">{t("orderSummaryPokeTab")}</span>
-              {orderCount > 0 && <span className="order-summary-side-tab-badge">{orderCount}</span>}
+              {selectedBuilderId && <span className="order-summary-side-tab-badge">1</span>}
             </button>
           )}
 
