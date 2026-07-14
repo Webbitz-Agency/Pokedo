@@ -3722,6 +3722,14 @@ select {
   line-height: 1.4;
 }
 
+.table-covers-hint {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: #64748b;
+  margin-top: 2px;
+}
+
 @keyframes modalPop {
   from { transform: scale(0.94); opacity: 0; }
   to { transform: scale(1); opacity: 1; }

@@ -8462,12 +8462,17 @@ export default function App() {
               }}
             >
               <label className="field-label settings-field-wide">
-                <span>{t("tableGuestCount")}</span>
+                <span>
+                  {t("tableGuestCount")}
+                  <small className="table-covers-hint">
+                    {" "}— quante persone stai ordinando con <em>questo dispositivo</em>?
+                  </small>
+                </span>
                 <SmartNumberInput
                   min={1}
-                  max={30}
+                  max={10}
                   value={tableGuestCount}
-                  onValueChange={(next) => setTableGuestCount(Math.max(1, Math.min(30, Number(next) || 1)))}
+                  onValueChange={(next) => setTableGuestCount(Math.max(1, Math.min(10, Number(next) || 1)))}
                 />
               </label>
               <label className="field-label settings-field-wide">
