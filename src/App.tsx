@@ -400,6 +400,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     checkoutCustomerAllergensLead:
       "Seleziona gli allergeni a cui sei sensibile o allergico/a, così possiamo prestare maggiore attenzione al tuo ordine.",
     checkoutCustomerAllergensSummary: "Allergie dichiarate: {allergens}",
+    checkoutCustomerAllergensPrivacy:
+      "Le informazioni su allergie e intolleranze sono dati relativi alla salute, trattati solo per la preparazione del tuo ordine e sulla base del tuo consenso (art. 9 GDPR). Il conferimento è facoltativo.",
     phoneInvalid: "Inserisci un numero di telefono di 10 cifre",
     emailInvalid: "Inserisci un'email valida (es. nome@dominio.it)",
     finalSummary: "Riepilogo finale",
@@ -596,6 +598,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     checkoutCustomerAllergensLead:
       "Select any allergens you are sensitive or allergic to so we can take extra care with your order.",
     checkoutCustomerAllergensSummary: "Declared allergies: {allergens}",
+    checkoutCustomerAllergensPrivacy:
+      "Allergy and intolerance details are health data, processed only to prepare your order and based on your consent (Art. 9 GDPR). Providing them is optional.",
     phoneInvalid: "Enter a 10-digit phone number",
     emailInvalid: "Enter a valid email (e.g. name@domain.com)",
     finalSummary: "Final summary",
@@ -793,6 +797,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     checkoutCustomerAllergensLead:
       "Wähle Allergene aus, auf die du empfindlich reagierst oder allergisch bist, damit wir besonders auf deine Bestellung achten können.",
     checkoutCustomerAllergensSummary: "Angegebene Allergien: {allergens}",
+    checkoutCustomerAllergensPrivacy:
+      "Angaben zu Allergien und Unverträglichkeiten sind Gesundheitsdaten und werden nur zur Zubereitung deiner Bestellung und auf Grundlage deiner Einwilligung verarbeitet (Art. 9 DSGVO). Die Angabe ist freiwillig.",
     phoneInvalid: "Gib eine 10-stellige Telefonnummer ein",
     emailInvalid: "Gib eine gültige E-Mail ein (z. B. name@domain.de)",
     finalSummary: "Endübersicht",
@@ -988,6 +994,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     checkoutCustomerAllergensLead:
       "Selecciona los alérgenos a los que eres sensible o alérgico/a para que podamos cuidar mejor tu pedido.",
     checkoutCustomerAllergensSummary: "Alergias declaradas: {allergens}",
+    checkoutCustomerAllergensPrivacy:
+      "La información sobre alergias e intolerancias son datos de salud, tratados solo para preparar tu pedido y sobre la base de tu consentimiento (art. 9 RGPD). Facilitarla es opcional.",
     phoneInvalid: "Introduce un número de teléfono de 10 dígitos",
     emailInvalid: "Introduce un email válido (ej. nombre@dominio.com)",
     finalSummary: "Resumen final",
@@ -1202,6 +1210,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     checkoutCustomerAllergensLead:
       "Sélectionne les allergènes auxquels tu es sensible ou allergique pour que nous puissions faire plus attention à ta commande.",
     checkoutCustomerAllergensSummary: "Allergies déclarées : {allergens}",
+    checkoutCustomerAllergensPrivacy:
+      "Les informations sur les allergies et intolérances sont des données de santé, traitées uniquement pour préparer ta commande et sur la base de ton consentement (art. 9 RGPD). Les fournir est facultatif.",
     allergensTitle: "Allergènes",
     filterDishesByAllergens: "Filtrer les plats selon les allergènes",
     filterIngredientsByAllergens: "Filtrer les ingrédients selon les allergènes",
@@ -1392,6 +1402,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     checkoutCustomerAllergensTitle: "过敏与不耐受",
     checkoutCustomerAllergensLead: "请选择你敏感或过敏的过敏原，以便我们更好地照顾你的订单。",
     checkoutCustomerAllergensSummary: "已声明过敏：{allergens}",
+    checkoutCustomerAllergensPrivacy:
+      "过敏和不耐受信息属于健康数据，仅在您同意的基础上用于准备您的订单（GDPR 第9条）。是否提供由您自愿决定。",
     allergensTitle: "过敏原",
     filterDishesByAllergens: "按过敏原筛选菜品",
     filterIngredientsByAllergens: "按过敏原筛选配料",
@@ -1582,6 +1594,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     checkoutCustomerAllergensLead:
       "敏感またはアレルギーのあるアレルゲンを選択してください。注文により配慮いたします。",
     checkoutCustomerAllergensSummary: "申告されたアレルギー：{allergens}",
+    checkoutCustomerAllergensPrivacy:
+      "アレルギー・不耐症の情報は健康データであり、あなたの同意に基づき注文の準備のためにのみ利用されます（GDPR第9条）。提供は任意です。",
     allergensTitle: "アレルゲン",
     filterDishesByAllergens: "アレルゲンで料理を絞り込む",
     filterIngredientsByAllergens: "アレルゲンで具材を絞り込む",
@@ -1861,6 +1875,11 @@ function getMinutesOfDayFromDate(date: Date): number {
 
 const PICKUP_PREP_BUFFER_MINUTES = 10;
 const PICKUP_HOUR_ASAP_VALUE = "__asap__";
+
+// Policy legali (Iubenda). Incollare qui gli URL quando disponibili.
+// Finché sono vuoti, i link nel footer non vengono mostrati (nessun link morto).
+const IUBENDA_PRIVACY_URL = "";
+const IUBENDA_COOKIE_URL = "";
 
 function pokeOptionGridWidthCh(options: readonly { name: string; price?: number }[]): string {
   if (options.length === 0) return "26";
@@ -11036,6 +11055,7 @@ export default function App() {
                     <h4>{t("checkoutCustomerAllergensTitle")}</h4>
                     <p className="checkout-customer-allergens-lead">{t("checkoutCustomerAllergensLead")}</p>
                     <p className="allergen-modal-disclaimer">{t("allergenFilterDisclaimer")}</p>
+                    <p className="checkout-customer-allergens-privacy" style={{ fontSize: 12, opacity: 0.7, marginTop: 4 }}>{t("checkoutCustomerAllergensPrivacy")}</p>
                     <div className="public-allergen-grid checkout-customer-allergen-grid">
                       {ALLERGEN_OPTIONS.map((allergen) => {
                         const selected = menuCheckoutForm.customer_allergen_codes.includes(allergen.id);
@@ -12128,6 +12148,17 @@ export default function App() {
                 {t("menu")}
               </button>
             </div>
+            {(IUBENDA_PRIVACY_URL || IUBENDA_COOKIE_URL) && (
+              <div>
+                <h5>Privacy</h5>
+                {IUBENDA_PRIVACY_URL && (
+                  <a href={IUBENDA_PRIVACY_URL} target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+                )}
+                {IUBENDA_COOKIE_URL && (
+                  <a href={IUBENDA_COOKIE_URL} target="_blank" rel="noopener noreferrer">Cookie Policy</a>
+                )}
+              </div>
+            )}
           </div>
         </footer>
       )}
