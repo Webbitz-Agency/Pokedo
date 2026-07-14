@@ -255,6 +255,7 @@ const UI_LANGUAGE_STORAGE_KEY = "pokedo_ui_language_v1";
 const POKE_PHASE_DESCRIPTION_SEED_KEY = "pokedo_poke_phase_description_seed_v1";
 const TABLE_GUEST_SESSION_PREFIX = "pokedo_table_guest_session_";
 const TABLE_GUEST_NAME_PREFIX = "pokedo_table_guest_name_";
+const TABLE_GUEST_COUNT_PREFIX = "pokedo_table_guest_count_";
 const ADMIN_STATUS_COLORS: Record<string, string> = {
   pending_confirmation: "status-preparing",
   received: "status-received",
@@ -1960,6 +1961,10 @@ function getTableGuestNameStorageKey(scope: string) {
   return `${TABLE_GUEST_NAME_PREFIX}${scope}`;
 }
 
+function getTableGuestCountStorageKey(scope: string) {
+  return `${TABLE_GUEST_COUNT_PREFIX}${scope}`;
+}
+
 type PublicAllergenFiltersStorage = {
   excludedAllergens: number[];
   activeFilterTags: string[];
@@ -3183,6 +3188,7 @@ export default function App() {
   const [tableGuestInput, setTableGuestInput] = useState("");
   const [tableGuestCount, setTableGuestCount] = useState(1);
   const [tableGuestsList, setTableGuestsList] = useState<string[]>([]);
+  const [tableApiCoverRule, setTableApiCoverRule] = useState<{ name: string; cost_pp: number } | null>(null);
   const [tableGuestModalOpen, setTableGuestModalOpen] = useState(false);
   const [tableGuestPendingName, setTableGuestPendingName] = useState(false);
   const [tableAccessRevoked, setTableAccessRevoked] = useState(false);
@@ -3430,6 +3436,7 @@ export default function App() {
       setTableGuestsList([]);
       setTableGuestModalOpen(false);
       setTableGuestPendingName(false);
+      setTableApiCoverRule(null);
       return;
     }
     const accessCode = getCurrentTableAccessCode();
@@ -3454,7 +3461,14 @@ export default function App() {
     setTableGuestSessionId(resolvedSessionId);
     setTableGuestName(resolvedName);
     setTableGuestInput(resolvedName);
-    setTableGuestCount(1);
+    // Ripristina il count salvato per questa sessione, default 1
+    const countKey = getTableGuestCountStorageKey(scope);
+    let savedCount = 1;
+    try {
+      const raw = window.localStorage.getItem(countKey);
+      if (raw) savedCount = Math.max(1, Math.min(10, parseInt(raw, 10) || 1));
+    } catch { /* noop */ }
+    setTableGuestCount(savedCount);
 
     let cancelled = false;
     publicApi
@@ -3465,6 +3479,10 @@ export default function App() {
         setTableGuestsList(guests);
         const fetchedSessionId = typeof result?.table_session_id === "number" ? result.table_session_id : null;
         setTableGuestTableSessionId(fetchedSessionId);
+        // Salva la cover_rule attiva restituita dall'API (fonte autoritativa)
+        if (result?.cover_rule && typeof result.cover_rule.cost_pp === "number") {
+          setTableApiCoverRule({ name: String(result.cover_rule.name ?? "Coperto"), cost_pp: result.cover_rule.cost_pp });
+        }
         if (!resolvedName) {
           setTableGuestPendingName(true);
           setTableAccessRevoked(false);
@@ -4897,6 +4915,9 @@ export default function App() {
   const showTableCoursePlanner = isTableOrderMode && orderItemsList.length >= 2;
   const activeTableCoverRule = useMemo(() => {
     if (!isTableOrderMode) return null;
+    // Preferisce la regola coperto restituita dall'API (calcolata lato server)
+    if (tableApiCoverRule) return tableApiCoverRule;
+    // Fallback: calcolo lato client in base all'orario
     const now = new Date();
     const minutes = now.getHours() * 60 + now.getMinutes();
     for (const rule of appSettings.site.table_cover_rules) {
@@ -4908,7 +4929,7 @@ export default function App() {
       if (inRange) return rule;
     }
     return null;
-  }, [isTableOrderMode, appSettings.site.table_cover_rules]);
+  }, [isTableOrderMode, tableApiCoverRule, appSettings.site.table_cover_rules]);
   const tableTopbarMessage = useMemo(() => {
     if (!isTableOrderMode) return "";
     const guest = tableGuestName.trim();
@@ -6696,6 +6717,8 @@ export default function App() {
       const scope = getTableGuestStorageScope(tableOrderNumber, accessCode);
       try {
         window.localStorage.setItem(getTableGuestNameStorageKey(scope), savedName);
+        // Persiste il count scelto dall'utente per questa sessione
+        window.localStorage.setItem(getTableGuestCountStorageKey(scope), String(tableGuestCount));
       } catch {
         // noop
       }
@@ -6706,6 +6729,11 @@ export default function App() {
       setTableAccessRevoked(false);
       setTableGuestsList(Array.isArray(result?.guests) ? result.guests : []);
       setTableGuestTableSessionId(typeof result?.table_session_id === "number" ? result.table_session_id : null);
+      // Salva la cover_rule dall'API (fonte autoritativa)
+      const apiRule = result?.cover_rule;
+      if (apiRule && typeof apiRule.cost_pp === "number") {
+        setTableApiCoverRule({ name: String(apiRule.name ?? "Coperto"), cost_pp: apiRule.cost_pp });
+      }
       if (pendingTableOrderSubmit) {
         setPendingTableOrderSubmit(false);
         if (publicExcludedAllergens.length > 0) {
