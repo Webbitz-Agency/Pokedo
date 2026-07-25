@@ -76,6 +76,7 @@ type CartItem = {
   variant_note?: string;
   poke_builder_id?: number;
   poke_selected_by_group?: Record<number, Record<number, number>>;
+  poke_note?: string;
   name: string;
   price: number;
   quantity: number;
@@ -333,6 +334,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     completeOrder: "Completa ordine",
     sendOrder: "Invia ordine",
     addDrinks: "Aggiungi bevande",
+    pokeNoteLabel: "Note per la tua pokè",
+    pokeNotePlaceholder: "Scrivi qui eventuali note (es. poco piccante)",
     noDrinksAvailable: "Nessuna bevanda disponibile",
     noDrinksSelected: "Nessuna bevanda selezionata",
     drinkSelectedOne: "bevanda selezionata",
@@ -535,6 +538,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     completeOrder: "Complete order",
     sendOrder: "Send order",
     addDrinks: "Add drinks",
+    pokeNoteLabel: "Notes for your poke",
+    pokeNotePlaceholder: "Write any notes here (e.g. mildly spicy)",
     noDrinksAvailable: "No drinks available",
     noDrinksSelected: "No drinks selected",
     drinkSelectedOne: "drink selected",
@@ -734,6 +739,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     completeOrder: "Bestellung abschließen",
     sendOrder: "Bestellung senden",
     addDrinks: "Getränke hinzufügen",
+    pokeNoteLabel: "Anmerkungen zu deiner Poke",
+    pokeNotePlaceholder: "Schreibe hier eventuelle Anmerkungen (z. B. wenig scharf)",
     noDrinksAvailable: "Keine Getränke verfügbar",
     noDrinksSelected: "Keine Getränke ausgewählt",
     drinkSelectedOne: "Getränk ausgewählt",
@@ -931,6 +938,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     completeOrder: "Completar pedido",
     sendOrder: "Enviar pedido",
     addDrinks: "Añadir bebidas",
+    pokeNoteLabel: "Notas para tu poke",
+    pokeNotePlaceholder: "Escribe aquí tus notas (p. ej. poco picante)",
     noDrinksAvailable: "No hay bebidas disponibles",
     noDrinksSelected: "Ninguna bebida seleccionada",
     drinkSelectedOne: "bebida seleccionada",
@@ -1128,6 +1137,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     completeOrder: "Finaliser commande",
     sendOrder: "Envoyer commande",
     addDrinks: "Ajouter des boissons",
+    pokeNoteLabel: "Notes pour votre poke",
+    pokeNotePlaceholder: "Écrivez ici vos notes (ex. peu épicé)",
     noDrinksAvailable: "Aucune boisson disponible",
     noDrinksSelected: "Aucune boisson sélectionnée",
     drinkSelectedOne: "boisson sélectionnée",
@@ -1321,6 +1332,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     completeOrder: "完成订单",
     sendOrder: "发送订单",
     addDrinks: "添加饮品",
+    pokeNoteLabel: "您的波奇碗备注",
+    pokeNotePlaceholder: "在此填写备注（如：微辣）",
     noDrinksAvailable: "暂无饮品",
     noDrinksSelected: "未选择饮品",
     drinkSelectedOne: "份饮品已选",
@@ -1512,6 +1525,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     completeOrder: "注文を完了",
     sendOrder: "注文を送信",
     addDrinks: "ドリンクを追加",
+    pokeNoteLabel: "ポケボウルへのメモ",
+    pokeNotePlaceholder: "メモをご記入ください（例：辛さ控えめ）",
     noDrinksAvailable: "ドリンクがありません",
     noDrinksSelected: "ドリンク未選択",
     drinkSelectedOne: "ドリンクを選択",
@@ -2100,6 +2115,7 @@ function readOrderItemsFromStorage(storageKey: string): Record<number, CartItem>
                   return acc;
                 }, {} as Record<number, Record<number, number>>)
               : undefined,
+          poke_note: String((value as CartItem).poke_note || "").trim() || undefined,
           name: value.name,
           price: value.price,
           quantity: value.quantity,
@@ -2998,7 +3014,7 @@ export default function App() {
   const [totemLoginBusy, setTotemLoginBusy] = useState(false);
   const [totemOrderSuccess, setTotemOrderSuccess] = useState(false);
   const [totemPickupChoice, setTotemPickupChoice] = useState<"now" | "later" | null>(null);
-  const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | "phone" | "order_note" | "modal_note" | "edit_note" | null>(null);
+  const [totemKbField, setTotemKbField] = useState<"first_name" | "last_name" | "phone" | "order_note" | "modal_note" | "edit_note" | "poke_note" | null>(null);
   const [totemKbCaps, setTotemKbCaps] = useState(true);
   const [dishAllergenMap, setDishAllergenMap] = useState<Record<number, number[]>>({});
   const [tableAllergenModalOpen, setTableAllergenModalOpen] = useState(false);
@@ -3188,6 +3204,8 @@ export default function App() {
   const [pokeAddedMessage, setPokeAddedMessage] = useState("");
   const [pokeActionMessage, setPokeActionMessage] = useState("");
   const [pokeMaxVisitedStep, setPokeMaxVisitedStep] = useState(0);
+  // Nota libera scritta nella fase Bevande: finisce nei dettagli della poke ("Note: ...")
+  const [pokeBuilderNote, setPokeBuilderNote] = useState("");
   const pokeLimitTimerRef = useRef<number | null>(null);
   const pokeActionTimerRef = useRef<number | null>(null);
   const pokeProgressRef = useRef<HTMLDivElement | null>(null);
@@ -5620,6 +5638,7 @@ export default function App() {
     setPokeFlowStep(0);
     setPokeMaxVisitedStep(0);
     setSelectedByGroup({});
+    setPokeBuilderNote("");
     setPokeLimitMessage("");
     setPokeAddedMessage("");
     setPokeActionMessage("");
@@ -5752,6 +5771,11 @@ export default function App() {
   useEffect(() => {
     if (!orderItemEditModal && totemKbField === "edit_note") setTotemKbField(null);
   }, [orderItemEditModal]);
+
+  useEffect(() => {
+    const onBeveragePhase = Boolean(pokeCurrentGroup && isBeverageGroupName(pokeCurrentGroup.name));
+    if (!onBeveragePhase && totemKbField === "poke_note") setTotemKbField(null);
+  }, [pokeCurrentGroup]);
 
   function confirmMenuItemVariantSelection() {
     if (!menuItemVariantModal) return;
@@ -5974,7 +5998,8 @@ export default function App() {
         cartItemId: item.id,
         mode: "poke",
         pokeBuilder: builder,
-        selectedByGroup: JSON.parse(JSON.stringify(item.poke_selected_by_group)) as Record<number, Record<number, number>>
+        selectedByGroup: JSON.parse(JSON.stringify(item.poke_selected_by_group)) as Record<number, Record<number, number>>,
+        note: item.poke_note || ""
       });
       return;
     }
@@ -6415,6 +6440,10 @@ export default function App() {
         const cleanedGroupName = getOrderEditPhaseLabel(builder, group.id);
         details.push(`${cleanedGroupName}: ${selections.map((entry) => `${entry.option.name} x${entry.quantity}`).join(", ")}`);
       }
+      const cleanPokeNote = String(orderItemEditModal.note || "").trim();
+      if (cleanPokeNote) {
+        details.push(`Note: ${cleanPokeNote}`);
+      }
       const nextPrice = Number(builder.price || 0) + extra;
       const pokeSelectedByGroup = JSON.parse(JSON.stringify(orderItemEditModal.selectedByGroup)) as Record<number, Record<number, number>>;
       for (const group of builder.groups) {
@@ -6429,6 +6458,7 @@ export default function App() {
             ...current,
             poke_builder_id: builder.id,
             poke_selected_by_group: pokeSelectedByGroup,
+            poke_note: cleanPokeNote || undefined,
             name: `Poke personalizzata - ${builder.name}`,
             details,
             price: nextPrice
@@ -6625,6 +6655,10 @@ export default function App() {
           .map((selection) => `${selection.option.name} x${selection.quantity}`)
           .join(", ")}`;
       });
+    const cleanPokeNote = pokeBuilderNote.trim();
+    if (cleanPokeNote) {
+      details.push(`Note: ${cleanPokeNote}`);
+    }
     const pokeSelectedByGroup = JSON.parse(JSON.stringify(selectedByGroup)) as Record<number, Record<number, number>>;
     for (const group of selectedBuilder.groups) {
       if (isBeverageGroupName(group.name)) delete pokeSelectedByGroup[group.id];
@@ -6636,6 +6670,7 @@ export default function App() {
         id: customId,
         poke_builder_id: selectedBuilder.id,
         poke_selected_by_group: pokeSelectedByGroup,
+        poke_note: cleanPokeNote || undefined,
         name: `Poke personalizzata - ${selectedBuilder.name}`,
         price: orderTotal - beverageTotal,
         quantity: 1,
@@ -6862,6 +6897,13 @@ export default function App() {
         if (key === " ") return { ...old, note: cur + " " };
         const ch = totemKbCaps ? key.toUpperCase() : key.toLowerCase();
         return { ...old, note: cur + ch };
+      });
+    } else if (totemKbField === "poke_note") {
+      setPokeBuilderNote((cur) => {
+        if (key === "⌫") return cur.slice(0, -1);
+        if (key === " ") return cur + " ";
+        const ch = totemKbCaps ? key.toUpperCase() : key.toLowerCase();
+        return cur + ch;
       });
     } else {
       setMenuCheckoutForm((old) => {
@@ -10029,6 +10071,26 @@ export default function App() {
                     {pokeCurrentGroup.required ? t("minPart", { min: pokeCurrentGroup.force_min }) : ""}
                   </p>
                   )}
+                  {isBeverageGroup && (
+                    <label className="field-label poke-note-field" style={{ display: "block", margin: "0 0 16px" }}>
+                      <span>{t("pokeNoteLabel")}</span>
+                      <textarea
+                        placeholder={t("pokeNotePlaceholder")}
+                        value={pokeBuilderNote}
+                        maxLength={200}
+                        rows={2}
+                        style={{ width: "100%", resize: "vertical" }}
+                        readOnly={isTotemLoggedIn}
+                        className={isTotemLoggedIn && totemKbField === "poke_note" ? "totem-kb-active-input" : ""}
+                        onPointerDown={isTotemLoggedIn ? (e) => {
+                          e.preventDefault();
+                          setTotemKbField("poke_note");
+                          setTotemKbCaps(false);
+                        } : undefined}
+                        onChange={isTotemLoggedIn ? undefined : (e) => setPokeBuilderNote(e.target.value)}
+                      />
+                    </label>
+                  )}
 
                   {combinedOptions.length > 0 && (() => {
                     const groups = buildOptionDisplayGroups(
@@ -11989,6 +12051,29 @@ export default function App() {
                     </div>
                   </div>
                 )}
+                <label className="field-label poke-note-field" style={{ display: "block", margin: "8px 0" }}>
+                  <span>{t("pokeNoteLabel")}</span>
+                  <textarea
+                    placeholder={t("pokeNotePlaceholder")}
+                    value={orderItemEditModal.note || ""}
+                    maxLength={200}
+                    rows={2}
+                    style={{ width: "100%", resize: "vertical" }}
+                    readOnly={isTotemLoggedIn}
+                    className={isTotemLoggedIn && totemKbField === "edit_note" ? "totem-kb-active-input" : ""}
+                    onPointerDown={isTotemLoggedIn ? (e) => {
+                      e.preventDefault();
+                      setTotemKbField("edit_note");
+                      setTotemKbCaps(false);
+                    } : undefined}
+                    onChange={isTotemLoggedIn ? undefined : (e) =>
+                      setOrderItemEditModal((old) => {
+                        if (!old || old.mode !== "poke") return old;
+                        return { ...old, note: e.target.value };
+                      })
+                    }
+                  />
+                </label>
                 <div className="order-edit-poke-groups">
                   {pokeBuilder.groups.filter((group) => !isBeverageGroupName(group.name)).map((group) => {
                     const validation = groupValidations.get(group.id);
