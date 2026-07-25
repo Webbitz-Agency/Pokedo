@@ -2026,6 +2026,12 @@ function formatAllergenCodesForNote(codes: number[]): string {
   return formatAllergenNames(codes);
 }
 
+/** Riconosce la fase "Bevande" del poke builder (stesse keyword usate dal backend). */
+function isBeverageGroupName(name: string): boolean {
+  const normalized = String(name || "").toLowerCase();
+  return ["bevand", "bibit", "drink", "beverage"].some((keyword) => normalized.includes(keyword));
+}
+
 function readOrderItemsFromStorage(storageKey: string): Record<number, CartItem> {
   try {
     const raw = window.localStorage.getItem(storageKey);
@@ -6211,7 +6217,7 @@ export default function App() {
     const sameNameGroups = builder.groups.filter((entry) => displayPhaseName(entry.name) === baseName);
     const index = sameNameGroups.findIndex((entry) => entry.id === groupId);
     const isExtraPhase = index > 0;
-    const isBeveragePhase = normalizedBaseName === "bevande" || normalizedBaseName === "bevanda" || normalizedBaseName === "drinks";
+    const isBeveragePhase = isBeverageGroupName(normalizedBaseName) || isBeverageGroupName(group.name);
     return {
       min: isExtraPhase || isBeveragePhase ? 0 : Math.max(0, Number(group.force_min || 0)),
       max: Math.max(0, Number(group.force_max || 0))
@@ -6361,6 +6367,7 @@ export default function App() {
     if (orderItemEditModal.mode === "poke" && orderItemEditModal.pokeBuilder && orderItemEditModal.selectedByGroup) {
       const builder = orderItemEditModal.pokeBuilder;
       for (const group of builder.groups) {
+        if (isBeverageGroupName(group.name)) continue;
         const limits = getOrderEditGroupEffectiveLimits(builder, group.id);
         const selectedCount = getOrderEditPokeSelectionCount(builder, orderItemEditModal.selectedByGroup, group.id);
         if (selectedCount < limits.min) {
@@ -6368,43 +6375,61 @@ export default function App() {
           return;
         }
       }
-      const details = builder.groups.map((group) => {
+      // Come in addCustomPokeToOrder: bevande scorporate come voci separate,
+      // fasi senza selezioni senza riga placeholder.
+      const beverageSelections: { option: BuilderItem["groups"][number]["options"][number]; quantity: number }[] = [];
+      const details: string[] = [];
+      let extra = 0;
+      for (const group of builder.groups) {
         const selections = Object.entries(orderItemEditModal.selectedByGroup?.[group.id] ?? {})
           .map(([optionIdRaw, quantity]) => {
             const option = group.options.find((entry) => entry.id === Number(optionIdRaw));
-            if (!option || quantity <= 0) return null;
+            if (!option || option.is_out_of_stock || quantity <= 0) return null;
             return { option, quantity };
           })
           .filter(Boolean) as { option: BuilderItem["groups"][number]["options"][number]; quantity: number }[];
+        if (isBeverageGroupName(group.name)) {
+          beverageSelections.push(...selections);
+          continue;
+        }
+        extra += selections.reduce((sum, entry) => sum + Number(entry.option.price || 0) * entry.quantity, 0);
+        if (selections.length === 0) continue;
         const cleanedGroupName = getOrderEditPhaseLabel(builder, group.id);
-        if (selections.length === 0) return `${cleanedGroupName}: ${t("nonePrefix")} ${cleanedGroupName.toLowerCase()}`;
-        return `${cleanedGroupName}: ${selections.map((entry) => `${entry.option.name} x${entry.quantity}`).join(", ")}`;
-      });
-      const extra = builder.groups.reduce((sum, group) => {
-        return (
-          sum +
-          Object.entries(orderItemEditModal.selectedByGroup?.[group.id] ?? {}).reduce((groupSum, [optionIdRaw, quantity]) => {
-            const option = group.options.find((entry) => entry.id === Number(optionIdRaw));
-            if (!option || option.is_out_of_stock || quantity <= 0) return groupSum;
-            return groupSum + option.price * quantity;
-          }, 0)
-        );
-      }, 0);
+        details.push(`${cleanedGroupName}: ${selections.map((entry) => `${entry.option.name} x${entry.quantity}`).join(", ")}`);
+      }
       const nextPrice = Number(builder.price || 0) + extra;
+      const pokeSelectedByGroup = JSON.parse(JSON.stringify(orderItemEditModal.selectedByGroup)) as Record<number, Record<number, number>>;
+      for (const group of builder.groups) {
+        if (isBeverageGroupName(group.name)) delete pokeSelectedByGroup[group.id];
+      }
       setOrderItems((old) => {
         const current = old[orderItemEditModal.cartItemId];
         if (!current) return old;
-        return {
+        const next = {
           ...old,
           [orderItemEditModal.cartItemId]: {
             ...current,
             poke_builder_id: builder.id,
-            poke_selected_by_group: JSON.parse(JSON.stringify(orderItemEditModal.selectedByGroup)) as Record<number, Record<number, number>>,
+            poke_selected_by_group: pokeSelectedByGroup,
             name: `Poke personalizzata - ${builder.name}`,
             details,
             price: nextPrice
           }
         };
+        let offset = 0;
+        for (const selection of beverageSelections) {
+          const cartId = Date.now() + offset;
+          offset += 1;
+          next[cartId] = {
+            id: cartId,
+            source_item_id: 0,
+            name: selection.option.name,
+            price: Number(selection.option.price || 0),
+            quantity: selection.quantity,
+            course: 1
+          };
+        }
+        return next;
       });
       setOrderItemEditModal(null);
     }
@@ -6429,6 +6454,7 @@ export default function App() {
     }
     if (orderItemEditModal.mode === "poke" && orderItemEditModal.pokeBuilder && orderItemEditModal.selectedByGroup) {
       const extra = orderItemEditModal.pokeBuilder.groups.reduce((sum, group) => {
+        if (isBeverageGroupName(group.name)) return sum;
         return (
           sum +
           Object.entries(orderItemEditModal.selectedByGroup?.[group.id] ?? {}).reduce((groupSum, [optionIdRaw, quantity]) => {
@@ -6562,32 +6588,57 @@ export default function App() {
       showPokeActionMessage("Completa prima tutte le selezioni richieste");
       return;
     }
+    // Le bevande scelte nella fase "Bevande" diventano voci separate del carrello
+    // (come dal modal "Aggiungi bevande"): non entrano nei dettagli né nel prezzo della poke.
+    const beverageSelections = selectedOptionsByGroup
+      .filter((entry) => isBeverageGroupName(entry.group.name))
+      .flatMap((entry) => entry.selections);
+    const beverageTotal = beverageSelections.reduce(
+      (sum, selection) => sum + Number(selection.option.price || 0) * selection.quantity,
+      0
+    );
+    // Le fasi senza selezioni non generano righe: i placeholder "Nessun X" seguivano
+    // la lingua del cliente e arrivavano non tradotti su scontrini e gestionale.
     const details = selectedOptionsByGroup
-      .filter((entry) => {
-        const hasAvailableOptions = entry.group.options.some((opt) => !opt.is_out_of_stock);
-        return hasAvailableOptions || entry.selections.length > 0;
-      })
+      .filter((entry) => !isBeverageGroupName(entry.group.name) && entry.selections.length > 0)
       .map((entry) => {
         const cleanedGroupName = getOrderEditPhaseLabel(selectedBuilder, entry.group.id);
-        if (entry.selections.length === 0) return `${cleanedGroupName}: ${t("nonePrefix")} ${cleanedGroupName.toLowerCase()}`;
         return `${cleanedGroupName}: ${entry.selections
           .map((selection) => `${selection.option.name} x${selection.quantity}`)
           .join(", ")}`;
       });
+    const pokeSelectedByGroup = JSON.parse(JSON.stringify(selectedByGroup)) as Record<number, Record<number, number>>;
+    for (const group of selectedBuilder.groups) {
+      if (isBeverageGroupName(group.name)) delete pokeSelectedByGroup[group.id];
+    }
     const customId = -Date.now();
-    setOrderItems((old) => ({
-      ...old,
-      [customId]: {
+    setOrderItems((old) => {
+      const next = { ...old };
+      next[customId] = {
         id: customId,
         poke_builder_id: selectedBuilder.id,
-        poke_selected_by_group: JSON.parse(JSON.stringify(selectedByGroup)) as Record<number, Record<number, number>>,
+        poke_selected_by_group: pokeSelectedByGroup,
         name: `Poke personalizzata - ${selectedBuilder.name}`,
-        price: orderTotal,
+        price: orderTotal - beverageTotal,
         quantity: 1,
         details,
         course: 1
+      };
+      let offset = 0;
+      for (const selection of beverageSelections) {
+        const cartId = Date.now() + offset;
+        offset += 1;
+        next[cartId] = {
+          id: cartId,
+          source_item_id: 0,
+          name: selection.option.name,
+          price: Number(selection.option.price || 0),
+          quantity: selection.quantity,
+          course: 1
+        };
       }
-    }));
+      return next;
+    });
     setPokeAddedMessage(t("pokeAddedToOrder"));
   }
 
@@ -6916,9 +6967,12 @@ export default function App() {
       const customerAllergenLabels = customerAllergenCodes.map((code) => getAllergenTitleByCode(code));
       const customerAllergensLabel =
         customerAllergenLabels.length > 0 ? customerAllergenLabels.join(" ") : "";
+      // Nota e payload restano sempre in italiano (lo scontrino e il gestionale
+      // sono letti dal ristoratore); la UI continua a mostrare l'etichetta tradotta.
+      const pickupTimeLabelIt = isPickupAsapSelected ? "Prima possibile" : pickupTimeLabel;
       const pickupNote = isPickupAsapSelected
-        ? `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)}: ${pickupTimeLabel}`
-        : `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} alle ${pickupTimeLabel}`;
+        ? `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)}: ${pickupTimeLabelIt}`
+        : `Ritiro richiesto il ${formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} alle ${pickupTimeLabelIt}`;
       const regularDishAllergenParts = orderItemsList
         .filter((item) => (dishAllergenMap[item.id] ?? []).length > 0)
         .map((item) => {
@@ -6948,7 +7002,7 @@ export default function App() {
             email: menuCheckoutForm.email
           },
           pickup_date: menuCheckoutForm.pickup_date,
-          pickup_time: pickupTimeLabel,
+          pickup_time: pickupTimeLabelIt,
           pickup_asap: isPickupAsapSelected,
           customer_note: customerOrderNote,
           customer_allergen_codes: customerAllergenCodes,
@@ -11854,6 +11908,7 @@ export default function App() {
               const groupValidations = new Map<number, GroupValidation>();
               const invalidGroupLabels: { label: string; status: "missing" | "overflow"; delta: number }[] = [];
               for (const group of pokeBuilder.groups) {
+                if (isBeverageGroupName(group.name)) continue;
                 const limits = getOrderEditGroupEffectiveLimits(pokeBuilder, group.id);
                 const selected = getOrderEditPokeSelectionCount(pokeBuilder, selectedByGroup, group.id);
                 if (limits.max > 0 && selected > limits.max) {
@@ -11917,7 +11972,7 @@ export default function App() {
                   </div>
                 )}
                 <div className="order-edit-poke-groups">
-                  {pokeBuilder.groups.map((group) => {
+                  {pokeBuilder.groups.filter((group) => !isBeverageGroupName(group.name)).map((group) => {
                     const validation = groupValidations.get(group.id);
                     const limits = { min: validation?.min ?? 0, max: validation?.max ?? 0 };
                     const groupClassNames = [
