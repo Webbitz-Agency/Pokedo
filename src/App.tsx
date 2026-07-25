@@ -5784,7 +5784,7 @@ export default function App() {
         const choice = variant.choices.find((entry) => entry.id === Number(choiceIdRaw));
         if (!choice) continue;
       const extraPrice = Math.max(0, Number(choice.extra_price || 0));
-        const qtyPrefix = qty > 1 ? `${qty}× ` : "";
+        const qtyPrefix = qty > 1 ? `${qty}x ` : "";
         const label = choice.included || extraPrice <= 0
           ? `${qtyPrefix}${choice.name}`
           : `${qtyPrefix}${choice.name} (+${formatCurrency(extraPrice * qty)})`;
@@ -5793,7 +5793,10 @@ export default function App() {
         selectedSignature.push(`${variant.id}:${choice.id}x${qty}`);
       }
       if (variantLabels.length > 0) {
-        details.push(`${variant.name}: ${variantLabels.join(", ")}`);
+        // Una riga per scelta: su scontrino e gestionale le varianti vanno una sotto l'altra
+        for (const variantLabel of variantLabels) {
+          details.push(`${variant.name}: ${variantLabel}`);
+        }
       }
     }
     const cleanNote = String(note || "").trim();
@@ -6325,7 +6328,7 @@ export default function App() {
           const choice = variant.choices.find((entry) => entry.id === Number(choiceIdRaw));
           if (!choice) continue;
         const extraPrice = Math.max(0, Number(choice.extra_price || 0));
-          const qtyPrefix = qty > 1 ? `${qty}× ` : "";
+          const qtyPrefix = qty > 1 ? `${qty}x ` : "";
           const label = choice.included || extraPrice <= 0
             ? `${qtyPrefix}${choice.name}`
             : `${qtyPrefix}${choice.name} (+${formatCurrency(extraPrice * qty)})`;
@@ -6334,7 +6337,10 @@ export default function App() {
           selectedSignature.push(`${variant.id}:${choice.id}x${qty}`);
         }
         if (variantLabels.length > 0) {
-          details.push(`${variant.name}: ${variantLabels.join(", ")}`);
+          // Una riga per scelta: su scontrino e gestionale le varianti vanno una sotto l'altra
+          for (const variantLabel of variantLabels) {
+            details.push(`${variant.name}: ${variantLabel}`);
+          }
         }
       }
       const cleanNote = String(orderItemEditModal.note || "").trim();
