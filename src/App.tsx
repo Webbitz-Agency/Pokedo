@@ -4713,6 +4713,10 @@ export default function App() {
   function isExtraGroup(name: string) {
     return name.toLowerCase().includes("extra");
   }
+  /** Fasi senza vincoli di quantità: ingredienti extra e bevande (min 0, max libero). */
+  function isUnlimitedPokeGroup(name: string) {
+    return isExtraGroup(name) || isBeverageGroupName(name);
+  }
   function getBaseKey(name: string) {
     return phaseKeyFromGroupName(name) ?? name.toLowerCase();
   }
@@ -4811,9 +4815,11 @@ export default function App() {
     for (let idx = 0; idx < selectedGroups.length; idx += 1) {
       const group = selectedGroups[idx];
       const selectedCount = getGroupSelectionCount(group.id);
-      const validForStep = group.required
-        ? selectedCount >= group.force_min && selectedCount <= group.force_max
-        : selectedCount <= group.force_max;
+      const validForStep = isUnlimitedPokeGroup(group.name)
+        ? true
+        : group.required
+          ? selectedCount >= group.force_min && selectedCount <= group.force_max
+          : selectedCount <= group.force_max;
       if (!validForStep) break;
       maxStep = idx + 2;
     }
@@ -6058,7 +6064,9 @@ export default function App() {
       const oldGroupSelections = oldSelections[oldGroup.id] ?? {};
       const migratedGroup: Record<number, number> = {};
       let runningTotal = 0;
-      const maxQty = Math.max(0, Number(newGroup.force_max || 0));
+      const maxQty = isUnlimitedPokeGroup(newGroup.name)
+        ? Number.POSITIVE_INFINITY
+        : Math.max(0, Number(newGroup.force_max || 0));
       for (const [optionIdRaw, qty] of Object.entries(oldGroupSelections)) {
         if (qty <= 0) continue;
         const oldOption = oldGroup.options.find((entry) => entry.id === Number(optionIdRaw));
@@ -6136,6 +6144,7 @@ export default function App() {
     if (!nextBuilder) return;
     const mappedNoCap = mapPokeSelectionsToBuilderNoCap(orderItemEditModal.pokeBuilder, orderItemEditModal.selectedByGroup, nextBuilder);
     const hasOverflow = nextBuilder.groups.some((group) => {
+      if (isUnlimitedPokeGroup(group.name)) return false;
       const max = Math.max(0, Number(group.force_max || 0));
       const selected = countSelectionsForGroup(mappedNoCap[group.id]);
       return max > 0 && selected > max;
@@ -6181,6 +6190,7 @@ export default function App() {
     if (!pokeSizeChangeModal) return;
     const { nextBuilder, draftSelectedByGroup } = pokeSizeChangeModal;
     const stillOverflow = nextBuilder.groups.some((group) => {
+      if (isUnlimitedPokeGroup(group.name)) return false;
       const max = Math.max(0, Number(group.force_max || 0));
       const selected = countSelectionsForGroup(draftSelectedByGroup[group.id]);
       return max > 0 && selected > max;
@@ -6216,11 +6226,12 @@ export default function App() {
     const normalizedBaseName = baseName.trim().toLowerCase();
     const sameNameGroups = builder.groups.filter((entry) => displayPhaseName(entry.name) === baseName);
     const index = sameNameGroups.findIndex((entry) => entry.id === groupId);
-    const isExtraPhase = index > 0;
+    const isExtraPhase = index > 0 || isExtraGroup(group.name);
     const isBeveragePhase = isBeverageGroupName(normalizedBaseName) || isBeverageGroupName(group.name);
     return {
       min: isExtraPhase || isBeveragePhase ? 0 : Math.max(0, Number(group.force_min || 0)),
-      max: Math.max(0, Number(group.force_max || 0))
+      // Fasi extra e bevande: quantità libera
+      max: isExtraPhase || isBeveragePhase ? Number.POSITIVE_INFINITY : Math.max(0, Number(group.force_max || 0))
     };
   }
 
@@ -6251,7 +6262,8 @@ export default function App() {
       const option = group.options.find((entry) => entry.id === optionId);
       if (!option || option.is_out_of_stock) return old;
       const selectedCount = getOrderEditPokeSelectionCount(old.pokeBuilder, old.selectedByGroup, groupId);
-      if (selectedCount >= group.force_max) return old;
+      const limits = getOrderEditGroupEffectiveLimits(old.pokeBuilder, groupId);
+      if (Number.isFinite(limits.max) && selectedCount >= limits.max) return old;
       const groupSelection = old.selectedByGroup[groupId] ?? {};
       return {
         ...old,
@@ -7097,10 +7109,10 @@ export default function App() {
     option: BuilderItem["groups"][number]["options"][number]
   ) {
     if (option.is_out_of_stock) return;
-    // Il gruppo "Bevande" non ha limite di quantità totale
-    const isBeverageGroup = group.name.toLowerCase().includes("bevand");
+    // Bevande e fasi "Extra" non hanno limite di quantità totale
+    const isUnlimitedGroup = isUnlimitedPokeGroup(group.name);
     const selectedCount = getGroupSelectionCount(group.id);
-    if (!isBeverageGroup && selectedCount >= group.force_max) {
+    if (!isUnlimitedGroup && selectedCount >= group.force_max) {
       showPokeLimitMessage(`Max ${group.force_max} ${displayPhaseName(group.name)} — ${t("phaseMaxHint")}`);
       return;
     }
@@ -7138,9 +7150,9 @@ export default function App() {
   }
 
   function canProceedGroup(group: BuilderItem["groups"][number]) {
-    const isBeverageGroup = group.name.toLowerCase().includes("bevand");
+    // Bevande e fasi "Extra": nessun vincolo (min 0, max libero)
+    if (isUnlimitedPokeGroup(group.name)) return true;
     const selectedCount = getGroupSelectionCount(group.id);
-    if (isBeverageGroup) return true;
     if (!group.required) return selectedCount <= group.force_max;
     return selectedCount >= group.force_min && selectedCount <= group.force_max;
   }
@@ -10002,7 +10014,7 @@ export default function App() {
                       </p>
                   )}
                   </div>
-                  {!isBeverageGroup && (
+                  {!isUnlimitedPokeGroup(pokeCurrentGroup.name) && (
                     <p className="muted poke-phase-selection">
                     {t("selectedMax", {
                       selected: getGroupSelectionCount(pokeCurrentGroup.id),
@@ -11987,7 +11999,7 @@ export default function App() {
                       <div className="order-edit-poke-group-head">
                         <h5>{getOrderEditPhaseLabel(pokeBuilder, group.id)}</h5>
                         <small>
-                          Min {limits.min} - Max {limits.max}
+                          {Number.isFinite(limits.max) ? `Min ${limits.min} - Max ${limits.max}` : `Min ${limits.min}`}
                         </small>
                       </div>
                       {validation && validation.status !== "ok" && (
@@ -12054,6 +12066,7 @@ export default function App() {
       {pokeSizeChangeModal && (() => {
         const { nextBuilder, draftSelectedByGroup } = pokeSizeChangeModal;
         const overflowGroups = nextBuilder.groups
+          .filter((group) => !isUnlimitedPokeGroup(group.name))
           .map((group) => {
             const max = Math.max(0, Number(group.force_max || 0));
             const selectionMap = draftSelectedByGroup[group.id] ?? {};
