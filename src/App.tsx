@@ -3629,6 +3629,14 @@ export default function App() {
       category.items.forEach((item) => {
         const itemDescription = String(item?.description ?? "").trim();
         if (itemDescription) uniqueTexts.add(itemDescription);
+        (item.variants ?? []).forEach((variant) => {
+          const variantName = String(variant?.name ?? "").trim();
+          if (variantName) uniqueTexts.add(variantName);
+          (variant.choices ?? []).forEach((choice) => {
+            const choiceName = String(choice?.name ?? "").trim();
+            if (choiceName) uniqueTexts.add(choiceName);
+          });
+        });
       });
     });
     (pokeRules?.builder_items ?? []).forEach((builderItem) => {
@@ -3701,6 +3709,14 @@ export default function App() {
       cat.items.forEach((item) => {
         const id = String(item?.description ?? "").trim();
         if (id && id.length <= 1000) uniqueTexts.add(id);
+        (item.variants ?? []).forEach((variant) => {
+          const variantName = String(variant?.name ?? "").trim();
+          if (variantName && variantName.length <= 1000) uniqueTexts.add(variantName);
+          (variant.choices ?? []).forEach((choice) => {
+            const choiceName = String(choice?.name ?? "").trim();
+            if (choiceName && choiceName.length <= 1000) uniqueTexts.add(choiceName);
+          });
+        });
       });
     });
     (pokeRules?.builder_items ?? []).forEach((bi) => {
@@ -4772,7 +4788,7 @@ export default function App() {
       const parts: PokeSummaryLinePart[] = entry.selections.map((selection) => {
         const hasSurcharge = selection.option.price > 0;
         return {
-          text: `${selection.option.name} x${selection.quantity}`,
+          text: `${translateDescription(selection.option.name)} x${selection.quantity}`,
           hasSurcharge,
           surchargeTotal: hasSurcharge ? selection.option.price * selection.quantity : 0
         };
@@ -4786,7 +4802,9 @@ export default function App() {
     });
 
     return Object.values(rows);
-  }, [selectedOptionsByGroup]);
+    // dynamicDescriptionMap/uiLanguage: le voci del riepilogo sono tradotte a schermo
+    // (i dettagli salvati nel carrello restano coi nomi italiani del database).
+  }, [selectedOptionsByGroup, uiLanguage, dynamicDescriptionMap]);
 
   const pokeSummarySegments = useCallback((parts: PokeSummaryLinePart[]) => {
     return (
@@ -11491,13 +11509,13 @@ export default function App() {
                     ? "overflow"
                     : "ok";
                 const chipOptionsForWidth = variant.choices.map((c) => ({
-                  name: c.name,
+                  name: translateDescription(c.name),
                   price: Math.max(0, Number(c.extra_price || 0))
                 }));
                 return (
                 <section key={`public-variant-${variant.id}`} className={`admin-item-variant-public-group ${isMulti ? "is-multi" : "is-single"} ${validationStatus !== "ok" ? `is-${validationStatus}` : ""}`.trim()}>
                   <div className="admin-item-variant-public-head">
-                  <h5>{variant.name}</h5>
+                  <h5>{translateDescription(variant.name)}</h5>
                     <small className="admin-item-variant-public-limits">
                       {isMulti ? (
                         <>
@@ -11595,7 +11613,7 @@ export default function App() {
                         >
                           <span className="option-chip-label">
                             {hasSurcharge ? <OptionSurchargeCrownIcon /> : null}
-                            {choice.name}
+                            {translateDescription(choice.name)}
                           </span>
                           <div className="option-chip-trailing">
                             {qty > 0 ? (
@@ -11760,13 +11778,13 @@ export default function App() {
                         ? "overflow"
                         : "ok";
                     const chipOptionsForWidth = variant.choices.map((c) => ({
-                      name: c.name,
+                      name: translateDescription(c.name),
                       price: Math.max(0, Number(c.extra_price || 0))
                     }));
                     return (
                     <section key={`edit-variant-${variant.id}`} className={`admin-item-variant-public-group ${isMulti ? "is-multi" : "is-single"} ${validationStatus !== "ok" ? `is-${validationStatus}` : ""}`.trim()}>
                       <div className="admin-item-variant-public-head">
-                      <h5>{variant.name}</h5>
+                      <h5>{translateDescription(variant.name)}</h5>
                         <small className="admin-item-variant-public-limits">
                           {isMulti ? (
                             <>
@@ -11863,7 +11881,7 @@ export default function App() {
                             >
                               <span className="option-chip-label">
                                 {hasSurcharge ? <OptionSurchargeCrownIcon /> : null}
-                                {choice.name}
+                                {translateDescription(choice.name)}
                               </span>
                               <div className="option-chip-trailing">
                                 {qty > 0 ? (
