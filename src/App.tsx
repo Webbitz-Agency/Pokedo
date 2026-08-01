@@ -3645,6 +3645,9 @@ export default function App() {
       builderItem.groups.forEach((group) => {
         const groupDescription = String(group?.description ?? "").trim();
         if (groupDescription) uniqueTexts.add(groupDescription);
+        // Solo le fasi custom (es. "Bevande"): quelle standard usano le etichette del gestionale
+        const groupLabel = cleanPhaseDisplayName(String(group?.name ?? ""));
+        if (groupLabel && !phaseKeyFromGroupName(groupLabel)) uniqueTexts.add(groupLabel);
         (group.options ?? []).forEach((option) => {
           const optName = String(option?.name ?? "").trim();
           if (optName) uniqueTexts.add(optName);
@@ -3725,6 +3728,8 @@ export default function App() {
       bi.groups.forEach((g) => {
         const gd = String(g?.description ?? "").trim();
         if (gd && gd.length <= 1000) uniqueTexts.add(gd);
+        const gLabel = cleanPhaseDisplayName(String(g?.name ?? ""));
+        if (gLabel && !phaseKeyFromGroupName(gLabel)) uniqueTexts.add(gLabel);
         (g.options ?? []).forEach((option) => {
           const optName = String(option?.name ?? "").trim();
           if (optName && optName.length <= 1000) uniqueTexts.add(optName);
@@ -4781,7 +4786,9 @@ export default function App() {
       if (entry.selections.length === 0) return;
 
       const baseKey = getBaseKey(entry.group.name);
-      const cleanedGroupName = displayPhaseName(entry.group.name);
+      const cleanedGroupName = phaseKeyFromGroupName(entry.group.name)
+        ? displayPhaseName(entry.group.name)
+        : translateDescription(displayPhaseName(entry.group.name));
       if (!rows[baseKey]) {
         rows[baseKey] = { label: cleanedGroupName, normalParts: [], extraParts: [] };
       }
@@ -10073,7 +10080,11 @@ export default function App() {
                     return (
                       <>
                   <div className="poke-phase-intro">
-                  <h3>{getOrderEditPhaseLabel(selectedBuilder, pokeCurrentGroup.id)}</h3>
+                  <h3>
+                    {phaseKeyFromGroupName(pokeCurrentGroup.name)
+                      ? getOrderEditPhaseLabel(selectedBuilder, pokeCurrentGroup.id)
+                      : translateDescription(getOrderEditPhaseLabel(selectedBuilder, pokeCurrentGroup.id))}
+                  </h3>
                   {pokeCurrentGroup.description && (
                       <p className="muted poke-phase-description">
                         {translateDescription(pokeCurrentGroup.description)}
