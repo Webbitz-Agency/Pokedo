@@ -3278,6 +3278,9 @@ export default function App() {
   // true dopo che l'utente ha scelto manualmente la data di ritiro:
   // disattiva il riallineamento automatico alla prima data disponibile.
   const pickupDateTouchedRef = useRef(false);
+  // Banner mostrato quando l'utente sceglie una data non ordinabile
+  // (giorno di chiusura, oppure oggi senza più orari disponibili).
+  const [pickupDateNotice, setPickupDateNotice] = useState("");
   const [dynamicDescriptionMap, setDynamicDescriptionMap] = useState<Record<string, string>>(() => {
     try {
       const raw = window.localStorage.getItem("pokedo_translation_cache");
@@ -5111,6 +5114,32 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appSettings.site.pickup_time_rule, pickupNowTick]);
 
+  // Scelta manuale della data di ritiro: le date non ordinabili (giorno di
+  // chiusura, oppure oggi senza più orari) tornano alla prima data utile
+  // mostrando un banner di avviso.
+  const handlePickupDateChange = (val: string) => {
+    pickupDateTouchedRef.current = true;
+    let nextDate = val && val < todayIsoForPickup ? nextAvailablePickupDate : val;
+    let notice = "";
+    if (nextDate) {
+      const date = new Date(nextDate + "T00:00:00");
+      const dayRule = appSettings.site.pickup_time_rule.find((d) => d.day === getIsoDayIndex(date));
+      if (!dayRule || !dayRule.enabled) {
+        notice = t("pickupDayClosed");
+        nextDate = nextAvailablePickupDate;
+      } else if (nextDate === todayIsoForPickup) {
+        const threshold = getMinutesOfDayFromDate(pickupNowTick) + PICKUP_PREP_BUFFER_MINUTES;
+        const slots = buildSlotsForDate(nextDate, appSettings.site.pickup_time_rule);
+        if (!slots.some((s) => s.minutes >= threshold)) {
+          notice = t("pickupNoSlotsToday");
+          nextDate = nextAvailablePickupDate;
+        }
+      }
+    }
+    setPickupDateNotice(notice);
+    setMenuCheckoutForm((old) => ({ ...old, pickup_date: nextDate, pickup_hour: "", pickup_minute: "" }));
+  };
+
   const pickupBaseSlots = useMemo(
     () => buildSlotsForDate(menuCheckoutForm.pickup_date, appSettings.site.pickup_time_rule),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -5150,14 +5179,11 @@ export default function App() {
       menuCheckoutForm.pickup_date === todayIsoForPickup &&
       !pickupBaseSlots.some((s) => s.minutes >= threshold);
     // Se la data attuale è DOPO la prima disponibile (es. dopo aggiornamento settings),
-    // riporta alla prima data utile.
-    const isLaterThanNeeded = menuCheckoutForm.pickup_date > nextAvailablePickupDate;
-    // Dopo una scelta manuale dell'utente niente correzioni automatiche (tranne le
-    // date passate): giorno chiuso / senza orari mostrano un banner di avviso.
-    const shouldAutoCorrect = pickupDateTouchedRef.current
-      ? isPastDate
-      : isPastDate || isDayClosed || hasNoFutureSlots || isLaterThanNeeded;
-    if (shouldAutoCorrect) {
+    // riporta alla prima data utile — ma solo finché l'utente non ha scelto
+    // manualmente una data: una scelta esplicita futura è legittima.
+    const isLaterThanNeeded =
+      !pickupDateTouchedRef.current && menuCheckoutForm.pickup_date > nextAvailablePickupDate;
+    if (isPastDate || isDayClosed || hasNoFutureSlots || isLaterThanNeeded) {
       setMenuCheckoutForm((old) => ({
         ...old,
         pickup_date: nextAvailablePickupDate,
@@ -5166,19 +5192,6 @@ export default function App() {
       }));
     }
   }, [menuCheckoutForm.pickup_date, pickupBaseSlots, pickupNowTick, todayIsoForPickup, nextAvailablePickupDate, appSettings.site.pickup_time_rule]);
-  // Banner di avviso quando la data scelta manualmente non è ordinabile
-  // (giorno di chiusura, oppure oggi ma senza più orari disponibili).
-  const pickupDateUnavailableNotice = useMemo(() => {
-    if (!menuCheckoutForm.pickup_date) return "";
-    const date = new Date(menuCheckoutForm.pickup_date + "T00:00:00");
-    const dayRule = appSettings.site.pickup_time_rule.find((d) => d.day === getIsoDayIndex(date));
-    if (!dayRule || !dayRule.enabled) return t("pickupDayClosed");
-    if (menuCheckoutForm.pickup_date === todayIsoForPickup && pickupAllowedSlots.length === 0) {
-      return t("pickupNoSlotsToday");
-    }
-    return "";
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menuCheckoutForm.pickup_date, appSettings.site.pickup_time_rule, todayIsoForPickup, pickupAllowedSlots, t]);
   const pickupAllowedHours = useMemo(
     () => Array.from(new Set(pickupAllowedSlots.map((entry) => entry.hour))),
     [pickupAllowedSlots]
@@ -7059,6 +7072,7 @@ export default function App() {
       setDishAllergenMap({});
       setTotemPickupChoice(null);
       pickupDateTouchedRef.current = false;
+      setPickupDateNotice("");
       setMenuCheckoutForm({
         first_name: "",
         last_name: "",
@@ -7143,6 +7157,7 @@ export default function App() {
       setMenuCheckoutMessage("Ordine inviato correttamente.");
       setMenuCheckoutCompleted(true);
       pickupDateTouchedRef.current = false;
+      setPickupDateNotice("");
       setMenuCheckoutForm({
         pickup_date: getTodayIsoDate(),
         pickup_hour: "",
@@ -10877,16 +10892,11 @@ export default function App() {
                             type="date"
                             min={todayIsoForPickup}
                             value={menuCheckoutForm.pickup_date}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              const safeDate = val && val < todayIsoForPickup ? nextAvailablePickupDate : val;
-                              pickupDateTouchedRef.current = true;
-                              setMenuCheckoutForm((old) => ({ ...old, pickup_date: safeDate, pickup_hour: "", pickup_minute: "" }));
-                            }}
+                            onChange={(e) => handlePickupDateChange(e.target.value)}
                           />
                         </div>
-                        {pickupDateUnavailableNotice && (
-                          <p className="checkout-date-closed-banner" role="alert">{pickupDateUnavailableNotice}</p>
+                        {pickupDateNotice && (
+                          <p className="checkout-date-closed-banner" role="alert">{pickupDateNotice}</p>
                         )}
                         <div className="checkout-time-selects">
                           <select
@@ -11149,23 +11159,12 @@ export default function App() {
                       type="date"
                       min={todayIsoForPickup}
                       value={menuCheckoutForm.pickup_date}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        // Rifiuta date nel passato (possono essere digitate manualmente)
-                        const safeDate = val && val < todayIsoForPickup ? nextAvailablePickupDate : val;
-                        pickupDateTouchedRef.current = true;
-                        setMenuCheckoutForm((old) => ({
-                          ...old,
-                          pickup_date: safeDate,
-                          pickup_hour: "",
-                          pickup_minute: ""
-                        }));
-                      }}
+                      onChange={(e) => handlePickupDateChange(e.target.value)}
                     />
                     <small>{t("pickupDayHint")}</small>
                   </div>
-                  {pickupDateUnavailableNotice && (
-                    <p className="checkout-date-closed-banner" role="alert">{pickupDateUnavailableNotice}</p>
+                  {pickupDateNotice && (
+                    <p className="checkout-date-closed-banner" role="alert">{pickupDateNotice}</p>
                   )}
                   <div className={`checkout-time-selects${isPickupAsapSelected ? " checkout-time-selects-asap" : ""}`}>
                     <select
