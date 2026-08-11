@@ -395,6 +395,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupOnlyHint: "Questo ordine è solo da asporto. Scegli l'orario in cui vuoi ritirarlo.",
     pickupDay: "Giorno ritiro",
     pickupDayHint: "Data preimpostata su oggi, modificabile",
+    pickupDayClosed: "Questo giorno il locale è chiuso. Seleziona un'altra data.",
+    pickupNoSlotsToday: "Per oggi non ci sono più orari disponibili. Seleziona un'altra data.",
     selectHour: "Seleziona ora",
     selectMinutes: "Seleziona minuti",
     pickupAsapLabel: "Appena possibile",
@@ -595,6 +597,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupOnlyHint: "This order is pickup only. Choose your pickup time.",
     pickupDay: "Pickup date",
     pickupDayHint: "Today by default, editable",
+    pickupDayClosed: "The restaurant is closed on this day. Please choose another date.",
+    pickupNoSlotsToday: "No more pickup times available today. Please choose another date.",
     selectHour: "Select hour",
     selectMinutes: "Select minutes",
     pickupAsapLabel: "As soon as possible",
@@ -796,6 +800,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupOnlyHint: "Diese Bestellung ist nur zur Abholung.",
     pickupDay: "Abholdatum",
     pickupDayHint: "Heute voreingestellt, änderbar",
+    pickupDayClosed: "An diesem Tag ist das Lokal geschlossen. Bitte wähle ein anderes Datum.",
+    pickupNoSlotsToday: "Für heute sind keine Uhrzeiten mehr verfügbar. Bitte wähle ein anderes Datum.",
     selectHour: "Stunde wählen",
     selectMinutes: "Minuten wählen",
     pickupAsapLabel: "So schnell wie möglich",
@@ -995,6 +1001,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupOnlyHint: "Este pedido es solo para recoger.",
     pickupDay: "Día de recogida",
     pickupDayHint: "Fecha de hoy predefinida, editable",
+    pickupDayClosed: "El local está cerrado ese día. Selecciona otra fecha.",
+    pickupNoSlotsToday: "Hoy ya no quedan horarios disponibles. Selecciona otra fecha.",
     selectHour: "Selecciona hora",
     selectMinutes: "Selecciona minutos",
     pickupAsapLabel: "Lo antes posible",
@@ -1192,6 +1200,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupOnlyHint: "Cette commande est uniquement à emporter. Choisis l'heure de retrait.",
     pickupDay: "Jour de retrait",
     pickupDayHint: "Aujourd'hui par défaut, modifiable",
+    pickupDayClosed: "L'établissement est fermé ce jour-là. Veuillez choisir une autre date.",
+    pickupNoSlotsToday: "Plus d'horaires disponibles aujourd'hui. Veuillez choisir une autre date.",
     selectHour: "Choisir l'heure",
     selectMinutes: "Choisir les minutes",
     pickupAsapLabel: "Dès que possible",
@@ -1387,6 +1397,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupOnlyHint: "此订单仅限外带自取，请选择取餐时间。",
     pickupDay: "取餐日期",
     pickupDayHint: "默认今天，可修改",
+    pickupDayClosed: "该日期本店休息，请选择其他日期。",
+    pickupNoSlotsToday: "今天已没有可选时间，请选择其他日期。",
     selectHour: "选择小时",
     selectMinutes: "选择分钟",
     pickupAsapLabel: "尽快",
@@ -1580,6 +1592,8 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupOnlyHint: "この注文はテイクアウトのみです。受け取り時間を選択してください。",
     pickupDay: "受け取り日",
     pickupDayHint: "今日がデフォルト、変更可能",
+    pickupDayClosed: "この日は定休日です。別の日付を選択してください。",
+    pickupNoSlotsToday: "本日は選択できる時間がありません。別の日付を選択してください。",
     selectHour: "時間を選択",
     selectMinutes: "分を選択",
     pickupAsapLabel: "できるだけ早く",
@@ -5136,11 +5150,14 @@ export default function App() {
       menuCheckoutForm.pickup_date === todayIsoForPickup &&
       !pickupBaseSlots.some((s) => s.minutes >= threshold);
     // Se la data attuale è DOPO la prima disponibile (es. dopo aggiornamento settings),
-    // riporta alla prima data utile — ma solo finché l'utente non ha scelto
-    // manualmente una data: una scelta esplicita futura è legittima.
-    const isLaterThanNeeded =
-      !pickupDateTouchedRef.current && menuCheckoutForm.pickup_date > nextAvailablePickupDate;
-    if (isPastDate || isDayClosed || hasNoFutureSlots || isLaterThanNeeded) {
+    // riporta alla prima data utile.
+    const isLaterThanNeeded = menuCheckoutForm.pickup_date > nextAvailablePickupDate;
+    // Dopo una scelta manuale dell'utente niente correzioni automatiche (tranne le
+    // date passate): giorno chiuso / senza orari mostrano un banner di avviso.
+    const shouldAutoCorrect = pickupDateTouchedRef.current
+      ? isPastDate
+      : isPastDate || isDayClosed || hasNoFutureSlots || isLaterThanNeeded;
+    if (shouldAutoCorrect) {
       setMenuCheckoutForm((old) => ({
         ...old,
         pickup_date: nextAvailablePickupDate,
@@ -5149,6 +5166,19 @@ export default function App() {
       }));
     }
   }, [menuCheckoutForm.pickup_date, pickupBaseSlots, pickupNowTick, todayIsoForPickup, nextAvailablePickupDate, appSettings.site.pickup_time_rule]);
+  // Banner di avviso quando la data scelta manualmente non è ordinabile
+  // (giorno di chiusura, oppure oggi ma senza più orari disponibili).
+  const pickupDateUnavailableNotice = useMemo(() => {
+    if (!menuCheckoutForm.pickup_date) return "";
+    const date = new Date(menuCheckoutForm.pickup_date + "T00:00:00");
+    const dayRule = appSettings.site.pickup_time_rule.find((d) => d.day === getIsoDayIndex(date));
+    if (!dayRule || !dayRule.enabled) return t("pickupDayClosed");
+    if (menuCheckoutForm.pickup_date === todayIsoForPickup && pickupAllowedSlots.length === 0) {
+      return t("pickupNoSlotsToday");
+    }
+    return "";
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [menuCheckoutForm.pickup_date, appSettings.site.pickup_time_rule, todayIsoForPickup, pickupAllowedSlots, t]);
   const pickupAllowedHours = useMemo(
     () => Array.from(new Set(pickupAllowedSlots.map((entry) => entry.hour))),
     [pickupAllowedSlots]
@@ -10855,6 +10885,9 @@ export default function App() {
                             }}
                           />
                         </div>
+                        {pickupDateUnavailableNotice && (
+                          <p className="checkout-date-closed-banner" role="alert">{pickupDateUnavailableNotice}</p>
+                        )}
                         <div className="checkout-time-selects">
                           <select
                             value={menuCheckoutForm.pickup_hour}
@@ -11131,6 +11164,9 @@ export default function App() {
                     />
                     <small>{t("pickupDayHint")}</small>
                   </div>
+                  {pickupDateUnavailableNotice && (
+                    <p className="checkout-date-closed-banner" role="alert">{pickupDateUnavailableNotice}</p>
+                  )}
                   <div className={`checkout-time-selects${isPickupAsapSelected ? " checkout-time-selects-asap" : ""}`}>
                     <select
                       value={menuCheckoutForm.pickup_hour}

@@ -2322,6 +2322,19 @@ select {
   background: linear-gradient(180deg, #ffffff, #f8fbff);
 }
 
+.checkout-date-closed-banner {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  max-width: 420px;
+  border-radius: 12px;
+  background: #fdecec;
+  border: 1px solid #f3b4b4;
+  color: #b3261e;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .checkout-time-selects span {
   color: #475569;
   font-weight: 700;
