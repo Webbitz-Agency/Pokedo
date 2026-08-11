@@ -3261,6 +3261,9 @@ export default function App() {
     order_note: "",
     customer_allergen_codes: [] as number[]
   });
+  // true dopo che l'utente ha scelto manualmente la data di ritiro:
+  // disattiva il riallineamento automatico alla prima data disponibile.
+  const pickupDateTouchedRef = useRef(false);
   const [dynamicDescriptionMap, setDynamicDescriptionMap] = useState<Record<string, string>>(() => {
     try {
       const raw = window.localStorage.getItem("pokedo_translation_cache");
@@ -5133,8 +5136,10 @@ export default function App() {
       menuCheckoutForm.pickup_date === todayIsoForPickup &&
       !pickupBaseSlots.some((s) => s.minutes >= threshold);
     // Se la data attuale è DOPO la prima disponibile (es. dopo aggiornamento settings),
-    // riporta alla prima data utile.
-    const isLaterThanNeeded = menuCheckoutForm.pickup_date > nextAvailablePickupDate;
+    // riporta alla prima data utile — ma solo finché l'utente non ha scelto
+    // manualmente una data: una scelta esplicita futura è legittima.
+    const isLaterThanNeeded =
+      !pickupDateTouchedRef.current && menuCheckoutForm.pickup_date > nextAvailablePickupDate;
     if (isPastDate || isDayClosed || hasNoFutureSlots || isLaterThanNeeded) {
       setMenuCheckoutForm((old) => ({
         ...old,
@@ -7023,6 +7028,7 @@ export default function App() {
       setOrderClosing(false);
       setDishAllergenMap({});
       setTotemPickupChoice(null);
+      pickupDateTouchedRef.current = false;
       setMenuCheckoutForm({
         first_name: "",
         last_name: "",
@@ -7106,6 +7112,7 @@ export default function App() {
       setMenuCheckoutStep(1);
       setMenuCheckoutMessage("Ordine inviato correttamente.");
       setMenuCheckoutCompleted(true);
+      pickupDateTouchedRef.current = false;
       setMenuCheckoutForm({
         pickup_date: getTodayIsoDate(),
         pickup_hour: "",
@@ -10843,6 +10850,7 @@ export default function App() {
                             onChange={(e) => {
                               const val = e.target.value;
                               const safeDate = val && val < todayIsoForPickup ? nextAvailablePickupDate : val;
+                              pickupDateTouchedRef.current = true;
                               setMenuCheckoutForm((old) => ({ ...old, pickup_date: safeDate, pickup_hour: "", pickup_minute: "" }));
                             }}
                           />
@@ -11112,6 +11120,7 @@ export default function App() {
                         const val = e.target.value;
                         // Rifiuta date nel passato (possono essere digitate manualmente)
                         const safeDate = val && val < todayIsoForPickup ? nextAvailablePickupDate : val;
+                        pickupDateTouchedRef.current = true;
                         setMenuCheckoutForm((old) => ({
                           ...old,
                           pickup_date: safeDate,
