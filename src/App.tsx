@@ -397,6 +397,18 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupDayHint: "Data preimpostata su oggi, modificabile",
     pickupDayClosed: "Questo giorno il locale è chiuso. Seleziona un'altra data.",
     pickupNoSlotsToday: "Per oggi non ci sono più orari disponibili. Seleziona un'altra data.",
+    totemSummaryTitle: "Riepilogo ordine",
+    totemPickupWhen: "Quando vuoi ritirare il tuo ordine?",
+    totemPickupNow: "Ritira ora",
+    totemPickupLater: "Ritira più tardi",
+    totemPickupTimeTitle: "Scegli orario di ritiro",
+    pickupLabel: "Ritiro",
+    edit: "Modifica",
+    allergenTapLead: "Tocca gli allergeni sui piatti a cui fare attenzione:",
+    allergenCheckoutLead: "Indica a quali piatti fare attenzione per ciascun allergene:",
+    totemOrderSentTitle: "Ordine inviato!",
+    totemOrderSentSub: "Il tuo ordine è stato ricevuto ed è in preparazione.",
+    totemOrderSentReset: "Torna al menù tra pochi secondi…",
     selectHour: "Seleziona ora",
     selectMinutes: "Seleziona minuti",
     pickupAsapLabel: "Appena possibile",
@@ -599,6 +611,18 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupDayHint: "Today by default, editable",
     pickupDayClosed: "The restaurant is closed on this day. Please choose another date.",
     pickupNoSlotsToday: "No more pickup times available today. Please choose another date.",
+    totemSummaryTitle: "Order summary",
+    totemPickupWhen: "When do you want to pick up your order?",
+    totemPickupNow: "Pick up now",
+    totemPickupLater: "Pick up later",
+    totemPickupTimeTitle: "Choose pickup time",
+    pickupLabel: "Pickup",
+    edit: "Edit",
+    allergenTapLead: "Tap the allergens on the dishes to watch out for:",
+    allergenCheckoutLead: "Mark which dishes need attention for each allergen:",
+    totemOrderSentTitle: "Order sent!",
+    totemOrderSentSub: "Your order has been received and is being prepared.",
+    totemOrderSentReset: "Back to the menu in a few seconds…",
     selectHour: "Select hour",
     selectMinutes: "Select minutes",
     pickupAsapLabel: "As soon as possible",
@@ -802,6 +826,18 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupDayHint: "Heute voreingestellt, änderbar",
     pickupDayClosed: "An diesem Tag ist das Lokal geschlossen. Bitte wähle ein anderes Datum.",
     pickupNoSlotsToday: "Für heute sind keine Uhrzeiten mehr verfügbar. Bitte wähle ein anderes Datum.",
+    totemSummaryTitle: "Bestellübersicht",
+    totemPickupWhen: "Wann möchtest du deine Bestellung abholen?",
+    totemPickupNow: "Jetzt abholen",
+    totemPickupLater: "Später abholen",
+    totemPickupTimeTitle: "Abholzeit wählen",
+    pickupLabel: "Abholung",
+    edit: "Bearbeiten",
+    allergenTapLead: "Tippe auf die Allergene der Gerichte, auf die geachtet werden soll:",
+    allergenCheckoutLead: "Gib an, bei welchen Gerichten auf welche Allergene zu achten ist:",
+    totemOrderSentTitle: "Bestellung gesendet!",
+    totemOrderSentSub: "Deine Bestellung ist eingegangen und wird zubereitet.",
+    totemOrderSentReset: "In wenigen Sekunden geht's zurück zum Menü…",
     selectHour: "Stunde wählen",
     selectMinutes: "Minuten wählen",
     pickupAsapLabel: "So schnell wie möglich",
@@ -1003,6 +1039,18 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupDayHint: "Fecha de hoy predefinida, editable",
     pickupDayClosed: "El local está cerrado ese día. Selecciona otra fecha.",
     pickupNoSlotsToday: "Hoy ya no quedan horarios disponibles. Selecciona otra fecha.",
+    totemSummaryTitle: "Resumen del pedido",
+    totemPickupWhen: "¿Cuándo quieres recoger tu pedido?",
+    totemPickupNow: "Recoger ahora",
+    totemPickupLater: "Recoger más tarde",
+    totemPickupTimeTitle: "Elige la hora de recogida",
+    pickupLabel: "Recogida",
+    edit: "Editar",
+    allergenTapLead: "Toca los alérgenos de los platos a los que prestar atención:",
+    allergenCheckoutLead: "Indica en qué platos hay que prestar atención a cada alérgeno:",
+    totemOrderSentTitle: "¡Pedido enviado!",
+    totemOrderSentSub: "Tu pedido se ha recibido y está en preparación.",
+    totemOrderSentReset: "Vuelta al menú en unos segundos…",
     selectHour: "Selecciona hora",
     selectMinutes: "Selecciona minutos",
     pickupAsapLabel: "Lo antes posible",
@@ -1202,6 +1250,18 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupDayHint: "Aujourd'hui par défaut, modifiable",
     pickupDayClosed: "L'établissement est fermé ce jour-là. Veuillez choisir une autre date.",
     pickupNoSlotsToday: "Plus d'horaires disponibles aujourd'hui. Veuillez choisir une autre date.",
+    totemSummaryTitle: "Récapitulatif de la commande",
+    totemPickupWhen: "Quand veux-tu retirer ta commande ?",
+    totemPickupNow: "Retirer maintenant",
+    totemPickupLater: "Retirer plus tard",
+    totemPickupTimeTitle: "Choisis l'heure de retrait",
+    pickupLabel: "Retrait",
+    edit: "Modifier",
+    allergenTapLead: "Touche les allergènes des plats à surveiller :",
+    allergenCheckoutLead: "Indique les plats à surveiller pour chaque allergène :",
+    totemOrderSentTitle: "Commande envoyée !",
+    totemOrderSentSub: "Ta commande a été reçue et est en préparation.",
+    totemOrderSentReset: "Retour au menu dans quelques secondes…",
     selectHour: "Choisir l'heure",
     selectMinutes: "Choisir les minutes",
     pickupAsapLabel: "Dès que possible",
@@ -1399,6 +1459,18 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupDayHint: "默认今天，可修改",
     pickupDayClosed: "该日期本店休息，请选择其他日期。",
     pickupNoSlotsToday: "今天已没有可选时间，请选择其他日期。",
+    totemSummaryTitle: "订单摘要",
+    totemPickupWhen: "您想什么时候取餐？",
+    totemPickupNow: "立即取餐",
+    totemPickupLater: "稍后取餐",
+    totemPickupTimeTitle: "选择取餐时间",
+    pickupLabel: "取餐",
+    edit: "修改",
+    allergenTapLead: "点击需要注意的菜品过敏原：",
+    allergenCheckoutLead: "标出每种过敏原需要注意的菜品：",
+    totemOrderSentTitle: "订单已发送！",
+    totemOrderSentSub: "您的订单已收到，正在准备中。",
+    totemOrderSentReset: "几秒后返回菜单…",
     selectHour: "选择小时",
     selectMinutes: "选择分钟",
     pickupAsapLabel: "尽快",
@@ -1594,6 +1666,18 @@ const UI_TEXT: Record<UiLanguage, Record<string, string>> = {
     pickupDayHint: "今日がデフォルト、変更可能",
     pickupDayClosed: "この日は定休日です。別の日付を選択してください。",
     pickupNoSlotsToday: "本日は選択できる時間がありません。別の日付を選択してください。",
+    totemSummaryTitle: "注文内容の確認",
+    totemPickupWhen: "いつ注文を受け取りますか？",
+    totemPickupNow: "今すぐ受け取る",
+    totemPickupLater: "後で受け取る",
+    totemPickupTimeTitle: "受け取り時間を選択",
+    pickupLabel: "受け取り",
+    edit: "変更",
+    allergenTapLead: "注意が必要な料理のアレルゲンをタップしてください：",
+    allergenCheckoutLead: "各アレルゲンについて注意が必要な料理を選択してください：",
+    totemOrderSentTitle: "注文が送信されました！",
+    totemOrderSentSub: "ご注文を受け付けました。準備中です。",
+    totemOrderSentReset: "数秒後にメニューへ戻ります…",
     selectHour: "時間を選択",
     selectMinutes: "分を選択",
     pickupAsapLabel: "できるだけ早く",
@@ -9028,9 +9112,9 @@ export default function App() {
         <div className="totem-order-success-overlay">
           <div className="totem-order-success-card">
             <div className="totem-order-success-icon" aria-hidden="true">✓</div>
-            <h2>Ordine inviato!</h2>
-            <p>Il tuo ordine è stato ricevuto ed è in preparazione.</p>
-            <p className="totem-order-success-reset">Torna al menù tra pochi secondi…</p>
+            <h2>{t("totemOrderSentTitle")}</h2>
+            <p>{t("totemOrderSentSub")}</p>
+            <p className="totem-order-success-reset">{t("totemOrderSentReset")}</p>
           </div>
         </div>
       )}
@@ -10827,7 +10911,7 @@ export default function App() {
           <div className="checkout-hero">
             <div className="container">
               <p className="section-kicker">Totem</p>
-              <h2>Riepilogo ordine</h2>
+              <h2>{t("totemSummaryTitle")}</h2>
             </div>
           </div>
           <div className="container section-padding checkout-flow">
@@ -10860,19 +10944,19 @@ export default function App() {
                     {/* Step 1: scelta ritiro ora / più tardi */}
                     {totemPickupChoice === null && (
                       <div className="totem-pickup-choice">
-                        <h3>Quando vuoi ritirare il tuo ordine?</h3>
+                        <h3>{t("totemPickupWhen")}</h3>
                         <div className="totem-pickup-choice-btns">
                           <button
                             className="cta big totem-pickup-btn"
                             onClick={() => setTotemPickupChoice("now")}
                           >
-                            Ritira ora
+                            {t("totemPickupNow")}
                           </button>
                           <button
                             className="cta big totem-pickup-btn totem-pickup-btn--later"
                             onClick={() => setTotemPickupChoice("later")}
                           >
-                            Ritira più tardi
+                            {t("totemPickupLater")}
                           </button>
                         </div>
                         <button className="checkout-back-btn" onClick={goToMenuPage}>
@@ -10884,9 +10968,9 @@ export default function App() {
                     {/* Step 2a: selezione orario (solo se "più tardi") */}
                     {totemPickupChoice === "later" && (
                       <div className="totem-later-time">
-                        <h3>Scegli orario di ritiro</h3>
+                        <h3>{t("totemPickupTimeTitle")}</h3>
                         <div className="checkout-date-row">
-                          <label htmlFor="totem-pickup-date">Giorno</label>
+                          <label htmlFor="totem-pickup-date">{t("pickupDay")}</label>
                           <input
                             id="totem-pickup-date"
                             type="date"
@@ -10923,7 +11007,7 @@ export default function App() {
                           className="checkout-back-btn"
                           onClick={() => setTotemPickupChoice(null)}
                         >
-                          Indietro
+                          {t("back")}
                         </button>
                       </div>
                     )}
@@ -10936,9 +11020,9 @@ export default function App() {
                       <>
                         {totemPickupChoice === "later" && (
                           <p className="totem-later-summary">
-                            Ritiro: <strong>{formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} {menuCheckoutForm.pickup_hour}:{menuCheckoutForm.pickup_minute}</strong>
+                            {t("pickupLabel")}: <strong>{formatDateDdMmYyyy(menuCheckoutForm.pickup_date)} {menuCheckoutForm.pickup_hour}:{menuCheckoutForm.pickup_minute}</strong>
                             <button className="totem-later-edit-btn" onClick={() => setMenuCheckoutForm((old) => ({ ...old, pickup_hour: "", pickup_minute: "" }))}>
-                              Modifica
+                              {t("edit")}
                             </button>
                           </p>
                         )}
@@ -10960,7 +11044,7 @@ export default function App() {
                           />
                           {totemPickupChoice === "later" && (
                             <input
-                              placeholder="Telefono *"
+                              placeholder={`${t("phonePlaceholder")} *`}
                               value={menuCheckoutForm.phone}
                               readOnly
                               className={totemKbField === "phone" ? "totem-kb-active-input" : ""}
@@ -10982,8 +11066,8 @@ export default function App() {
                         </label>
                         {publicExcludedAllergens.length > 0 && (
                           <div className="checkout-dish-allergens">
-                            <h4>Allergeni per piatto</h4>
-                            <p className="checkout-dish-allergens__lead muted">Tocca gli allergeni sui piatti a cui fare attenzione:</p>
+                            <h4>{t("allergenPerDishTitle")}</h4>
+                            <p className="checkout-dish-allergens__lead muted">{t("allergenTapLead")}</p>
                             {orderItemsList.map((item) => (
                               <div key={item.id} className="dish-allergen-row">
                                 <span className="dish-allergen-row__name">{item.name}</span>
@@ -11025,7 +11109,7 @@ export default function App() {
                         </button>
                         {totemPickupChoice === "now" && (
                           <button className="checkout-back-btn" onClick={() => setTotemPickupChoice(null)} disabled={saving}>
-                            Indietro
+                            {t("back")}
                           </button>
                         )}
                       </>
@@ -11296,8 +11380,8 @@ export default function App() {
                     if (relevantAllergens.length === 0) return null;
                     return (
                       <div className="checkout-dish-allergens">
-                        <h4>Allergeni per piatto</h4>
-                        <p className="checkout-dish-allergens__lead muted">Indica a quali piatti fare attenzione per ciascun allergene:</p>
+                        <h4>{t("allergenPerDishTitle")}</h4>
+                        <p className="checkout-dish-allergens__lead muted">{t("allergenCheckoutLead")}</p>
                         {orderItemsList.map((item) => (
                           <div key={item.id} className="dish-allergen-row">
                             <span className="dish-allergen-row__name">{item.name}</span>
