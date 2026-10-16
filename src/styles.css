@@ -4240,6 +4240,23 @@ textarea {
   justify-content: center;
 }
 
+/* Variante leggera dell'overlay: blocca i tap durante gli invii pubblici
+   (ordine, ingresso tavolo) lasciando intravedere la pagina sotto. */
+.action-pending-overlay {
+  background: rgba(248, 250, 252, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.btn-inline-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  vertical-align: middle;
+}
+
 @keyframes page-spin {
   to {
     transform: rotate(360deg);

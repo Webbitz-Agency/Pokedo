@@ -3102,6 +3102,15 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [homeHeroSlide, setHomeHeroSlide] = useState(0);
   const [saving, setSaving] = useState(false);
+  // Overlay di attesa per le azioni pubbliche (ingresso tavolo, invio ordine):
+  // blocca i tap ripetuti finché la richiesta non è conclusa.
+  const [publicActionPending, setPublicActionPending] = useState(false);
+  const [tableValidating, setTableValidating] = useState(false);
+
+  function setPublicSaving(on: boolean) {
+    setSaving(on);
+    setPublicActionPending(on);
+  }
 
   // ── Totem mode ──────────────────────────────────────────────────────────────
   const [isTotemLoggedIn, setIsTotemLoggedIn] = useState<boolean>(() => {
@@ -3501,6 +3510,7 @@ export default function App() {
     const tableFromPath = getTableNumberFromPath(window.location.pathname);
     if (!tableFromPath) {
       setTableOrderNumber(null);
+      setTableValidating(false);
       return;
     }
     let cancelled = false;
@@ -3510,9 +3520,11 @@ export default function App() {
     const codeToTry = codeFromUrl;
     if (!codeToTry) {
       setTableOrderNumber(null);
+      setTableValidating(false);
       goTo("/menu");
       return;
     }
+    setTableValidating(true);
     (async () => {
       try {
         await publicApi.validateTableAccess({ table_number: tableFromPath, access_code: codeToTry });
@@ -3534,6 +3546,8 @@ export default function App() {
           // noop
         }
         goTo("/menu");
+      } finally {
+        if (!cancelled) setTableValidating(false);
       }
     })();
     return () => {
@@ -6919,7 +6933,7 @@ export default function App() {
       setTableAccessRevoked(true);
       return;
     }
-    setSaving(true);
+    setPublicSaving(true);
     try {
       const tableDishAllergenParts = orderItemsList
         .filter((item) => (dishAllergenMap[item.id] ?? []).length > 0)
@@ -6967,7 +6981,7 @@ export default function App() {
         showSettingsNotice("error", e instanceof Error ? e.message : "Errore invio ordine tavolo");
       }
     } finally {
-      setSaving(false);
+      setPublicSaving(false);
     }
   }
 
@@ -6978,7 +6992,7 @@ export default function App() {
     const guestNames = [guestName];
     const accessCode = getCurrentTableAccessCode();
     if (!accessCode) return;
-    setSaving(true);
+    setPublicSaving(true);
     try {
       const result = (await publicApi.joinTable({
         table_number: tableOrderNumber,
@@ -7023,7 +7037,7 @@ export default function App() {
         }
       }
     } finally {
-      setSaving(false);
+      setPublicSaving(false);
     }
   }
 
@@ -7107,7 +7121,7 @@ export default function App() {
           ? "Prima possibile"
           : `${menuCheckoutForm.pickup_hour}:${menuCheckoutForm.pickup_minute}`)
       : null;
-    setSaving(true);
+    setPublicSaving(true);
     try {
       const customerAllergenCodes = menuCheckoutForm.customer_allergen_codes.slice().sort((a, b) => a - b);
       const customerAllergenLabels = customerAllergenCodes.map((code) => getAllergenTitleByCode(code));
@@ -7172,14 +7186,14 @@ export default function App() {
     } catch (e: unknown) {
       showSettingsNotice("error", e instanceof Error ? e.message : "Errore invio ordine totem");
     } finally {
-      setSaving(false);
+      setPublicSaving(false);
     }
   }
 
   async function submitCheckoutOrder() {
     if (orderItemsList.length === 0) return;
     const customerName = `${menuCheckoutForm.first_name} ${menuCheckoutForm.last_name}`.trim();
-    setSaving(true);
+    setPublicSaving(true);
     try {
       const customerOrderNote = String(menuCheckoutForm.order_note || "").trim();
       const customerAllergenCodes = menuCheckoutForm.customer_allergen_codes.slice().sort((a, b) => a - b);
@@ -7257,7 +7271,7 @@ export default function App() {
     } catch (e: unknown) {
       setMenuCheckoutMessage(e instanceof Error ? e.message : t("orderSendError"));
     } finally {
-      setSaving(false);
+      setPublicSaving(false);
     }
   }
 
@@ -8818,7 +8832,7 @@ export default function App() {
                 type="submit"
                 disabled={saving || !tableGuestInput.trim()}
               >
-                {t("tableConfirmName")}
+                {saving ? <span className="page-loading-spinner btn-inline-spinner" aria-hidden="true" /> : t("tableConfirmName")}
               </button>
             </form>
           </article>
@@ -9296,6 +9310,8 @@ export default function App() {
                 <img
                   src={resolveMediaSrc(appSettings.site.about_image_url || DEFAULT_APP_SETTINGS.site.about_image_url)}
                     alt="Pokè signature"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
               <article className="about-text about-reveal-right">
@@ -9599,7 +9615,7 @@ export default function App() {
                           <div className="size-card-surface">
                             <div className="size-card-photo-wrap">
                               {sizeImgSrc ? (
-                                <img src={sizeImgSrc} alt="" className="size-card-photo-img" />
+                                <img src={sizeImgSrc} alt="" className="size-card-photo-img" loading="lazy" decoding="async" />
                               ) : (
                                 <div className="size-card-photo-placeholder" aria-hidden />
                               )}
@@ -9664,7 +9680,7 @@ export default function App() {
                         aria-label={`Apri info ${item.name}`}
                       >
                         {item.image_url ? (
-                            <img src={resolveMediaSrc(item.image_url)} alt={item.name} className="menu-dish-thumb-img" />
+                            <img src={resolveMediaSrc(item.image_url)} alt={item.name} className="menu-dish-thumb-img" loading="lazy" decoding="async" />
                         ) : (
                           <span className="menu-dish-thumb-fallback">IMG</span>
                         )}
@@ -10176,7 +10192,7 @@ export default function App() {
                               <div className="size-card-surface">
                                 <div className="size-card-photo-wrap">
                                   {sizeImgSrc ? (
-                                    <img src={sizeImgSrc} alt="" className="size-card-photo-img" />
+                                    <img src={sizeImgSrc} alt="" className="size-card-photo-img" loading="lazy" decoding="async" />
                                   ) : (
                                     <div className="size-card-photo-placeholder" aria-hidden />
                                   )}
@@ -11486,7 +11502,7 @@ export default function App() {
                   </button>
                 ) : (
                   <button className="cta" onClick={submitCheckoutOrder} disabled={saving || orderItemsList.length === 0}>
-                    {t("sendOrder")}
+                    {saving ? <span className="page-loading-spinner btn-inline-spinner" aria-hidden="true" /> : t("sendOrder")}
                   </button>
                 )}
               </div>
@@ -12534,6 +12550,15 @@ export default function App() {
               {t("sendOrder")}
             </button>
           </article>
+        </div>
+      )}
+      {(tableValidating || publicActionPending) && (
+        <div
+          className={tableValidating ? "page-loading-overlay" : "page-loading-overlay action-pending-overlay"}
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <span className="page-loading-spinner page-loading-spinner-lg" aria-hidden="true" />
         </div>
       )}
     </div>
